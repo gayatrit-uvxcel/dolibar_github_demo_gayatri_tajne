@@ -2441,7 +2441,7 @@ function get_left_menu_members($mainmenu, &$newmenu, $usemenuhider = 1, $leftmen
 			// Load translation files required by the page
 			$langs->loadLangs(array("members", "compta"));
 
-			$newmenu->add("/adherents/index.php?leftmenu=members&amp;mainmenu=members", $langs->trans("Members"), 0, $user->hasRight('adherent', 'read'), '', $mainmenu, 'members', 0, '', '', '', img_picto('', 'member', 'class="paddingright pictofixedwidth"'));
+			$newmenu->add("/adherents/index.php?leftmenu=members&amp;mainmenu=members", $langs->trans("Member"), 0, $user->hasRight('adherent', 'read'), '', $mainmenu, 'members', 0, '', '', '', img_picto('', 'member', 'class="paddingright pictofixedwidth"'));
 			$newmenu->add("/adherents/card.php?leftmenu=members&amp;action=create", $langs->trans("NewMember"), 1, $user->hasRight('adherent', 'write'));
 			$newmenu->add("/adherents/list.php?leftmenu=members", $langs->trans("List"), 1, $user->hasRight('adherent', 'read'));
 			$newmenu->add("/adherents/list.php?leftmenu=members&amp;statut=-1", $langs->trans("MenuMembersToValidate"), 2, $user->hasRight('adherent', 'read'));

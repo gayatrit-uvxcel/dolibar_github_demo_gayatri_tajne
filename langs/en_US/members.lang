@@ -1,8 +1,8 @@
 # Dolibarr language file - Source file is en_US - members
-MembersArea=Members area
+MembersArea=FVA-CRM-Members area
 MemberCard=Member card
 SubscriptionCard=Subscription card
-Member=Member
+Member=Members
 Members=FVA-CRM-Members
 NoRecordedMembers=No recorded members
 NoRecordedMembersByType=No recorded members
