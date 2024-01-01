@@ -1,0 +1,37 @@
+# Dolibarr language file - Source file is en_US - paypal
+PaypalSetup=貝寶模塊設置
+PaypalDesc=此模塊允許客戶通過 <span class='notranslate'><a href="https://www.paypal.com" target="_blank" rel="noopener noreferrer external"></span> 付款\n 貝寶 </a> 。這可用於臨時付款或與 Dolibarr 對象（發票、訂單等）相關的付款
+PaypalOrCBDoPayment=使用 PayPal 付款（銀行卡或 PayPal）
+PaypalDoPayment=使用貝寶支付
+PAYPAL_API_SANDBOX=模式測試/沙箱
+PAYPAL_API_USER=接口用戶名
+PAYPAL_API_PASSWORD=接口密碼
+PAYPAL_API_SIGNATURE=API簽名
+PAYPAL_SSLVERSION=Curl SSL Version
+PAYPAL_API_INTEGRAL_OR_PAYPALONLY=提供“積分”付款（信用卡+PayPal）或僅“PayPal”
+PaypalModeIntegral=不可缺少的
+PaypalModeOnlyPaypal=僅限貝寶
+ONLINE_PAYMENT_CSS_URL=Optional URL of CSS stylesheet on online payment page
+ThisIsTransactionId=這是交易 ID：<b> %s </b> 
+PAYPAL_ADD_PAYMENT_URL=通過電子郵件發送文檔時包含 PayPal 付款網址
+NewOnlinePaymentReceived=New online payment received
+NewOnlinePaymentFailed=New online payment tried but failed
+ONLINE_PAYMENT_SENDEMAIL=Email address for notifications after each payment attempt (for success and fail)
+ReturnURLAfterPayment=支付後返回網址
+ValidationOfOnlinePaymentFailed=Validation of online payment failed
+PaymentSystemConfirmPaymentPageWasCalledButFailed=Payment confirmation page was called by payment system returned an error
+SetExpressCheckoutAPICallFailed=SetExpressCheckout API call failed.
+DoExpressCheckoutPaymentAPICallFailed=DoExpressCheckoutPayment API call failed.
+DetailedErrorMessage=Detailed Error Message
+ShortErrorMessage=Short Error Message
+ErrorCode=Error Code
+ErrorSeverityCode=Error Severity Code
+OnlinePaymentSystem=Online payment system
+PaypalLiveEnabled=PayPal "live" mode enabled (otherwise test/sandbox mode)
+PaypalImportPayment=Import PayPal payments
+PostActionAfterPayment=Post actions after payments
+ARollbackWasPerformedOnPostActions=A rollback was performed on all Post actions. You must complete post actions manually if they are necessary.
+ValidationOfPaymentFailed=Validation of payment has failed
+CardOwner=Card holder
+PayPalBalance=Paypal credit
+OnlineSubscriptionPaymentLine=Online subscription recorded on %s<br>Paid via %s<br>Originating IP address: %s<br>Transaction ID: %s
