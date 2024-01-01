@@ -666,7 +666,8 @@ class CommandeFournisseur extends CommonOrder
         dol_syslog(get_class($this) . "::valid");
         $result = 0;
         if ((empty($conf->global->MAIN_USE_ADVANCED_PERMS) && ($user->hasRight("fournisseur", "commande", "creer") || $user->hasRight("supplier_order", "creer")))
-            || (!empty($conf->global->MAIN_USE_ADVANCED_PERMS) && $user->hasRight("fournisseur", "supplier_order_advance", "validate"))) {
+            || (!empty($conf->global->MAIN_USE_ADVANCED_PERMS) && $user->hasRight("fournisseur", "supplier_order_advance", "validate"))
+        ) {
             $this->db->begin();
 
             // Definition of supplier order numbering model name
@@ -683,6 +684,7 @@ class CommandeFournisseur extends CommonOrder
 
             $sql = 'UPDATE ' . MAIN_DB_PREFIX . "commande_fournisseur";
             $sql .= " SET ref='" . $this->db->escape($num) . "',";
+            $sql .= " po_no='" . $this->db->escape($num) . "',";
             $sql .= " fk_statut = " . self::STATUS_VALIDATED . ",";
             $sql .= " date_valid='" . $this->db->idate(dol_now()) . "',";
             $sql .= " fk_user_valid = " . ((int) $user->id);
@@ -1479,6 +1481,7 @@ class CommandeFournisseur extends CommonOrder
         $sql .= ", vendor_no";
         $sql .= ", quote_no";
         $sql .= ", vat_no";
+        $sql .= ", po_no";
         $sql .= ") ";
         $sql .= " VALUES (";
         $sql .= "'(PROV)'";
@@ -1501,7 +1504,7 @@ class CommandeFournisseur extends CommonOrder
         $sql .= ", '" . $this->db->escape($this->location_incoterms) . "'";
         $sql .= ", " . (int) $this->fk_multicurrency;
         $sql .= ", '" . $this->db->escape($this->multicurrency_code) . "'";
-        $sql .= ", " . (double) $this->multicurrency_tx;
+        $sql .= ", " . (float) $this->multicurrency_tx;
         $sql .= ", " . ($this->contact_person ? "'" . $this->db->escape($this->contact_person) . "'" : "null");
         $sql .= ", " . ($this->company_name ? "'" . $this->db->escape($this->company_name) . "'" : "null");
         $sql .= ", " . ($this->cell ? "'" . $this->db->escape($this->cell) . "'" : "null");
@@ -1511,6 +1514,7 @@ class CommandeFournisseur extends CommonOrder
         $sql .= ", " . ($this->vendor_no ? "'" . $this->db->escape($this->vendor_no) . "'" : "null");
         $sql .= ", " . ($this->quote_no ? "'" . $this->db->escape($this->quote_no) . "'" : "null");
         $sql .= ", " . ($this->vat_no ? "'" . $this->db->escape($this->vat_no) . "'" : "null");
+        $sql .= ", '(PROV)'";
         $sql .= ")";
 
         dol_syslog(get_class($this) . "::create", LOG_DEBUG);
@@ -1560,13 +1564,14 @@ class CommandeFournisseur extends CommonOrder
                 }
 
                 $sql = "UPDATE " . MAIN_DB_PREFIX . "commande_fournisseur";
-                $sql .= " SET ref='(PROV" . $this->id . ")'";
+                $sql .= " SET ref='(PROV" . $this->id . ")',po_no='(PROV" . $this->id . ")' ";
                 $sql .= " WHERE rowid=" . ((int) $this->id);
                 dol_syslog(get_class($this) . "::create", LOG_DEBUG);
                 if ($this->db->query($sql)) {
                     // Add link with price request and supplier order
                     if ($this->id) {
                         $this->ref = "(PROV" . $this->id . ")";
+                        $this->po_no = "(PROV" . $this->id . ")";
 
                         if (!empty($this->linkedObjectsIds) && empty($this->linked_objects)) { // To use new linkedObjectsIds instead of old linked_objects
                             $this->linked_objects = $this->linkedObjectsIds; // TODO Replace linked_objects with linkedObjectsIds

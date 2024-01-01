@@ -1155,6 +1155,7 @@ class Propal extends CommonObject
 		$sql .= ", po_no";
 		$sql .= ", vat_no";
 		$sql .= ", quote_no";
+		$sql .= ", terms_and_conditions ";
 		$sql .= ") ";
 		$sql .= " VALUES (";
 		$sql .= $this->socid;
@@ -1199,6 +1200,7 @@ class Propal extends CommonObject
 		$sql .= ", ".($this->po_no ? "'".$this->db->escape($this->po_no)."'" : "null");
 		$sql .= ", ".($this->vat_no ? "'".$this->db->escape($this->vat_no)."'" : "null");
 		$sql .= ", '(PROV)'";
+		$sql .= ", ".($this->terms_and_conditions  ? "'".$this->db->escape($this->terms_and_conditions )."'" : "null");
 		$sql .= ")";
 
 		dol_syslog(get_class($this)."::create", LOG_DEBUG);
@@ -1209,8 +1211,15 @@ class Propal extends CommonObject
 			if ($this->id) {
 				$this->ref = '(PROV'.$this->id.')';
 				$sql = 'UPDATE '.MAIN_DB_PREFIX."propal SET ref='".$this->db->escape($this->ref)."' WHERE rowid=".((int) $this->id);
-
 				dol_syslog(get_class($this)."::create", LOG_DEBUG);
+				$resql = $this->db->query($sql);
+				if (!$resql) {
+					$error++;
+				}
+				
+
+				$quote_no = '(PROV' . $this->id . ')';
+				$sql = 'UPDATE ' . MAIN_DB_PREFIX . "propal SET quote_no='" . $this->db->escape($quote_no) . "' WHERE rowid=" . ((int) $this->id);
 				$resql = $this->db->query($sql);
 				if (!$resql) {
 					$error++;
@@ -2038,6 +2047,7 @@ class Propal extends CommonObject
 
 		$sql = "UPDATE ".MAIN_DB_PREFIX."propal";
 		$sql .= " SET ref = '".$this->db->escape($num)."',";
+		$sql .= " quote_no = '" . $this->db->escape($num) . "',";
 		$sql .= " fk_statut = ".self::STATUS_VALIDATED.", date_valid='".$this->db->idate($now)."', fk_user_valid=".((int) $user->id);
 		$sql .= " WHERE rowid = ".((int) $this->id)." AND fk_statut = ".self::STATUS_DRAFT;
 

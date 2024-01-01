@@ -459,6 +459,7 @@ if (empty($reshook)) {
                     $object->vendor_no = GETPOST('vendor_no');
                     $object->po_no = GETPOST('po_no');
                     $object->vat_no = GETPOST('vat_no');
+                    $object->terms_and_conditions = GETPOST('terms_and_conditions'); 
                 } else {
                     setEventMessages($langs->trans("ErrorFailedToCopyProposal", GETPOST('copie_propal')), null, 'errors');
                 }
@@ -496,6 +497,8 @@ if (empty($reshook)) {
                 $object->vendor_no = GETPOST('vendor_no');
                 $object->po_no = GETPOST('po_no');
                 $object->vat_no = GETPOST('vat_no');
+                $object->terms_and_conditions = GETPOST('terms_and_conditions');
+
 
                 $object->origin = GETPOST('origin');
                 $object->origin_id = GETPOST('originid');
@@ -2050,6 +2053,18 @@ if ($action == 'create') {
             print '<tr><td>' . $langs->trans('Vat No:') . '</td><td colspan="2">';
             print '<input type="text" id="vat_no" name="vat_no" value="' . dol_escape_htmltag(!empty($conf->global->MAIN_INFO_TVAINTRA) ? $conf->global->MAIN_INFO_TVAINTRA : '') . '"  />';
             print '</td></tr>';
+
+            print '<tr><td class="tdtop">';
+			print $form->editfieldkey('Terms and Conditions:', 'address', '', $object, 0);
+			print '</td>';
+			print '<td colspan="3">';
+			print '<textarea name="terms_and_conditions" id="terms_and_conditions" class="quatrevingtpercent" rows="'.ROWS_2.'" wrap="soft">';
+			// print dol_escape_htmltag($object->address, 0, 1);
+			print '</textarea>';
+			// print $form->widgetForTranslation("address", $object, $permissiontoadd, 'textarea', 'alphanohtml', 'quatrevingtpercent');
+			print '</td></tr>';
+
+
         }
 
     }
