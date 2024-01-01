@@ -3,6 +3,7 @@ MOs=Manufacturing orders
 ManufacturingOrder=Manufacturing Order
 MRPDescription=Module to manage production and Manufacturing Orders (MO).
 MRPArea=MRP Area
+MRP=FVA-CRM-MRP
 MrpSetupPage=Setup of module MRP
 MenuBOM=Bills of material
 LatestBOMModified=Latest %s Bills of materials modified
