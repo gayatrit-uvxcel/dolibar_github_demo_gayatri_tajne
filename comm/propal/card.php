@@ -459,7 +459,7 @@ if (empty($reshook)) {
                     $object->vendor_no = GETPOST('vendor_no');
                     $object->po_no = GETPOST('po_no');
                     $object->vat_no = GETPOST('vat_no');
-                    $object->terms_and_conditions = GETPOST('terms_and_conditions'); 
+                    $object->terms_and_conditions = GETPOST('terms_and_conditions');
                 } else {
                     setEventMessages($langs->trans("ErrorFailedToCopyProposal", GETPOST('copie_propal')), null, 'errors');
                 }
@@ -498,7 +498,6 @@ if (empty($reshook)) {
                 $object->po_no = GETPOST('po_no');
                 $object->vat_no = GETPOST('vat_no');
                 $object->terms_and_conditions = GETPOST('terms_and_conditions');
-
 
                 $object->origin = GETPOST('origin');
                 $object->origin_id = GETPOST('originid');
@@ -1992,7 +1991,7 @@ if ($action == 'create') {
         </script>';
 
         if ($projectid > 0) {
-			
+
             $sql_llx_societe = "SELECT * FROM " . MAIN_DB_PREFIX . "societe WHERE rowid = $socid";
             $res_llx_societe = $db->query($sql_llx_societe);
 
@@ -2055,15 +2054,27 @@ if ($action == 'create') {
             print '</td></tr>';
 
             print '<tr><td class="tdtop">';
-			print $form->editfieldkey('Terms and Conditions:', 'address', '', $object, 0);
-			print '</td>';
-			print '<td colspan="3">';
-			print '<textarea name="terms_and_conditions" id="terms_and_conditions" class="quatrevingtpercent" rows="'.ROWS_2.'" wrap="soft">';
-			// print dol_escape_htmltag($object->address, 0, 1);
-			print '</textarea>';
-			// print $form->widgetForTranslation("address", $object, $permissiontoadd, 'textarea', 'alphanohtml', 'quatrevingtpercent');
-			print '</td></tr>';
+            print $form->editfieldkey('Terms and Conditions:', 'address', '', $object, 0);
+            print '</td>';
+            print '<td colspan="3">';
+            // print '<textarea name="terms_and_conditions" id="terms_and_conditions" class="quatrevingtpercent" rows="' . ROWS_2 . '" wrap="soft">';
+            // // print dol_escape_htmltag($object->address, 0, 1);
+            // print '</textarea>';
+            print '<select name="terms_and_conditions" multiple id="terms_and_conditions" class="flat maxwidth500 widthcentpercentminusxx minwidth100" style="width: 100%; padding: 8px; font-size: 16px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; margin-bottom: 10px; overflow: auto;">';
+            $sql_llx_terms_conditions = "SELECT tc_content FROM " . MAIN_DB_PREFIX . "terms_conditions WHERE category_name='Quotation'";
+            $res_llx_terms_conditions = $db->query($sql_llx_terms_conditions);
 
+            if ($res_llx_terms_conditions) {
+                while ($row = $db->fetch_object($res_llx_terms_conditions)) {
+                    $tc_content = htmlspecialchars($row->tc_content); // Sanitize content for HTML output
+                    print "<option value='$tc_content'>$tc_content</option>";
+                }
+            } else {
+                echo "Error executing llx_projet query: " . $db->lasterror();
+            }
+            print '</select>';
+            // print $form->widgetForTranslation("address", $object, $permissiontoadd, 'textarea', 'alphanohtml', 'quatrevingtpercent');
+            print '</td></tr>';
 
         }
 
