@@ -2599,6 +2599,7 @@ if ($action == 'create') {
 
     dol_banner_tab($object, 'ref', $linkback, 1, 'ref', 'ref', $morehtmlref);
 
+    // display particular quote info
     print '<div class="fichecenter">';
     print '<div class="fichehalfleft">';
     print '<div class="underbanner clearboth"></div>';
@@ -2606,29 +2607,29 @@ if ($action == 'create') {
     print '<table class="border tableforfield centpercent">';
 
     // Link for thirdparty discounts
-    if (!empty($conf->global->FACTURE_DEPOSITS_ARE_JUST_PAYMENTS)) {
-        $filterabsolutediscount = "fk_facture_source IS NULL"; // If we want deposit to be substracted to payments only and not to total of final invoice
-        $filtercreditnote = "fk_facture_source IS NOT NULL"; // If we want deposit to be substracted to payments only and not to total of final invoice
-    } else {
-        $filterabsolutediscount = "fk_facture_source IS NULL OR (description LIKE '(DEPOSIT)%' AND description NOT LIKE '(EXCESS RECEIVED)%')";
-        $filtercreditnote = "fk_facture_source IS NOT NULL AND (description NOT LIKE '(DEPOSIT)%' OR description LIKE '(EXCESS RECEIVED)%')";
-    }
+    // if (!empty($conf->global->FACTURE_DEPOSITS_ARE_JUST_PAYMENTS)) {
+    //     $filterabsolutediscount = "fk_facture_source IS NULL"; // If we want deposit to be substracted to payments only and not to total of final invoice
+    //     $filtercreditnote = "fk_facture_source IS NOT NULL"; // If we want deposit to be substracted to payments only and not to total of final invoice
+    // } else {
+    //     $filterabsolutediscount = "fk_facture_source IS NULL OR (description LIKE '(DEPOSIT)%' AND description NOT LIKE '(EXCESS RECEIVED)%')";
+    //     $filtercreditnote = "fk_facture_source IS NOT NULL AND (description NOT LIKE '(DEPOSIT)%' OR description LIKE '(EXCESS RECEIVED)%')";
+    // }
 
-    print '<tr><td class="titlefield">' . $langs->trans('Discounts') . '</td><td>';
+    // print '<tr><td class="titlefield">' . $langs->trans('Discounts') . '</td><td>';
 
-    $absolute_discount = $soc->getAvailableDiscounts('', $filterabsolutediscount);
-    $absolute_creditnote = $soc->getAvailableDiscounts('', $filtercreditnote);
-    $absolute_discount = price2num($absolute_discount, 'MT');
-    $absolute_creditnote = price2num($absolute_creditnote, 'MT');
+    // $absolute_discount = $soc->getAvailableDiscounts('', $filterabsolutediscount);
+    // $absolute_creditnote = $soc->getAvailableDiscounts('', $filtercreditnote);
+    // $absolute_discount = price2num($absolute_discount, 'MT');
+    // $absolute_creditnote = price2num($absolute_creditnote, 'MT');
 
-    $caneditfield = ($object->statut != Propal::STATUS_SIGNED && $object->statut != Propal::STATUS_BILLED);
+    // $caneditfield = ($object->statut != Propal::STATUS_SIGNED && $object->statut != Propal::STATUS_BILLED);
 
-    $thirdparty = $soc;
-    $discount_type = 0;
-    $backtopage = $_SERVER["PHP_SELF"] . '?id=' . $object->id;
-    include DOL_DOCUMENT_ROOT . '/core/tpl/object_discounts.tpl.php';
+    // $thirdparty = $soc;
+    // $discount_type = 0;
+    // $backtopage = $_SERVER["PHP_SELF"] . '?id=' . $object->id;
+    // include DOL_DOCUMENT_ROOT . '/core/tpl/object_discounts.tpl.php';
 
-    print '</td></tr>';
+    // print '</td></tr>';
 
     // Date of proposal
     print '<tr>';
@@ -2699,15 +2700,15 @@ if ($action == 'create') {
     // print '</td></tr>';
 
     // Payment term
-    print '<tr><td>';
-    print '<table class="nobordernopadding" width="100%"><tr><td>';
-    print $langs->trans('PaymentConditionsShort');
-    print '</td>';
-    if ($action != 'editconditions' && $usercancreate && $caneditfield) {
-        print '<td class="right"><a class="editfielda" href="' . $_SERVER["PHP_SELF"] . '?action=editconditions&token=' . newToken() . '&id=' . $object->id . '">' . img_edit($langs->transnoentitiesnoconv('SetConditions'), 1) . '</a></td>';
-    }
-    print '</tr></table>';
-    print '</td><td class="valuefield">';
+    // print '<tr><td>';
+    // print '<table class="nobordernopadding" width="100%"><tr><td>';
+    // print $langs->trans('PaymentConditionsShort');
+    // print '</td>';
+    // if ($action != 'editconditions' && $usercancreate && $caneditfield) {
+    //     print '<td class="right"><a class="editfielda" href="' . $_SERVER["PHP_SELF"] . '?action=editconditions&token=' . newToken() . '&id=' . $object->id . '">' . img_edit($langs->transnoentitiesnoconv('SetConditions'), 1) . '</a></td>';
+    // }
+    // print '</tr></table>';
+    // print '</td><td class="valuefield">';
     if ($action == 'editconditions' && $usercancreate && $caneditfield) {
         $form->form_conditions_reglement($_SERVER['PHP_SELF'] . '?id=' . $object->id, $object->cond_reglement_id, 'cond_reglement_id', 0, '', 1, $object->deposit_percent);
     } else {
@@ -2717,110 +2718,110 @@ if ($action == 'create') {
     print '</tr>';
 
     // Payment mode
-    print '<tr class="field_mode_reglement_id">';
-    print '<td class="titlefieldcreate">';
-    print '<table class="nobordernopadding centpercent"><tr><td>';
-    print $langs->trans('PaymentMode');
-    print '</td>';
-    if ($action != 'editmode' && $usercancreate && $caneditfield) {
-        print '<td class="right"><a class="editfielda" href="' . $_SERVER["PHP_SELF"] . '?action=editmode&token=' . newToken() . '&id=' . $object->id . '">' . img_edit($langs->transnoentitiesnoconv('SetMode'), 1) . '</a></td>';
-    }
-    print '</tr></table>';
-    print '</td><td class="valuefieldcreate">';
+    // print '<tr class="field_mode_reglement_id">';
+    // print '<td class="titlefieldcreate">';
+    // print '<table class="nobordernopadding centpercent"><tr><td>';
+    // print $langs->trans('PaymentMode');
+    // print '</td>';
+    // if ($action != 'editmode' && $usercancreate && $caneditfield) {
+    //     print '<td class="right"><a class="editfielda" href="' . $_SERVER["PHP_SELF"] . '?action=editmode&token=' . newToken() . '&id=' . $object->id . '">' . img_edit($langs->transnoentitiesnoconv('SetMode'), 1) . '</a></td>';
+    // }
+    // print '</tr></table>';
+    // print '</td><td class="valuefieldcreate">';
     if ($action == 'editmode' && $usercancreate && $caneditfield) {
         $form->form_modes_reglement($_SERVER['PHP_SELF'] . '?id=' . $object->id, $object->mode_reglement_id, 'mode_reglement_id', 'CRDT', 1, 1);
     } else {
         $form->form_modes_reglement($_SERVER['PHP_SELF'] . '?id=' . $object->id, $object->mode_reglement_id, 'none');
     }
-    print '</td></tr>';
+    // print '</td></tr>';
 
     // Delivery date
-    $langs->load('deliveries');
-    print '<tr><td>';
-    print $form->editfieldkey($langs->trans('DeliveryDate'), 'date_livraison', $object->delivery_date, $object, $usercancreate && $caneditfield, 'datepicker');
-    print '</td><td class="valuefieldedit">';
-    print $form->editfieldval($langs->trans('DeliveryDate'), 'date_livraison', $object->delivery_date, $object, $usercancreate && $caneditfield, 'datepicker');
-    print '</td>';
-    print '</tr>';
+    // $langs->load('deliveries');
+    // print '<tr><td>';
+    // print $form->editfieldkey($langs->trans('DeliveryDate'), 'date_livraison', $object->delivery_date, $object, $usercancreate && $caneditfield, 'datepicker');
+    // print '</td><td class="valuefieldedit">';
+    // print $form->editfieldval($langs->trans('DeliveryDate'), 'date_livraison', $object->delivery_date, $object, $usercancreate && $caneditfield, 'datepicker');
+    // print '</td>';
+    // print '</tr>';
 
     // Delivery delay
-    print '<tr class="fielddeliverydelay"><td>';
-    print '<table class="nobordernopadding" width="100%"><tr><td>';
-    if (isModEnabled('commande')) {
-        print $form->textwithpicto($langs->trans('AvailabilityPeriod'), $langs->trans('AvailabilityPeriod') . ' (' . $langs->trans('AfterOrder') . ')');
-    } else {
-        print $langs->trans('AvailabilityPeriod');
-    }
-    print '</td>';
-    if ($action != 'editavailability' && $usercancreate && $caneditfield) {
-        print '<td class="right"><a class="editfielda" href="' . $_SERVER["PHP_SELF"] . '?action=editavailability&token=' . newToken() . '&id=' . $object->id . '">' . img_edit($langs->transnoentitiesnoconv('SetAvailability'), 1) . '</a></td>';
-    }
-    print '</tr></table>';
-    print '</td><td class="valuefield">';
-    if ($action == 'editavailability' && $usercancreate && $caneditfield) {
-        $form->form_availability($_SERVER['PHP_SELF'] . '?id=' . $object->id, $object->availability_id, 'availability_id', 1);
-    } else {
-        $form->form_availability($_SERVER['PHP_SELF'] . '?id=' . $object->id, $object->availability_id, 'none', 1);
-    }
+    // print '<tr class="fielddeliverydelay"><td>';
+    // print '<table class="nobordernopadding" width="100%"><tr><td>';
+    // if (isModEnabled('commande')) {
+    //     print $form->textwithpicto($langs->trans('AvailabilityPeriod'), $langs->trans('AvailabilityPeriod') . ' (' . $langs->trans('AfterOrder') . ')');
+    // } else {
+    //     print $langs->trans('AvailabilityPeriod');
+    // }
+    // print '</td>';
+    // if ($action != 'editavailability' && $usercancreate && $caneditfield) {
+    //     print '<td class="right"><a class="editfielda" href="' . $_SERVER["PHP_SELF"] . '?action=editavailability&token=' . newToken() . '&id=' . $object->id . '">' . img_edit($langs->transnoentitiesnoconv('SetAvailability'), 1) . '</a></td>';
+    // }
+    // print '</tr></table>';
+    // print '</td><td class="valuefield">';
+    // if ($action == 'editavailability' && $usercancreate && $caneditfield) {
+    //     $form->form_availability($_SERVER['PHP_SELF'] . '?id=' . $object->id, $object->availability_id, 'availability_id', 1);
+    // } else {
+    //     $form->form_availability($_SERVER['PHP_SELF'] . '?id=' . $object->id, $object->availability_id, 'none', 1);
+    // }
 
-    print '</td>';
-    print '</tr>';
+    // print '</td>';
+    // print '</tr>';
 
     // Shipping Method
-    if (isModEnabled("expedition")) {
-        print '<tr><td>';
-        print '<table class="nobordernopadding centpercent"><tr><td>';
-        print $langs->trans('SendingMethod');
-        print '</td>';
-        if ($action != 'editshippingmethod' && $usercancreate && $caneditfield) {
-            print '<td class="right"><a class="editfielda" href="' . $_SERVER["PHP_SELF"] . '?action=editshippingmethod&token=' . newToken() . '&id=' . $object->id . '">' . img_edit($langs->trans('SetShippingMode'), 1) . '</a></td>';
-        }
-        print '</tr></table>';
-        print '</td><td class="valuefield">';
-        if ($action == 'editshippingmethod' && $usercancreate && $caneditfield) {
-            $form->formSelectShippingMethod($_SERVER['PHP_SELF'] . '?id=' . $object->id, $object->shipping_method_id, 'shipping_method_id', 1);
-        } else {
-            $form->formSelectShippingMethod($_SERVER['PHP_SELF'] . '?id=' . $object->id, $object->shipping_method_id, 'none');
-        }
-        print '</td>';
-        print '</tr>';
-    }
+    // if (isModEnabled("expedition")) {
+    //     print '<tr><td>';
+    //     print '<table class="nobordernopadding centpercent"><tr><td>';
+    //     print $langs->trans('SendingMethod');
+    //     print '</td>';
+    //     if ($action != 'editshippingmethod' && $usercancreate && $caneditfield) {
+    //         print '<td class="right"><a class="editfielda" href="' . $_SERVER["PHP_SELF"] . '?action=editshippingmethod&token=' . newToken() . '&id=' . $object->id . '">' . img_edit($langs->trans('SetShippingMode'), 1) . '</a></td>';
+    //     }
+    //     print '</tr></table>';
+    //     print '</td><td class="valuefield">';
+    //     if ($action == 'editshippingmethod' && $usercancreate && $caneditfield) {
+    //         $form->formSelectShippingMethod($_SERVER['PHP_SELF'] . '?id=' . $object->id, $object->shipping_method_id, 'shipping_method_id', 1);
+    //     } else {
+    //         $form->formSelectShippingMethod($_SERVER['PHP_SELF'] . '?id=' . $object->id, $object->shipping_method_id, 'none');
+    //     }
+    //     print '</td>';
+    //     print '</tr>';
+    // }
 
     // Warehouse
-    if (isModEnabled('stock') && !empty($conf->global->WAREHOUSE_ASK_WAREHOUSE_DURING_PROPAL)) {
-        $langs->load('stocks');
-        require_once DOL_DOCUMENT_ROOT . '/product/class/html.formproduct.class.php';
-        $formproduct = new FormProduct($db);
-        print '<tr class="field_warehouse_id"><td class="titlefieldcreate">';
-        $editenable = $usercancreate;
-        print $form->editfieldkey("Warehouse", 'warehouse', '', $object, $editenable);
-        print '</td><td class="valuefieldcreate">';
-        if ($action == 'editwarehouse') {
-            $formproduct->formSelectWarehouses($_SERVER['PHP_SELF'] . '?id=' . $object->id, $object->warehouse_id, 'warehouse_id', 1);
-        } else {
-            $formproduct->formSelectWarehouses($_SERVER['PHP_SELF'] . '?id=' . $object->id, $object->warehouse_id, 'none');
-        }
-        print '</td>';
-        print '</tr>';
-    }
+    // if (isModEnabled('stock') && !empty($conf->global->WAREHOUSE_ASK_WAREHOUSE_DURING_PROPAL)) {
+    //     $langs->load('stocks');
+    //     require_once DOL_DOCUMENT_ROOT . '/product/class/html.formproduct.class.php';
+    //     $formproduct = new FormProduct($db);
+    //     print '<tr class="field_warehouse_id"><td class="titlefieldcreate">';
+    //     $editenable = $usercancreate;
+    //     print $form->editfieldkey("Warehouse", 'warehouse', '', $object, $editenable);
+    //     print '</td><td class="valuefieldcreate">';
+    //     if ($action == 'editwarehouse') {
+    //         $formproduct->formSelectWarehouses($_SERVER['PHP_SELF'] . '?id=' . $object->id, $object->warehouse_id, 'warehouse_id', 1);
+    //     } else {
+    //         $formproduct->formSelectWarehouses($_SERVER['PHP_SELF'] . '?id=' . $object->id, $object->warehouse_id, 'none');
+    //     }
+    //     print '</td>';
+    //     print '</tr>';
+    // }
 
     // Origin of demand
-    print '<tr><td>';
-    print '<table class="nobordernopadding centpercent"><tr><td>';
-    print $langs->trans('Source');
-    print '</td>';
-    if ($action != 'editdemandreason' && $usercancreate) {
-        print '<td class="right"><a class="editfielda" href="' . $_SERVER["PHP_SELF"] . '?action=editdemandreason&token=' . newToken() . '&id=' . $object->id . '">' . img_edit($langs->transnoentitiesnoconv('SetDemandReason'), 1) . '</a></td>';
-    }
-    print '</tr></table>';
-    print '</td><td class="valuefield">';
-    if ($action == 'editdemandreason' && $usercancreate) {
-        $form->formInputReason($_SERVER['PHP_SELF'] . '?id=' . $object->id, $object->demand_reason_id, 'demand_reason_id', 1);
-    } else {
-        $form->formInputReason($_SERVER['PHP_SELF'] . '?id=' . $object->id, $object->demand_reason_id, 'none');
-    }
-    print '</td>';
-    print '</tr>';
+    // print '<tr><td>';
+    // print '<table class="nobordernopadding centpercent"><tr><td>';
+    // print $langs->trans('Source');
+    // print '</td>';
+    // if ($action != 'editdemandreason' && $usercancreate) {
+    //     print '<td class="right"><a class="editfielda" href="' . $_SERVER["PHP_SELF"] . '?action=editdemandreason&token=' . newToken() . '&id=' . $object->id . '">' . img_edit($langs->transnoentitiesnoconv('SetDemandReason'), 1) . '</a></td>';
+    // }
+    // print '</tr></table>';
+    // print '</td><td class="valuefield">';
+    // if ($action == 'editdemandreason' && $usercancreate) {
+    //     $form->formInputReason($_SERVER['PHP_SELF'] . '?id=' . $object->id, $object->demand_reason_id, 'demand_reason_id', 1);
+    // } else {
+    //     $form->formInputReason($_SERVER['PHP_SELF'] . '?id=' . $object->id, $object->demand_reason_id, 'none');
+    // }
+    // print '</td>';
+    // print '</tr>';
 
     // Multicurrency
     if (isModEnabled("multicurrency")) {

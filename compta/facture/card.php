@@ -4743,14 +4743,14 @@ if ($action == 'create') {
 	// print '</td></tr>';
 
 	// Relative and absolute discounts
-	print '<!-- Discounts -->' . "\n";
-	print '<tr><td>' . $langs->trans('DiscountStillRemaining') . '</td>';
-	print '<td>';
-	$thirdparty = $soc;
-	$discount_type = 0;
-	$backtopage = $_SERVER["PHP_SELF"] . '?facid=' . $object->id;
-	include DOL_DOCUMENT_ROOT . '/core/tpl/object_discounts.tpl.php';
-	print '</td></tr>';
+	// print '<!-- Discounts -->' . "\n";
+	// print '<tr><td>' . $langs->trans('DiscountStillRemaining') . '</td>';
+	// print '<td>';
+	// $thirdparty = $soc;
+	// $discount_type = 0;
+	// $backtopage = $_SERVER["PHP_SELF"] . '?facid=' . $object->id;
+	// include DOL_DOCUMENT_ROOT . '/core/tpl/object_discounts.tpl.php';
+	// print '</td></tr>';
 
 	// Date invoice
 	print '<tr><td>';
@@ -4790,15 +4790,15 @@ if ($action == 'create') {
 	}
 
 	// Payment term
-	print '<tr><td>';
-	print '<table class="nobordernopadding centpercent"><tr><td>';
-	print $langs->trans('PaymentConditionsShort');
-	print '</td>';
-	if ($object->type != Facture::TYPE_CREDIT_NOTE && $action != 'editconditions' && $usercancreate) {
-		print '<td class="right"><a class="editfielda" href="' . $_SERVER["PHP_SELF"] . '?action=editconditions&token=' . newToken() . '&facid=' . $object->id . '">' . img_edit($langs->trans('SetConditions'), 1) . '</a></td>';
-	}
-	print '</tr></table>';
-	print '</td><td>';
+	// print '<tr><td>';
+	// print '<table class="nobordernopadding centpercent"><tr><td>';
+	// print $langs->trans('PaymentConditionsShort');
+	// print '</td>';
+	// if ($object->type != Facture::TYPE_CREDIT_NOTE && $action != 'editconditions' && $usercancreate) {
+	// 	print '<td class="right"><a class="editfielda" href="' . $_SERVER["PHP_SELF"] . '?action=editconditions&token=' . newToken() . '&facid=' . $object->id . '">' . img_edit($langs->trans('SetConditions'), 1) . '</a></td>';
+	// }
+	// print '</tr></table>';
+	// print '</td><td>';
 	if ($object->type != Facture::TYPE_CREDIT_NOTE) {
 		if ($action == 'editconditions') {
 			$form->form_conditions_reglement($_SERVER['PHP_SELF'] . '?facid=' . $object->id, $object->cond_reglement_id, 'cond_reglement_id');
@@ -4835,15 +4835,15 @@ if ($action == 'create') {
 	print '</td></tr>';
 
 	// Payment mode
-	print '<tr><td>';
-	print '<table class="nobordernopadding centpercent"><tr><td>';
-	print $langs->trans('PaymentMode');
-	print '</td>';
-	if ($action != 'editmode' && $usercancreate) {
-		print '<td class="right"><a class="editfielda" href="' . $_SERVER["PHP_SELF"] . '?action=editmode&token=' . newToken() . '&facid=' . $object->id . '">' . img_edit($langs->trans('SetMode'), 1) . '</a></td>';
-	}
-	print '</tr></table>';
-	print '</td><td>';
+	// print '<tr><td>';
+	// print '<table class="nobordernopadding centpercent"><tr><td>';
+	// print $langs->trans('PaymentMode');
+	// print '</td>';
+	// if ($action != 'editmode' && $usercancreate) {
+	// 	print '<td class="right"><a class="editfielda" href="' . $_SERVER["PHP_SELF"] . '?action=editmode&token=' . newToken() . '&facid=' . $object->id . '">' . img_edit($langs->trans('SetMode'), 1) . '</a></td>';
+	// }
+	// print '</tr></table>';
+	// print '</td><td>';
 	if ($action == 'editmode') {
 		$form->form_modes_reglement($_SERVER['PHP_SELF'] . '?facid=' . $object->id, $object->mode_reglement_id, 'mode_reglement_id', 'CRDT', 1, 1);
 	} else {
@@ -4898,24 +4898,24 @@ if ($action == 'create') {
 	}
 
 	// Bank Account
-	if (isModEnabled("banque")) {
-		print '<tr><td class="nowrap">';
-		print '<table class="nobordernopadding centpercent"><tr><td class="nowrap">';
-		print $langs->trans('BankAccount');
-		print '<td>';
-		if (($action != 'editbankaccount') && $usercancreate) {
-			print '<td class="right"><a class="editfielda" href="' . $_SERVER["PHP_SELF"] . '?action=editbankaccount&token=' . newToken() . '&id=' . $object->id . '">' . img_edit($langs->trans('SetBankAccount'), 1) . '</a></td>';
-		}
-		print '</tr></table>';
-		print '</td><td>';
-		if ($action == 'editbankaccount') {
-			$form->formSelectAccount($_SERVER['PHP_SELF'] . '?id=' . $object->id, $object->fk_account, 'fk_account', 1);
-		} else {
-			$form->formSelectAccount($_SERVER['PHP_SELF'] . '?id=' . $object->id, $object->fk_account, 'none');
-		}
-		print "</td>";
-		print '</tr>';
-	}
+	// if (isModEnabled("banque")) {
+	// 	print '<tr><td class="nowrap">';
+	// 	print '<table class="nobordernopadding centpercent"><tr><td class="nowrap">';
+	// 	print $langs->trans('BankAccount');
+	// 	print '<td>';
+	// 	if (($action != 'editbankaccount') && $usercancreate) {
+	// 		print '<td class="right"><a class="editfielda" href="' . $_SERVER["PHP_SELF"] . '?action=editbankaccount&token=' . newToken() . '&id=' . $object->id . '">' . img_edit($langs->trans('SetBankAccount'), 1) . '</a></td>';
+	// 	}
+	// 	print '</tr></table>';
+	// 	print '</td><td>';
+	// 	if ($action == 'editbankaccount') {
+	// 		$form->formSelectAccount($_SERVER['PHP_SELF'] . '?id=' . $object->id, $object->fk_account, 'fk_account', 1);
+	// 	} else {
+	// 		$form->formSelectAccount($_SERVER['PHP_SELF'] . '?id=' . $object->id, $object->fk_account, 'none');
+	// 	}
+	// 	print "</td>";
+	// 	print '</tr>';
+	// }
 
 	// Incoterms
 	if (isModEnabled('incoterm')) {

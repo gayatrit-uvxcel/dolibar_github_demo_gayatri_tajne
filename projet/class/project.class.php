@@ -603,6 +603,11 @@ class Project extends CommonObject
 			$sql .= ", date_end_event = ".($this->date_end_event != '' ? "'".$this->db->idate($this->date_end_event)."'" : 'null');
 			$sql .= ", location = '".$this->db->escape($this->location)."'";
 			$sql .= ", entity = ".((int) $this->entity);
+			$sql .= ", contact_person = '".$this->db->escape($this->contact_person)."'";
+			$sql .= ", division = '".$this->db->escape($this->division)."'";
+			$sql .= ", phone = '".$this->db->escape($this->phone)."'";
+			$sql .= ", email = '".$this->db->escape($this->email)."'";
+
 			$sql .= " WHERE rowid = ".((int) $this->id);
 
 			dol_syslog(get_class($this)."::update", LOG_DEBUG);
@@ -687,6 +692,7 @@ class Project extends CommonObject
 		$sql .= " tms, dateo as date_start, datee as date_end, date_close, fk_soc, fk_user_creat, fk_user_modif, fk_user_close, fk_statut as status, fk_opp_status, opp_percent,";
 		$sql .= " note_private, note_public, model_pdf, usage_opportunity, usage_task, usage_bill_time, usage_organize_event, email_msgid,";
 		$sql .= " accept_conference_suggestions, accept_booth_suggestions, price_registration, price_booth, max_attendees, date_start_event, date_end_event, location, extraparams";
+		$sql .= ", contact_person, division, phone, email";
 		$sql .= " FROM ".MAIN_DB_PREFIX."projet";
 		if (!empty($id)) {
 			$sql .= " WHERE rowid = ".((int) $id);
@@ -750,6 +756,11 @@ class Project extends CommonObject
 				$this->location = $obj->location;
 				$this->email_msgid = $obj->email_msgid;
 				$this->extraparams = !empty($obj->extraparams) ? (array) json_decode($obj->extraparams, true) : array();
+
+				$this->contact_person = $obj->contact_person;
+				$this->division = $obj->division;
+				$this->phone = $obj->phone;
+				$this->email = $obj->email;
 
 				$this->db->free($resql);
 

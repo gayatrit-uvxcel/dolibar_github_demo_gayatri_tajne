@@ -1404,6 +1404,8 @@ class Societe extends CommonObject
 
 		$this->effectif_id = trim($this->effectif_id);
 		$this->forme_juridique_code = trim($this->forme_juridique_code);
+		$this->client_vat = trim($this->client_vat);
+		$this->vendor_no = trim($this->vendor_no);
 
 		//Gencod
 		$this->barcode = trim($this->barcode);
@@ -1533,7 +1535,8 @@ class Societe extends CommonObject
 				$sql .= ",vat_reverse_charge = " . ($this->vat_reverse_charge != '' ? "'" . $this->db->escape($this->vat_reverse_charge) . "'" : 0);
 			}
 			$sql .= ",status = ".((int) $this->status);
-
+			$sql .= ",client_vat = '".$this->db->escape($this->client_vat)."'";
+			$sql .= ",vendor_no = '".$this->db->escape($this->vendor_no)."'";
 			// Local taxes
 			$sql .= ",localtax1_assuj = ".($this->localtax1_assuj != '' ? "'".$this->db->escape($this->localtax1_assuj)."'" : "null");
 			$sql .= ",localtax2_assuj = ".($this->localtax2_assuj != '' ? "'".$this->db->escape($this->localtax2_assuj)."'" : "null");
@@ -1828,6 +1831,7 @@ class Societe extends CommonObject
 		} else {
 			$sql .= ', sr.remise_client, sr2.remise_supplier';
 		}
+		$sql .= ', s.client_vat, s.vendor_no';
 		$sql .= ' FROM '.MAIN_DB_PREFIX.'societe as s';
 		if (getDolGlobalString('MAIN_COMPANY_PERENTITY_SHARED')) {
 			$sql .= " LEFT JOIN ".MAIN_DB_PREFIX."societe_perentity as spe ON spe.fk_soc = s.rowid AND spe.entity = ".((int) $conf->entity);
@@ -2043,6 +2047,9 @@ class Societe extends CommonObject
 				// pdf
 				$this->model_pdf = $obj->model_pdf;
 				$this->last_main_doc = $obj->last_main_doc;
+
+				$this->client_vat = $obj->client_vat;
+				$this->vendor_no = $obj->vendor_no;
 
 				$result = 1;
 
