@@ -1605,12 +1605,32 @@ class pdf_cornas extends ModelePDFSuppliersOrders
     {
         $lineHeight = 5;
         $marginTop = 3;
+        $sql_llx_commande_fournisseur = "SELECT * FROM " . MAIN_DB_PREFIX . "commande_fournisseur WHERE rowid = $object->id";
+        $res_llx_commande_fournisseur = $this->db->query($sql_llx_commande_fournisseur);
+
+        if ($res_llx_commande_fournisseur) {
+            while ($row = $this->db->fetch_object($res_llx_commande_fournisseur)) {
+                $terms_and_conditions = json_decode($row->terms_and_conditions, true); 
+            }
+        }
+        
         // Define your terms and conditions content
-        $termsContent = "Terms and Conditions:
-		1. Weekly Progress sign-off report to be emailed on Mondays.
-		2. Delivery is 4 weeks from order placement.
-		3. Payment terms – 40% on order placement, 40% on fabrication complete and release for
-		   powder coating and 20% on panel delivery";
+        if (isset($terms_and_conditions) && is_array($terms_and_conditions)) {
+            $termsContent = "Terms and Conditions";
+
+            foreach ($terms_and_conditions as $index => $condition) {
+                $termsContent .= "\n" . str_repeat(' ', 9) . ($index + 1) . ". " . $condition .".";
+            }
+        } else {
+            $termsContent = "Default Terms and Conditions: No specific terms found.";
+        }
+
+        // Define your terms and conditions content
+        // $termsContent = "Terms and Conditions:
+		// 1. Weekly Progress sign-off report to be emailed on Mondays.
+		// 2. Delivery is 4 weeks from order placement.
+		// 3. Payment terms – 40% on order placement, 40% on fabrication complete and release for
+		//    powder coating and 20% on panel delivery";
 
         // Explode the terms content into an array of lines
         $termsLines = explode("\n", $termsContent);

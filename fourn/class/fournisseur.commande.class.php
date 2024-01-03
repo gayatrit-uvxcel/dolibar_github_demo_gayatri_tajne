@@ -1482,6 +1482,7 @@ class CommandeFournisseur extends CommonOrder
         $sql .= ", quote_no";
         $sql .= ", vat_no";
         $sql .= ", po_no";
+        $sql .= ", terms_and_conditions";
         $sql .= ") ";
         $sql .= " VALUES (";
         $sql .= "'(PROV)'";
@@ -1515,6 +1516,7 @@ class CommandeFournisseur extends CommonOrder
         $sql .= ", " . ($this->quote_no ? "'" . $this->db->escape($this->quote_no) . "'" : "null");
         $sql .= ", " . ($this->vat_no ? "'" . $this->db->escape($this->vat_no) . "'" : "null");
         $sql .= ", '(PROV)'";
+        $sql .= ", '".$this->db->escape($this->terms_and_conditions)."'";
         $sql .= ")";
 
         dol_syslog(get_class($this) . "::create", LOG_DEBUG);

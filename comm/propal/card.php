@@ -459,7 +459,9 @@ if (empty($reshook)) {
                     $object->vendor_no = GETPOST('vendor_no');
                     $object->po_no = GETPOST('po_no');
                     $object->vat_no = GETPOST('vat_no');
-                    $object->terms_and_conditions = GETPOST('terms_and_conditions');
+                    $selected_terms = GETPOST('multi_tc_content');
+                    $selected_terms_json = json_encode($selected_terms);
+                    $object->terms_and_conditions = $selected_terms_json;
                 } else {
                     setEventMessages($langs->trans("ErrorFailedToCopyProposal", GETPOST('copie_propal')), null, 'errors');
                 }
@@ -497,7 +499,9 @@ if (empty($reshook)) {
                 $object->vendor_no = GETPOST('vendor_no');
                 $object->po_no = GETPOST('po_no');
                 $object->vat_no = GETPOST('vat_no');
-                $object->terms_and_conditions = GETPOST('terms_and_conditions');
+                $selected_terms = GETPOST('multi_tc_content');
+                $selected_terms_json = json_encode($selected_terms);
+                $object->terms_and_conditions = $selected_terms_json;
 
                 $object->origin = GETPOST('origin');
                 $object->origin_id = GETPOST('originid');
@@ -822,7 +826,8 @@ if (empty($reshook)) {
                 $db->rollback();
             }
         }
-    } elseif ($action == 'import_lines_from_object'
+    } elseif (
+        $action == 'import_lines_from_object'
         && $user->hasRight('propal', 'creer')
         && $object->statut == Propal::STATUS_DRAFT
     ) {
@@ -2053,31 +2058,29 @@ if ($action == 'create') {
             print '<input type="text" id="vat_no" name="vat_no" value="' . dol_escape_htmltag(!empty($conf->global->MAIN_INFO_TVAINTRA) ? $conf->global->MAIN_INFO_TVAINTRA : '') . '"  />';
             print '</td></tr>';
 
-            print '<tr><td class="tdtop">';
-            print $form->editfieldkey('Terms and Conditions:', 'address', '', $object, 0);
-            print '</td>';
-            print '<td colspan="3">';
-            // print '<textarea name="terms_and_conditions" id="terms_and_conditions" class="quatrevingtpercent" rows="' . ROWS_2 . '" wrap="soft">';
-            // // print dol_escape_htmltag($object->address, 0, 1);
-            // print '</textarea>';
-            print '<select name="terms_and_conditions" multiple id="terms_and_conditions" class="flat maxwidth500 widthcentpercentminusxx minwidth100" style="width: 100%; padding: 8px; font-size: 16px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; margin-bottom: 10px; overflow: auto;">';
+            // terms and condition code by gayatri
             $sql_llx_terms_conditions = "SELECT tc_content FROM " . MAIN_DB_PREFIX . "terms_conditions WHERE category_name='Quotation'";
             $res_llx_terms_conditions = $db->query($sql_llx_terms_conditions);
+            $options = array();
 
             if ($res_llx_terms_conditions) {
                 while ($row = $db->fetch_object($res_llx_terms_conditions)) {
-                    $tc_content = htmlspecialchars($row->tc_content); // Sanitize content for HTML output
-                    print "<option value='$tc_content'>$tc_content</option>";
+                    $tc_content = htmlspecialchars($row->tc_content);
+                    $options[$tc_content] = $tc_content;
                 }
             } else {
                 echo "Error executing llx_projet query: " . $db->lasterror();
             }
-            print '</select>';
-            // print $form->widgetForTranslation("address", $object, $permissiontoadd, 'textarea', 'alphanohtml', 'quatrevingtpercent');
-            print '</td></tr>';
 
+            print '<tr>';
+            print '<td class="titlefieldcreate">' . $langs->trans('Terms and Conditions:') . '</td>';
+            print '<td class="maxwidthonsmartphone">';
+            // $selected = (GETPOSTISSET('tc_content') ? GETPOST('tc_content') : $object->tc_content);
+            print $form->multiselectarray('multi_tc_content', $options, $selected, 0, 0, 'form-control', 1, '300px', '', '', 'Select Multiple Terms and Conditions', 1);
+
+            print '</td>';
+            print '</tr>';
         }
-
     }
 
     // // Terms of payment
@@ -3080,7 +3083,6 @@ if ($action == 'create') {
             if (empty($reshook)) {
                 $object->formAddObjectLine(1, $mysoc, $soc);
             }
-
         } else {
             $parameters = array();
             $reshook = $hookmanager->executeHooks('formEditObjectLine', $parameters, $object, $action); // Note that $action and $object may have been modified by hook
@@ -3110,7 +3112,8 @@ if ($action == 'create') {
             if ($action != 'editline') {
                 // Validate
                 if (($object->statut == Propal::STATUS_DRAFT && $object->total_ttc >= 0 && count($object->lines) > 0)
-                    || ($object->statut == Propal::STATUS_DRAFT && !empty($conf->global->PROPAL_ENABLE_NEGATIVE) && count($object->lines) > 0)) {
+                    || ($object->statut == Propal::STATUS_DRAFT && !empty($conf->global->PROPAL_ENABLE_NEGATIVE) && count($object->lines) > 0)
+                ) {
                     if ($usercanvalidate) {
                         print '<a class="butAction" href="' . $_SERVER["PHP_SELF"] . '?id=' . $object->id . '&action=validate&token=' . newToken() . '">' . (empty($conf->global->PROPAL_SKIP_ACCEPT_REFUSE) ? $langs->trans('Validate') : $langs->trans('ValidateAndSign')) . '</a>';
                     } else {

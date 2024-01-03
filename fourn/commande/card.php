@@ -1251,6 +1251,9 @@ if (empty($reshook)) {
 			$object->vendor_no = GETPOST('vendor_no');
 			$object->quote_no = GETPOST('quote_no');
 			$object->vat_no = GETPOST('vat_no');
+			$selected_terms = GETPOST('multi_tc_content');
+			$selected_terms_json = json_encode($selected_terms);
+			$object->terms_and_conditions = $selected_terms_json;
 
 			// Fill array 'array_options' with data from add form
 			if (!$error) {
@@ -1780,19 +1783,19 @@ if ($action == 'create') {
 
 
 	if ($socid > 0) {
-	// Project
-	print '<script>console.log('.$socid.')</script>';
-	if (isModEnabled('project')) {
-		// $formproject = new FormProjets($db);
+		// Project
+		print '<script>console.log(' . $socid . ')</script>';
+		if (isModEnabled('project')) {
+			// $formproject = new FormProjets($db);
 
-		$langs->load('projects');
-		print '<tr><td>' . $langs->trans('Project') . '</td><td>';
-		print img_picto('', 'project', 'class="pictofixedwidth"') . $formproject->select_projects(($socid > 0 ? $societe->id : -1), $projectid, 'projectid', 0, 0, 1, 1, 0, 0, 0, '', 1, 0, 'maxwidth500');
-		print ' &nbsp; <a href="' . DOL_URL_ROOT . '/projet/card.php?action=create&status=1' . (!empty($societe->id) ? '&socid=' . $societe->id : "") . '&backtopage=' . urlencode($_SERVER["PHP_SELF"] . '?action=create' . (!empty($societe->id) ? '&socid=' . $societe->id : "")) . '"><span class="fa fa-plus-circle valignmiddle" title="' . $langs->trans("AddProject") . '"></span></a>';
-		print '</td></tr>';
-	}
+			$langs->load('projects');
+			print '<tr><td>' . $langs->trans('Project') . '</td><td>';
+			print img_picto('', 'project', 'class="pictofixedwidth"') . $formproject->select_projects(($socid > 0 ? $societe->id : -1), $projectid, 'projectid', 0, 0, 1, 1, 0, 0, 0, '', 1, 0, 'maxwidth500');
+			print ' &nbsp; <a href="' . DOL_URL_ROOT . '/projet/card.php?action=create&status=1' . (!empty($societe->id) ? '&socid=' . $societe->id : "") . '&backtopage=' . urlencode($_SERVER["PHP_SELF"] . '?action=create' . (!empty($societe->id) ? '&socid=' . $societe->id : "")) . '"><span class="fa fa-plus-circle valignmiddle" title="' . $langs->trans("AddProject") . '"></span></a>';
+			print '</td></tr>';
+		}
 
-	print '<script>
+		print '<script>
         $(document).ready(function() {
             $("#projectid").change(function() {
                 console.log("We have changed the project - Reload page");
@@ -1807,141 +1810,164 @@ if ($action == 'create') {
 
 		if ($projectid > 0) {
 
-            $sql_llx_societe = "SELECT * FROM " . MAIN_DB_PREFIX . "societe WHERE rowid = $socid";
-            $res_llx_societe = $db->query($sql_llx_societe);
+			$sql_llx_societe = "SELECT * FROM " . MAIN_DB_PREFIX . "societe WHERE rowid = $socid";
+			$res_llx_societe = $db->query($sql_llx_societe);
 
-            if ($res_llx_societe) {
-                while ($row = $db->fetch_object($res_llx_societe)) {
-                    $object->vendor_vat = $row->client_vat;
-                    $object->vendor_no = $row->vendor_no;
-                    $object->po_no = $row->po_no;
-                    $object->vat_no = $row->vat_no;
-                }
-            } else {
-                echo "Error executing llx_societe query: " . $db->lasterror();
-            }
+			if ($res_llx_societe) {
+				while ($row = $db->fetch_object($res_llx_societe)) {
+					$object->vendor_vat = $row->client_vat;
+					$object->vendor_no = $row->vendor_no;
+					$object->po_no = $row->po_no;
+					$object->vat_no = $row->vat_no;
+				}
+			} else {
+				echo "Error executing llx_societe query: " . $db->lasterror();
+			}
 
-            $sql_llx_projet = "SELECT * FROM " . MAIN_DB_PREFIX . "projet WHERE rowid = $projectid";
-            $res_llx_projet = $db->query($sql_llx_projet);
+			$sql_llx_projet = "SELECT * FROM " . MAIN_DB_PREFIX . "projet WHERE rowid = $projectid";
+			$res_llx_projet = $db->query($sql_llx_projet);
 
-            if ($res_llx_projet) {
-                while ($row = $db->fetch_object($res_llx_projet)) {
-                    $object->email = $row->email;
-                    $object->contact_person = $row->contact_person;
-                    $object->cell = $row->phone;
-                    $object->division = $row->division;
-                }
-            } else {
-                echo "Error executing llx_projet query: " . $db->lasterror();
-            }
+			if ($res_llx_projet) {
+				while ($row = $db->fetch_object($res_llx_projet)) {
+					$object->email = $row->email;
+					$object->contact_person = $row->contact_person;
+					$object->cell = $row->phone;
+					$object->division = $row->division;
+				}
+			} else {
+				echo "Error executing llx_projet query: " . $db->lasterror();
+			}
 
-	// Incoterms
-	if (isModEnabled('incoterm')) {
-		$fkincoterms = (!empty($object->fk_incoterms) ? $object->fk_incoterms : ($socid > 0 ? $societe->fk_incoterms : ''));
-		$locincoterms = (!empty($object->location_incoterms) ? $object->location_incoterms : ($socid > 0 ? $societe->location_incoterms : ''));
-		print '<tr>';
-		print '<td><label for="incoterm_id">' . $form->textwithpicto($langs->trans("IncotermLabel"), $object->label_incoterms, 1) . '</label></td>';
-		print '<td class="maxwidthonsmartphone">';
-		print img_picto('', 'incoterm', 'class="pictofixedwidth"');
-		print $form->select_incoterms($fkincoterms, $locincoterms);
-		print '</td></tr>';
+			// Incoterms
+			if (isModEnabled('incoterm')) {
+				$fkincoterms = (!empty($object->fk_incoterms) ? $object->fk_incoterms : ($socid > 0 ? $societe->fk_incoterms : ''));
+				$locincoterms = (!empty($object->location_incoterms) ? $object->location_incoterms : ($socid > 0 ? $societe->location_incoterms : ''));
+				print '<tr>';
+				print '<td><label for="incoterm_id">' . $form->textwithpicto($langs->trans("IncotermLabel"), $object->label_incoterms, 1) . '</label></td>';
+				print '<td class="maxwidthonsmartphone">';
+				print img_picto('', 'incoterm', 'class="pictofixedwidth"');
+				print $form->select_incoterms($fkincoterms, $locincoterms);
+				print '</td></tr>';
+			}
+
+			// Multicurrency
+			if (isModEnabled("multicurrency")) {
+				print '<tr>';
+				print '<td>' . $form->editfieldkey('Currency', 'multicurrency_code', '', $object, 0) . '</td>';
+				print '<td class="maxwidthonsmartphone">';
+				// print img_picto('', 'currency', 'class="pictofixedwidth"');
+				print $form->selectMultiCurrency($currency_code, 'multicurrency_code');
+				print '</td></tr>';
+			}
+
+			// print '<tr><td>' . $langs->trans('NotePublic') . '</td>';
+			// print '<td>';
+			// $doleditor = new DolEditor('note_public', isset($note_public) ? $note_public : GETPOST('note_public', 'restricthtml'), '', 80, 'dolibarr_notes', 'In', 0, false, empty($conf->global->FCKEDITOR_ENABLE_NOTE_PUBLIC) ? 0 : 1, ROWS_3, '90%');
+			// print $doleditor->Create(1);
+			// print '</td>';
+			// //print '<textarea name="note_public" wrap="soft" cols="60" rows="'.ROWS_5.'"></textarea>';
+			// print '</tr>';
+
+			// print '<tr><td>' . $langs->trans('NotePrivate') . '</td>';
+			// print '<td>';
+			// $doleditor = new DolEditor('note_private', isset($note_private) ? $note_private : GETPOST('note_private', 'restricthtml'), '', 80, 'dolibarr_notes', 'In', 0, false, empty($conf->global->FCKEDITOR_ENABLE_NOTE_PRIVATE) ? 0 : 1, ROWS_3, '90%');
+			// print $doleditor->Create(1);
+			// print '</td>';
+			// //print '<td><textarea name="note_private" wrap="soft" cols="60" rows="'.ROWS_5.'"></textarea></td>';
+			// print '</tr>';
+
+
+
+			// if ($societe->id > 0) {
+
+			// 	$sql_llx_societe = "SELECT * FROM " . MAIN_DB_PREFIX . "societe WHERE rowid = $societe->id";
+			// 	$res_llx_societe = $db->query($sql_llx_societe);
+
+			// 	if ($res_llx_societe) {
+			// 		while ($row = $db->fetch_object($res_llx_societe)) {
+			// 			$object->email = $row->email;
+			// 			$object->company_name = $row->nom;
+			// 			$object->contact_person = $row->contact_person;
+			// 			$object->cell = $row->phone;
+			// 			$object->vendor_vat = $row->client_vat;
+			// 			$object->division = $row->division;
+			// 			$object->vendor_no = $row->vendor_no;
+			// 			$object->vat_no = $row->vat_no;
+			// 		}
+			// 	} else {
+			// 		echo "Error executing llx_societe query: " . $db->lasterror();
+			// 	}
+
+			// $sql_llx_propal = "SELECT * FROM " . MAIN_DB_PREFIX . "propal WHERE rowid = $societe->id";
+			// $res_llx_propal = $db->query($sql_llx_propal);
+
+			// if ($res_llx_propal) {
+			// 	while ($row = $db->fetch_object($res_llx_propal)) {
+			// 		$object->quote_no = $row->ref;
+			// 	}
+			// } else {
+			// 	echo "Error executing llx_societe query: " . $db->lasterror();
+			// }
+
+			//modification by Prapti
+
+			print '<tr><td>' . $langs->trans('Contact:') . '</td><td colspan="2">';
+			print '<input type="text" id="contact_person" name="contact_person" value="' . $object->contact_person . '" readonly />';
+			print '</td></tr>';
+
+			print '<tr><td>' . $langs->trans('Cell:') . '</td><td colspan="2">';
+			print img_picto('', 'action', 'class="fas fa-mobile-alt pictofixedwidth"');
+			print '<input type="text" id="cell" name="cell" value="' . $object->cell . '" readonly />';
+			print '</td></tr>';
+
+			print '<tr><td>' . $langs->trans('Email:') . '</td><td colspan="2">';
+			print '<input type="text" id="email" name="email" value="' . $object->email . '" readonly />';
+			print '</td></tr>';
+
+			print '<tr><td>' . $langs->trans('Vendor VAT:') . '</td><td colspan="2">';
+			print '<input type="text" id="vendor_vat" name="vendor_vat" value="' . $object->vendor_vat . '" readonly />';
+			print '</td></tr>';
+
+			print '<tr><td>' . $langs->trans('Division:') . '</td><td colspan="2">';
+			print '<input type="text" id="division" name="division" value="' . $object->division . '" readonly />';
+			print '</td></tr>';
+
+			print '<tr><td>' . $langs->trans('Vendor No.:') . '</td><td colspan="2">';
+			print '<input type="text" id="vendor_no" name="vendor_no" value="' . $object->vendor_no . '" readonly />';
+			print '</td></tr>';
+
+			print '<tr><td>' . $langs->trans('Quote No.:') . '</td><td colspan="2">';
+			print '<input type="text" id="quote_no" name="quote_no" value="' . $object->quote_no . '" />';
+			print '</td></tr>';
+
+			print '<tr><td>' . $langs->trans('VAT No.:') . '</td><td colspan="2">';
+			print '<input type="text" id="vat_no" name="vat_no" value="' . dol_escape_htmltag(!empty($conf->global->MAIN_INFO_TVAINTRA) ? $conf->global->MAIN_INFO_TVAINTRA : '') . '" readonly />';
+			print '</td></tr>';
+
+			// terms and condition code by gayatri
+			$sql_llx_terms_conditions = "SELECT tc_content FROM " . MAIN_DB_PREFIX . "terms_conditions WHERE category_name='PO'";
+			$res_llx_terms_conditions = $db->query($sql_llx_terms_conditions);
+			$options = array();
+
+			if ($res_llx_terms_conditions) {
+				while ($row = $db->fetch_object($res_llx_terms_conditions)) {
+					$tc_content = htmlspecialchars($row->tc_content);
+					$options[$tc_content] = $tc_content;
+				}
+			} else {
+				echo "Error executing llx_projet query: " . $db->lasterror();
+			}
+
+			print '<tr>';
+			print '<td class="titlefieldcreate">' . $langs->trans('Terms and Conditions:') . '</td>';
+			print '<td class="maxwidthonsmartphone">';
+			// $selected = (GETPOSTISSET('tc_content') ? GETPOST('tc_content') : $object->tc_content);
+			print $form->multiselectarray('multi_tc_content', $options, $selected, 0, 0, 'form-control', 1, '300px', '', '', 'Select Multiple Terms and Conditions', 1);
+
+			print '</td>';
+			print '</tr>';
+		}
 	}
-
-	// Multicurrency
-	if (isModEnabled("multicurrency")) {
-		print '<tr>';
-		print '<td>' . $form->editfieldkey('Currency', 'multicurrency_code', '', $object, 0) . '</td>';
-		print '<td class="maxwidthonsmartphone">';
-		print img_picto('', 'currency', 'class="pictofixedwidth"');
-		print $form->selectMultiCurrency($currency_code, 'multicurrency_code');
-		print '</td></tr>';
-	}
-
-	// print '<tr><td>' . $langs->trans('NotePublic') . '</td>';
-	// print '<td>';
-	// $doleditor = new DolEditor('note_public', isset($note_public) ? $note_public : GETPOST('note_public', 'restricthtml'), '', 80, 'dolibarr_notes', 'In', 0, false, empty($conf->global->FCKEDITOR_ENABLE_NOTE_PUBLIC) ? 0 : 1, ROWS_3, '90%');
-	// print $doleditor->Create(1);
-	// print '</td>';
-	// //print '<textarea name="note_public" wrap="soft" cols="60" rows="'.ROWS_5.'"></textarea>';
-	// print '</tr>';
-
-	// print '<tr><td>' . $langs->trans('NotePrivate') . '</td>';
-	// print '<td>';
-	// $doleditor = new DolEditor('note_private', isset($note_private) ? $note_private : GETPOST('note_private', 'restricthtml'), '', 80, 'dolibarr_notes', 'In', 0, false, empty($conf->global->FCKEDITOR_ENABLE_NOTE_PRIVATE) ? 0 : 1, ROWS_3, '90%');
-	// print $doleditor->Create(1);
-	// print '</td>';
-	// //print '<td><textarea name="note_private" wrap="soft" cols="60" rows="'.ROWS_5.'"></textarea></td>';
-	// print '</tr>';
-
-
-
-	// if ($societe->id > 0) {
-
-	// 	$sql_llx_societe = "SELECT * FROM " . MAIN_DB_PREFIX . "societe WHERE rowid = $societe->id";
-	// 	$res_llx_societe = $db->query($sql_llx_societe);
-
-	// 	if ($res_llx_societe) {
-	// 		while ($row = $db->fetch_object($res_llx_societe)) {
-	// 			$object->email = $row->email;
-	// 			$object->company_name = $row->nom;
-	// 			$object->contact_person = $row->contact_person;
-	// 			$object->cell = $row->phone;
-	// 			$object->vendor_vat = $row->client_vat;
-	// 			$object->division = $row->division;
-	// 			$object->vendor_no = $row->vendor_no;
-	// 			$object->vat_no = $row->vat_no;
-	// 		}
-	// 	} else {
-	// 		echo "Error executing llx_societe query: " . $db->lasterror();
-	// 	}
-
-		// $sql_llx_propal = "SELECT * FROM " . MAIN_DB_PREFIX . "propal WHERE rowid = $societe->id";
-		// $res_llx_propal = $db->query($sql_llx_propal);
-
-		// if ($res_llx_propal) {
-		// 	while ($row = $db->fetch_object($res_llx_propal)) {
-		// 		$object->quote_no = $row->ref;
-		// 	}
-		// } else {
-		// 	echo "Error executing llx_societe query: " . $db->lasterror();
-		// }
-
-		//modification by Prapti
-		
-		print '<tr><td>' . $langs->trans('Contact:') . '</td><td colspan="2">';
-		print '<input type="text" id="contact_person" name="contact_person" value="' . $object->contact_person . '" readonly />';
-		print '</td></tr>';
-
-		print '<tr><td>' . $langs->trans('Cell:') . '</td><td colspan="2">';
-		print img_picto('', 'action', 'class="fas fa-mobile-alt pictofixedwidth"');
-		print '<input type="text" id="cell" name="cell" value="' . $object->cell . '" readonly />';
-		print '</td></tr>';
-
-		print '<tr><td>' . $langs->trans('Email:') . '</td><td colspan="2">';
-		print '<input type="text" id="email" name="email" value="' . $object->email . '" readonly />';
-		print '</td></tr>';
-
-		print '<tr><td>' . $langs->trans('Vendor VAT:') . '</td><td colspan="2">';
-		print '<input type="text" id="vendor_vat" name="vendor_vat" value="' . $object->vendor_vat . '" readonly />';
-		print '</td></tr>';
-
-		print '<tr><td>' . $langs->trans('Division:') . '</td><td colspan="2">';
-		print '<input type="text" id="division" name="division" value="' . $object->division . '" readonly />';
-		print '</td></tr>';
-
-		print '<tr><td>' . $langs->trans('Vendor No.:') . '</td><td colspan="2">';
-		print '<input type="text" id="vendor_no" name="vendor_no" value="' . $object->vendor_no . '" readonly />';
-		print '</td></tr>';
-
-		print '<tr><td>' . $langs->trans('Quote No.:') . '</td><td colspan="2">';
-		print '<input type="text" id="quote_no" name="quote_no" value="' . $object->quote_no . '" />';
-		print '</td></tr>';
-
-		print '<tr><td>' . $langs->trans('VAT No.:') . '</td><td colspan="2">';
-		print '<input type="text" id="vat_no" name="vat_no" value="' . dol_escape_htmltag(!empty($conf->global->MAIN_INFO_TVAINTRA) ? $conf->global->MAIN_INFO_TVAINTRA : '') . '" readonly />';
-		print '</td></tr>';
-	}
-}
 
 	if (!empty($origin) && !empty($originid) && is_object($objectsrc)) {
 		print "\n<!-- " . $classname . " info -->";

@@ -1928,15 +1928,25 @@ class pdf_cyan extends ModelePDFPropales
         // Update the Y position based on the notes content height if needed
         $posy += $notesContentHeight; // Adjust the value based on your needs
 
+        $sql_llx_facture = "SELECT * FROM " . MAIN_DB_PREFIX . "propal WHERE rowid = $object->id";
+        $res_llx_facture = $this->db->query($sql_llx_facture);
+
+        if ($res_llx_facture) {
+            while ($row = $this->db->fetch_object($res_llx_facture)) {
+                $terms_and_conditions = json_decode($row->terms_and_conditions, true); 
+            }
+        }
+        
         // Define your terms and conditions content
-        $termsContent = "Terms and Conditions:
-        3. Quotation is valid for 1 week from the date of the quote.
-        4. One Compulsory FAT Test by Roytec before the panel will be delivered.
-        5. Commencement of work can only be done after techno-commercial order is placed.
-        6. Delivery – TBA during order placement. Ex-works.
-        7. Equipment remains property of FVA until fully paid.
-        8. Payment terms – 25% Certified drawings, 50% Deposit, and 25% on FAT at FVA.
-        9. Panel Shrink wrapped and Not Crated. ";
+        if (isset($terms_and_conditions) && is_array($terms_and_conditions)) {
+            $termsContent = "Terms and Conditions";
+
+            foreach ($terms_and_conditions as $index => $condition) {
+                $termsContent .= "\n" . str_repeat(' ', 9) . ($index + 1) . ". " . $condition .".";
+            }
+        } else {
+            $termsContent = "Default Terms and Conditions: No specific terms found.";
+        }
 
         // Explode the terms content into an array of lines
         $termsLines = explode("\n", $termsContent);

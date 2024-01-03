@@ -29,7 +29,7 @@
 define('CSRFCHECK_WITH_TOKEN', 1); // We force need to use a token to login when making a POST
 
 require 'main.inc.php';
-require_once DOL_DOCUMENT_ROOT.'/core/class/html.formother.class.php';
+require_once DOL_DOCUMENT_ROOT . '/core/class/html.formother.class.php';
 
 // If not defined, we select menu "home"
 $_GET['mainmenu'] = GETPOST('mainmenu', 'aZ09') ? GETPOST('mainmenu', 'aZ09') : 'home';
@@ -49,15 +49,15 @@ if (in_array('import', $conf->modules)) $nbmodulesnotautoenabled--;
 
 // Check if company name is defined (first install)
 if (!isset($conf->global->MAIN_INFO_SOCIETE_NOM) || empty($conf->global->MAIN_INFO_SOCIETE_NOM)) {
-	header("Location: ".DOL_URL_ROOT."/admin/index.php?mainmenu=home&leftmenu=setup&mesg=setupnotcomplete");
+	header("Location: " . DOL_URL_ROOT . "/admin/index.php?mainmenu=home&leftmenu=setup&mesg=setupnotcomplete");
 	exit;
 }
 if ($nbmodulesnotautoenabled <= getDolGlobalString('MAIN_MIN_NB_ENABLED_MODULE_FOR_WARNING', 1)) {	// If only user module enabled
-	header("Location: ".DOL_URL_ROOT."/admin/index.php?mainmenu=home&leftmenu=setup&mesg=setupnotcomplete");
+	header("Location: " . DOL_URL_ROOT . "/admin/index.php?mainmenu=home&leftmenu=setup&mesg=setupnotcomplete");
 	exit;
 }
 if (GETPOST('addbox')) {	// Add box (when submit is done from a form when ajax disabled)
-	require_once DOL_DOCUMENT_ROOT.'/core/class/infobox.class.php';
+	require_once DOL_DOCUMENT_ROOT . '/core/class/infobox.class.php';
 	$zone = GETPOST('areacode', 'int');
 	$userid = GETPOST('userid', 'int');
 	$boxorder = GETPOST('boxorder', 'aZ09');
@@ -69,7 +69,14 @@ if (GETPOST('addbox')) {	// Add box (when submit is done from a form when ajax d
 	}
 }
 
+if (isModEnabled('project')) {
+	require_once DOL_DOCUMENT_ROOT . '/projet/class/project.class.php';
+	require_once DOL_DOCUMENT_ROOT . '/core/class/html.formprojet.class.php';
+}
 
+if (isModEnabled('project')) {
+	$formproject = new FormProjets($db);
+}
 /*
  * View
  */
@@ -81,7 +88,7 @@ if (!isset($form) || !is_object($form)) {
 // Title
 $title = $langs->trans("HomeArea");
 if (!empty($conf->global->MAIN_APPLICATION_TITLE)) {
-	$title = $langs->trans("HomeArea").' - '.$conf->global->MAIN_APPLICATION_TITLE;
+	$title = $langs->trans("HomeArea") . ' - ' . $conf->global->MAIN_APPLICATION_TITLE;
 }
 
 llxHeader('', $title);
@@ -112,37 +119,153 @@ if (!empty($conf->global->MAIN_MOTD)) {
  */
 
 // Security warning if install.lock file is missing or if conf file is writable
-if (empty($conf->global->MAIN_REMOVE_INSTALL_WARNING)) {
-	$message = '';
+// if (empty($conf->global->MAIN_REMOVE_INSTALL_WARNING)) {
+// 	$message = '';
 
-	// Check if install lock file is present
-	$lockfile = DOL_DATA_ROOT.'/install.lock';
-	if (!empty($lockfile) && !file_exists($lockfile) && is_dir(DOL_DOCUMENT_ROOT."/install")) {
-		$langs->load("errors");
-		//if (!empty($message)) $message.='<br>';
-		$message .= info_admin($langs->trans("WarningLockFileDoesNotExists", DOL_DATA_ROOT).' '.$langs->trans("WarningUntilDirRemoved", DOL_DOCUMENT_ROOT."/install"), 0, 0, '1', 'clearboth');
+// 	// Check if install lock file is present
+// 	$lockfile = DOL_DATA_ROOT.'/install.lock';
+// 	if (!empty($lockfile) && !file_exists($lockfile) && is_dir(DOL_DOCUMENT_ROOT."/install")) {
+// 		$langs->load("errors");
+// 		//if (!empty($message)) $message.='<br>';
+// 		$message .= info_admin($langs->trans("WarningLockFileDoesNotExists", DOL_DATA_ROOT).' '.$langs->trans("WarningUntilDirRemoved", DOL_DOCUMENT_ROOT."/install"), 0, 0, '1', 'clearboth');
+// 	}
+
+// 	// Conf files must be in read only mode
+// 	if (is_writable($conffile)) {	// $conffile is defined into filefunc.inc.php
+// 		$langs->load("errors");
+// 		//$langs->load("other");
+// 		//if (!empty($message)) $message.='<br>';
+// 		$message .= info_admin($langs->transnoentities("WarningConfFileMustBeReadOnly").' '.$langs->trans("WarningUntilDirRemoved", DOL_DOCUMENT_ROOT."/install"), 0, 0, '1', 'clearboth');
+// 	}
+
+// 	$object = new stdClass();
+// 	$parameters = array();
+// 	$reshook = $hookmanager->executeHooks('infoadmin', $parameters, $object, $action); // Note that $action and $object may have been modified by some hooks
+// 	if ($reshook == 0) {
+// 		$message .= $hookmanager->resPrint;
+// 	}
+// 	if ($message) {
+// 		print $message.'<br>';
+// 		//$message.='<br>';
+// 		//print info_admin($langs->trans("WarningUntilDirRemoved",DOL_DOCUMENT_ROOT."/install"));
+// 	}
+// }
+
+// for summary
+print '<table class="border centpercent">';
+// Third Party
+print '<tr class="field_socid">';
+print '<td class="titlefieldcreate fieldrequired">' . $langs->trans('Customer') . '</td>';
+$shipping_method_id = 0;
+if ($socid > 0) {
+	print '<td class="valuefieldcreate">';
+	print $soc->getNomUrl(1, 'customer');
+	print '<input type="hidden" name="socid" value="' . $soc->id . '">';
+	print '</td>';
+	if (!empty($conf->global->SOCIETE_ASK_FOR_SHIPPING_METHOD) && !empty($soc->shipping_method_id)) {
+		$shipping_method_id = $soc->shipping_method_id;
+	}
+} else {
+	print '<td class="valuefieldcreate"> ';
+	$filter = '(s.status:=:1)';
+	print img_picto('', 'company', 'class="pictofixedwidth"') . $form->select_company('', 'socid', $filter, 'SelectThirdParty', 1, 0, null, 0, 'minwidth300 maxwidth500 widthcentpercentminusxx');
+	// reload page to retrieve customer informations
+	if (empty($conf->global->RELOAD_PAGE_ON_CUSTOMER_CHANGE_DISABLED)) {
+		print '<script>
+		  $(document).ready(function() {
+			  $("#socid").change(function() {
+				  console.log("We have changed the company - Reload page");
+				  var socid = $(this).val();
+				  // reload page
+				  $("input[name=action]").val("create");
+				  $("input[name=changecompany]").val("1");
+				  $("form[name=addprop]").submit();
+			  });
+		  });
+		  </script>';
 	}
 
-	// Conf files must be in read only mode
-	if (is_writable($conffile)) {	// $conffile is defined into filefunc.inc.php
-		$langs->load("errors");
-		//$langs->load("other");
-		//if (!empty($message)) $message.='<br>';
-		$message .= info_admin($langs->transnoentities("WarningConfFileMustBeReadOnly").' '.$langs->trans("WarningUntilDirRemoved", DOL_DOCUMENT_ROOT."/install"), 0, 0, '1', 'clearboth');
-	}
-
-	$object = new stdClass();
-	$parameters = array();
-	$reshook = $hookmanager->executeHooks('infoadmin', $parameters, $object, $action); // Note that $action and $object may have been modified by some hooks
-	if ($reshook == 0) {
-		$message .= $hookmanager->resPrint;
-	}
-	if ($message) {
-		print $message.'<br>';
-		//$message.='<br>';
-		//print info_admin($langs->trans("WarningUntilDirRemoved",DOL_DOCUMENT_ROOT."/install"));
-	}
+	print ' <a href="' . DOL_URL_ROOT . '/societe/card.php?action=create&client=3&fournisseur=0&backtopage=' . urlencode($_SERVER["PHP_SELF"] . '?action=create') . '">
+	  </a>';
+	print '</td>';
 }
+print '</tr>' . "\n";
+
+// Project
+if (isModEnabled('project')) {
+	$langs->load('projects');
+	print '<tr class="field_project">';
+	print '<td>' . $langs->trans('Project') . '</td>';
+	print '<td colspan="2">';
+	print img_picto('', 'project', 'class="pictofixedwidth"') . $formproject->select_projects(($socid > 0 ? $socid : -1), $projectid, 'projectid', 0, 0, 1, 1, 0, 0, 0, '', 1, 0, 'maxwidth500 widthcentpercentminusxx');
+	print ' <a href="' . DOL_URL_ROOT . '/projet/card.php?socid=' . $soc->id . '&action=create&status=1&backtopage=' . urlencode($_SERVER["PHP_SELF"] . '?action=create&socid=' . $soc->id . ($fac_rec ? '&fac_rec=' . $fac_rec : '')) . '"></a>';
+	print '</td>';
+	print '</tr>' . "\n";
+}
+print "</table>\n";
+
+print '<div class="liste_titre liste_titre_bydiv centpercent"  style="margin-top: 20px;">';
+print '<table class="nobordernopadding">' . "\n";
+$firstColumnData = array(
+	'Date:',
+	'Customer:',
+	'Project:',
+	'Contact:',
+	'Cell:',
+	'Email:',
+	'Client VAT:'
+);
+$secondColumnData = array(
+	'Division:',
+	'Vendor No.:',
+	'P.O. No.:',
+	'Delivery No.:',
+	'Quote No.:',
+	'Invoice No.:',
+	'VAT No.:'
+);
+$databaseValuesForSecondColumn = array(
+	'DivisionValue',
+	'VendorNoValue',
+	'PONoValue',
+	'DeliveryNoValue',
+	'QuoteNoValue',
+	'InvoiceNoValue',
+	'VATNoValue'
+);
+
+$databaseValuesForFourthColumn = array(
+	'ValueForCell',
+	'ValueForContact',
+	'ValueForEmail',
+	'ValueForClientVAT',
+	'AnotherValueForCell',
+	'AnotherValueForContact',
+	'AnotherValueForEmail'
+);
+
+for ($row = 0; $row < 7; $row++) {
+	print '<tr class="liste_titre_filter">' . "\n";
+	print '<td class="liste_titre" style="width: 100px;">' . $firstColumnData[$row] . '</td>' . "\n";
+	print '<td class="liste_titre" style="width: 200px">' . $databaseValuesForSecondColumn[$row] . '</td>' . "\n";
+	print '<td class="liste_titre" style="width: 500px"></td>' . "\n";
+	print '<td class="liste_titre" style="width: 100px">' . $secondColumnData[$row] . '</td>' . "\n";
+	print '<td class="liste_titre" style="width: 200px">' . $databaseValuesForFourthColumn[$row] . '</td>' . "\n";
+	print '</tr>' . "\n";
+}
+print '</table>' . "\n";
+print '</div>';
+
+print '<table class="tagtable nobottomiftotal liste listwithfilterbefore border">' . "\n";
+print '<tr class="">' . "\n";
+print '<td class="liste_titre" style="width: 100px;">' . $firstColumnData[$row] . '</td>' . "\n";
+print '<td class="liste_titre" style="width: 200px">' . $databaseValuesForSecondColumn[$row] . '</td>' . "\n";
+print '<td class="liste_titre" style="width: 500px"></td>' . "\n";
+print '<td class="liste_titre" style="width: 100px">' . $secondColumnData[$row] . '</td>' . "\n";
+print '<td class="liste_titre" style="width: 200px">' . $databaseValuesForFourthColumn[$row] . '</td>' . "\n";
+print '</tr>' . "\n";
+print '</table>' . "\n";
+
 
 /*
  * Dashboard Dolibarr states (statistics)
@@ -163,98 +286,98 @@ if (empty($conf->global->MAIN_DISABLE_GLOBAL_WORKBOARD)) {
 	$dashboardlines = array();
 
 	// Do not include sections without management permission
-	require_once DOL_DOCUMENT_ROOT.'/core/class/workboardresponse.class.php';
+	require_once DOL_DOCUMENT_ROOT . '/core/class/workboardresponse.class.php';
 
 	// Number of actions to do (late)
 	if (isModEnabled('agenda') && empty($conf->global->MAIN_DISABLE_BLOCK_AGENDA) && $user->hasRight('agenda', 'myactions', 'read')) {
-		include_once DOL_DOCUMENT_ROOT.'/comm/action/class/actioncomm.class.php';
+		include_once DOL_DOCUMENT_ROOT . '/comm/action/class/actioncomm.class.php';
 		$board = new ActionComm($db);
 		$dashboardlines[$board->element] = $board->load_board($user);
 	}
 
 	// Number of project opened
 	if (isModEnabled('project') && empty($conf->global->MAIN_DISABLE_BLOCK_PROJECT) && $user->hasRight('projet', 'lire')) {
-		include_once DOL_DOCUMENT_ROOT.'/projet/class/project.class.php';
+		include_once DOL_DOCUMENT_ROOT . '/projet/class/project.class.php';
 		$board = new Project($db);
 		$dashboardlines[$board->element] = $board->load_board($user);
 	}
 
 	// Number of tasks to do (late)
 	if (isModEnabled('project') && empty($conf->global->MAIN_DISABLE_BLOCK_PROJECT) && empty($conf->global->PROJECT_HIDE_TASKS) && $user->hasRight('projet', 'lire')) {
-		include_once DOL_DOCUMENT_ROOT.'/projet/class/task.class.php';
+		include_once DOL_DOCUMENT_ROOT . '/projet/class/task.class.php';
 		$board = new Task($db);
 		$dashboardlines[$board->element] = $board->load_board($user);
 	}
 
 	// Number of commercial customer proposals open (expired)
 	if (isModEnabled('propal') && empty($conf->global->MAIN_DISABLE_BLOCK_CUSTOMER) && $user->hasRight('propal', 'read')) {
-		include_once DOL_DOCUMENT_ROOT.'/comm/propal/class/propal.class.php';
+		include_once DOL_DOCUMENT_ROOT . '/comm/propal/class/propal.class.php';
 		$board = new Propal($db);
-		$dashboardlines[$board->element.'_opened'] = $board->load_board($user, "opened");
+		$dashboardlines[$board->element . '_opened'] = $board->load_board($user, "opened");
 		// Number of commercial proposals CLOSED signed (billed)
-		$dashboardlines[$board->element.'_signed'] = $board->load_board($user, "signed");
+		$dashboardlines[$board->element . '_signed'] = $board->load_board($user, "signed");
 	}
 
 	// Number of supplier proposals open (expired)
 	if (isModEnabled('supplier_proposal')  && empty($conf->global->MAIN_DISABLE_BLOCK_SUPPLIER) && $user->hasRight('supplier_proposal', 'lire')) {
 		$langs->load("supplier_proposal");
-		include_once DOL_DOCUMENT_ROOT.'/supplier_proposal/class/supplier_proposal.class.php';
+		include_once DOL_DOCUMENT_ROOT . '/supplier_proposal/class/supplier_proposal.class.php';
 		$board = new SupplierProposal($db);
-		$dashboardlines[$board->element.'_opened'] = $board->load_board($user, "opened");
+		$dashboardlines[$board->element . '_opened'] = $board->load_board($user, "opened");
 		// Number of commercial proposals CLOSED signed (billed)
-		$dashboardlines[$board->element.'_signed'] = $board->load_board($user, "signed");
+		$dashboardlines[$board->element . '_signed'] = $board->load_board($user, "signed");
 	}
 
 	// Number of sales orders a deal
 	if (isModEnabled('commande')  && empty($conf->global->MAIN_DISABLE_BLOCK_CUSTOMER) && $user->hasRight('commande', 'lire')) {
-		include_once DOL_DOCUMENT_ROOT.'/commande/class/commande.class.php';
+		include_once DOL_DOCUMENT_ROOT . '/commande/class/commande.class.php';
 		$board = new Commande($db);
 		$dashboardlines[$board->element] = $board->load_board($user);
 	}
 
 	// Number of suppliers orders a deal
 	if (isModEnabled('supplier_order')  && empty($conf->global->MAIN_DISABLE_BLOCK_SUPPLIER) && $user->hasRight('fournisseur', 'commande', 'lire')) {
-		include_once DOL_DOCUMENT_ROOT.'/fourn/class/fournisseur.commande.class.php';
+		include_once DOL_DOCUMENT_ROOT . '/fourn/class/fournisseur.commande.class.php';
 		$board = new CommandeFournisseur($db);
-		$dashboardlines[$board->element.'_opened'] = $board->load_board($user, "opened");
-		$dashboardlines[$board->element.'_awaiting'] = $board->load_board($user, 'awaiting');
+		$dashboardlines[$board->element . '_opened'] = $board->load_board($user, "opened");
+		$dashboardlines[$board->element . '_awaiting'] = $board->load_board($user, 'awaiting');
 	}
 
 	// Number of contract / services enabled (delayed)
 	if (isModEnabled('contrat')  && empty($conf->global->MAIN_DISABLE_BLOCK_CONTRACT) && $user->hasRight('contrat', 'lire')) {
-		include_once DOL_DOCUMENT_ROOT.'/contrat/class/contrat.class.php';
+		include_once DOL_DOCUMENT_ROOT . '/contrat/class/contrat.class.php';
 		$board = new Contrat($db);
-		$dashboardlines[$board->element.'_inactive'] = $board->load_board($user, "inactive");
+		$dashboardlines[$board->element . '_inactive'] = $board->load_board($user, "inactive");
 		// Number of active services (expired)
-		$dashboardlines[$board->element.'_active'] = $board->load_board($user, "active");
+		$dashboardlines[$board->element . '_active'] = $board->load_board($user, "active");
 	}
 
 	// Number of tickets open
 	if (isModEnabled('ticket')  && empty($conf->global->MAIN_DISABLE_BLOCK_TICKET) && $user->hasRight('ticket', 'read')) {
-		include_once DOL_DOCUMENT_ROOT.'/ticket/class/ticket.class.php';
+		include_once DOL_DOCUMENT_ROOT . '/ticket/class/ticket.class.php';
 		$board = new Ticket($db);
-		$dashboardlines[$board->element.'_opened'] = $board->load_board($user, "opened");
+		$dashboardlines[$board->element . '_opened'] = $board->load_board($user, "opened");
 		// Number of active services (expired)
 		//$dashboardlines[$board->element.'_active'] = $board->load_board($user, "active");
 	}
 
 	// Number of invoices customers (paid)
 	if (isModEnabled('facture') && empty($conf->global->MAIN_DISABLE_BLOCK_CUSTOMER) && $user->hasRight('facture', 'lire')) {
-		include_once DOL_DOCUMENT_ROOT.'/compta/facture/class/facture.class.php';
+		include_once DOL_DOCUMENT_ROOT . '/compta/facture/class/facture.class.php';
 		$board = new Facture($db);
 		$dashboardlines[$board->element] = $board->load_board($user);
 	}
 
 	// Number of supplier invoices (paid)
 	if (isModEnabled('supplier_invoice') && empty($conf->global->MAIN_DISABLE_BLOCK_SUPPLIER) && $user->hasRight('fournisseur', 'facture', 'lire')) {
-		include_once DOL_DOCUMENT_ROOT.'/fourn/class/fournisseur.facture.class.php';
+		include_once DOL_DOCUMENT_ROOT . '/fourn/class/fournisseur.facture.class.php';
 		$board = new FactureFournisseur($db);
 		$dashboardlines[$board->element] = $board->load_board($user);
 	}
 
 	// Number of transactions to conciliate
 	if (isModEnabled('banque')  && empty($conf->global->MAIN_DISABLE_BLOCK_BANK) && $user->hasRight('banque', 'lire') && !$user->socid) {
-		include_once DOL_DOCUMENT_ROOT.'/compta/bank/class/account.class.php';
+		include_once DOL_DOCUMENT_ROOT . '/compta/bank/class/account.class.php';
 		$board = new Account($db);
 		$nb = $board->countAccountToReconcile(); // Get nb of account to reconciliate
 		if ($nb > 0) {
@@ -271,12 +394,12 @@ if (empty($conf->global->MAIN_DISABLE_GLOBAL_WORKBOARD)) {
 			$dashboardlines[$board->element] = $board->load_board($user);
 		}
 		if (isModEnabled('prelevement')) {
-			include_once DOL_DOCUMENT_ROOT.'/compta/prelevement/class/bonprelevement.class.php';
+			include_once DOL_DOCUMENT_ROOT . '/compta/prelevement/class/bonprelevement.class.php';
 			$board = new BonPrelevement($db);
 			$dashboardlines[$board->element . '_direct_debit'] = $board->load_board($user, 'direct_debit');
 		}
 		if (isModEnabled('paymentbybanktransfer')) {
-			include_once DOL_DOCUMENT_ROOT.'/compta/prelevement/class/bonprelevement.class.php';
+			include_once DOL_DOCUMENT_ROOT . '/compta/prelevement/class/bonprelevement.class.php';
 			$board = new BonPrelevement($db);
 			$dashboardlines[$board->element . '_credit_transfer'] = $board->load_board($user, 'credit_transfer');
 		}
@@ -284,29 +407,29 @@ if (empty($conf->global->MAIN_DISABLE_GLOBAL_WORKBOARD)) {
 
 	// Number of foundation members
 	if (isModEnabled('adherent')  && empty($conf->global->MAIN_DISABLE_BLOCK_ADHERENT) && $user->hasRight('adherent', 'lire') && !$user->socid) {
-		include_once DOL_DOCUMENT_ROOT.'/adherents/class/adherent.class.php';
+		include_once DOL_DOCUMENT_ROOT . '/adherents/class/adherent.class.php';
 		$board = new Adherent($db);
-		$dashboardlines[$board->element.'_shift'] = $board->load_board($user, 'shift');
-		$dashboardlines[$board->element.'_expired'] = $board->load_board($user, 'expired');
+		$dashboardlines[$board->element . '_shift'] = $board->load_board($user, 'shift');
+		$dashboardlines[$board->element . '_expired'] = $board->load_board($user, 'expired');
 	}
 
 	// Number of expense reports to approve
 	if (isModEnabled('expensereport')  && empty($conf->global->MAIN_DISABLE_BLOCK_EXPENSEREPORT) && $user->hasRight('expensereport', 'approve')) {
-		include_once DOL_DOCUMENT_ROOT.'/expensereport/class/expensereport.class.php';
+		include_once DOL_DOCUMENT_ROOT . '/expensereport/class/expensereport.class.php';
 		$board = new ExpenseReport($db);
-		$dashboardlines[$board->element.'_toapprove'] = $board->load_board($user, 'toapprove');
+		$dashboardlines[$board->element . '_toapprove'] = $board->load_board($user, 'toapprove');
 	}
 
 	// Number of expense reports to pay
 	if (isModEnabled('expensereport')  && empty($conf->global->MAIN_DISABLE_BLOCK_EXPENSEREPORT) && $user->hasRight('expensereport', 'to_paid')) {
-		include_once DOL_DOCUMENT_ROOT.'/expensereport/class/expensereport.class.php';
+		include_once DOL_DOCUMENT_ROOT . '/expensereport/class/expensereport.class.php';
 		$board = new ExpenseReport($db);
-		$dashboardlines[$board->element.'_topay'] = $board->load_board($user, 'topay');
+		$dashboardlines[$board->element . '_topay'] = $board->load_board($user, 'topay');
 	}
 
 	// Number of holidays to approve
 	if (isModEnabled('holiday')  && empty($conf->global->MAIN_DISABLE_BLOCK_HOLIDAY) && $user->hasRight('holiday', 'approve')) {
-		include_once DOL_DOCUMENT_ROOT.'/holiday/class/holiday.class.php';
+		include_once DOL_DOCUMENT_ROOT . '/holiday/class/holiday.class.php';
 		$board = new Holiday($db);
 		$dashboardlines[$board->element] = $board->load_board($user);
 	}
@@ -327,100 +450,100 @@ if (empty($conf->global->MAIN_DISABLE_GLOBAL_WORKBOARD)) {
 	/* Open object dashboard */
 	$dashboardgroup = array(
 		'action' =>
-			array(
-				'groupName' => 'Agenda',
-				'stats' => array('action'),
-			),
+		array(
+			'groupName' => 'Agenda',
+			'stats' => array('action'),
+		),
 		'project' =>
-			array(
-				'groupName' => 'Projects',
-				'globalStatsKey' => 'projects',
-				'stats' => array('project', 'project_task'),
-			),
+		array(
+			'groupName' => 'Projects',
+			'globalStatsKey' => 'projects',
+			'stats' => array('project', 'project_task'),
+		),
 		'propal' =>
-			array(
-				'groupName' => 'Proposals',
-				'globalStatsKey' => 'proposals',
-				'stats' =>
-					array('propal_opened', 'propal_signed'),
-			),
+		array(
+			'groupName' => 'Proposals',
+			'globalStatsKey' => 'proposals',
+			'stats' =>
+			array('propal_opened', 'propal_signed'),
+		),
 		'commande' =>
-			array(
-				'groupName' => 'Orders',
-				'globalStatsKey' => 'orders',
-				'stats' =>
-					array('commande'),
-			),
+		array(
+			'groupName' => 'Orders',
+			'globalStatsKey' => 'orders',
+			'stats' =>
+			array('commande'),
+		),
 		'facture' =>
-			array(
-				'groupName' => 'Invoices',
-				'globalStatsKey' => 'invoices',
-				'stats' =>
-					array('facture'),
-			),
+		array(
+			'groupName' => 'Invoices',
+			'globalStatsKey' => 'invoices',
+			'stats' =>
+			array('facture'),
+		),
 		'supplier_proposal' =>
-			array(
-				'lang' => 'supplier_proposal',
-				'groupName' => 'SupplierProposals',
-				'globalStatsKey' => 'askprice',
-				'stats' =>
-					array('supplier_proposal_opened', 'supplier_proposal_signed'),
-			),
+		array(
+			'lang' => 'supplier_proposal',
+			'groupName' => 'SupplierProposals',
+			'globalStatsKey' => 'askprice',
+			'stats' =>
+			array('supplier_proposal_opened', 'supplier_proposal_signed'),
+		),
 		'order_supplier' =>
-			array(
-				'groupName' => 'SuppliersOrders',
-				'globalStatsKey' => 'supplier_orders',
-				'stats' =>
-					array('order_supplier_opened', 'order_supplier_awaiting'),
-			),
+		array(
+			'groupName' => 'SuppliersOrders',
+			'globalStatsKey' => 'supplier_orders',
+			'stats' =>
+			array('order_supplier_opened', 'order_supplier_awaiting'),
+		),
 		'invoice_supplier' =>
-			array(
-				'groupName' => 'BillsSuppliers',
-				'globalStatsKey' => 'supplier_invoices',
-				'stats' =>
-					array('invoice_supplier'),
-			),
+		array(
+			'groupName' => 'BillsSuppliers',
+			'globalStatsKey' => 'supplier_invoices',
+			'stats' =>
+			array('invoice_supplier'),
+		),
 		'contrat' =>
-			array(
-				'groupName' => 'Contracts',
-				'globalStatsKey' => 'Contracts',
-				'stats' =>
-				array('contrat_inactive', 'contrat_active'),
-			),
+		array(
+			'groupName' => 'Contracts',
+			'globalStatsKey' => 'Contracts',
+			'stats' =>
+			array('contrat_inactive', 'contrat_active'),
+		),
 		'ticket' =>
-			array(
-				'groupName' => 'Tickets',
-				'globalStatsKey' => 'ticket',
-				'stats' =>
-					array('ticket_opened'),
-			),
+		array(
+			'groupName' => 'Tickets',
+			'globalStatsKey' => 'ticket',
+			'stats' =>
+			array('ticket_opened'),
+		),
 		'bank_account' =>
-			array(
-				'groupName' => 'BankAccount',
-				'stats' =>
-					array('bank_account', 'chequereceipt', 'widthdraw_direct_debit', 'widthdraw_credit_transfer'),
-			),
+		array(
+			'groupName' => 'BankAccount',
+			'stats' =>
+			array('bank_account', 'chequereceipt', 'widthdraw_direct_debit', 'widthdraw_credit_transfer'),
+		),
 		'member' =>
-			array(
-				'groupName' => 'Members',
-				'globalStatsKey' => 'members',
-				'stats' =>
-					array('member_shift', 'member_expired'),
-			),
+		array(
+			'groupName' => 'Members',
+			'globalStatsKey' => 'members',
+			'stats' =>
+			array('member_shift', 'member_expired'),
+		),
 		'expensereport' =>
-			array(
-				'groupName' => 'ExpenseReport',
-				'globalStatsKey' => 'expensereports',
-				'stats' =>
-					array('expensereport_toapprove', 'expensereport_topay'),
-			),
+		array(
+			'groupName' => 'ExpenseReport',
+			'globalStatsKey' => 'expensereports',
+			'stats' =>
+			array('expensereport_toapprove', 'expensereport_topay'),
+		),
 		'holiday' =>
-			array(
-				'groupName' => 'Holidays',
-				'globalStatsKey' => 'holidays',
-				'stats' =>
-					array('holiday'),
-			),
+		array(
+			'groupName' => 'Holidays',
+			'globalStatsKey' => 'holidays',
+			'stats' =>
+			array('holiday'),
+		),
 	);
 
 	$object = new stdClass();
@@ -470,25 +593,25 @@ if (empty($conf->global->MAIN_DISABLE_GLOBAL_WORKBOARD)) {
 
 	$boxwork = '';
 	$boxwork .= '<div class="box">';
-	$boxwork .= '<table summary="'.dol_escape_htmltag($langs->trans("WorkingBoard")).'" class="noborder boxtable boxtablenobottom boxworkingboard centpercent">'."\n";
+	$boxwork .= '<table summary="' . dol_escape_htmltag($langs->trans("WorkingBoard")) . '" class="noborder boxtable boxtablenobottom boxworkingboard centpercent">' . "\n";
 	$boxwork .= '<tr class="liste_titre">';
-	$boxwork .= '<th class="liste_titre"><div class="inline-block valignmiddle">'.$langs->trans("DolibarrWorkBoard").'</div>';
+	$boxwork .= '<th class="liste_titre"><div class="inline-block valignmiddle">' . $langs->trans("DolibarrWorkBoard") . '</div>';
 	if ($showweather) {
 		if ($totallate > 0) {
-			$text = $langs->transnoentitiesnoconv("WarningYouHaveAtLeastOneTaskLate").' ('.$langs->transnoentitiesnoconv(
+			$text = $langs->transnoentitiesnoconv("WarningYouHaveAtLeastOneTaskLate") . ' (' . $langs->transnoentitiesnoconv(
 				"NActionsLate",
-				$totallate.(!empty($conf->global->MAIN_USE_METEO_WITH_PERCENTAGE) ? '%' : '')
-			).')';
+				$totallate . (!empty($conf->global->MAIN_USE_METEO_WITH_PERCENTAGE) ? '%' : '')
+			) . ')';
 		} else {
 			$text = $langs->transnoentitiesnoconv("NoItemLate");
 		}
-		$text .= '. '.$langs->transnoentitiesnoconv("LateDesc");
+		$text .= '. ' . $langs->transnoentitiesnoconv("LateDesc");
 		//$text.=$form->textwithpicto('',$langs->trans("LateDesc"));
 		$options = 'height="24px" style="float: right"';
 		$boxwork .= showWeather($totallate, $text, $options, 'inline-block valignmiddle');
 	}
 	$boxwork .= '</th>';
-	$boxwork .= '</tr>'."\n";
+	$boxwork .= '</tr>' . "\n";
 
 	// Show dashboard
 	$nbworkboardempty = 0;
@@ -525,43 +648,43 @@ if (empty($conf->global->MAIN_DISABLE_GLOBAL_WORKBOARD)) {
 					$groupElement['globalStats'] = array();
 				}
 
-				$openedDashBoard .= '<div class="box-flex-item"><div class="box-flex-item-with-margin">'."\n";
-				$openedDashBoard .= '	<div class="info-box '.$openedDashBoardSize.'">'."\n";
-				$openedDashBoard .= '		<span class="info-box-icon bg-infobox-'.$groupKeyLowerCase.'">'."\n";
-				$openedDashBoard .= '		<i class="fa fa-dol-'.$groupKeyLowerCase.'"></i>'."\n";
+				$openedDashBoard .= '<div class="box-flex-item"><div class="box-flex-item-with-margin">' . "\n";
+				$openedDashBoard .= '	<div class="info-box ' . $openedDashBoardSize . '">' . "\n";
+				$openedDashBoard .= '		<span class="info-box-icon bg-infobox-' . $groupKeyLowerCase . '">' . "\n";
+				$openedDashBoard .= '		<i class="fa fa-dol-' . $groupKeyLowerCase . '"></i>' . "\n";
 
 				// Show the span for the total of record. TODO This seems not used.
 				if (!empty($groupElement['globalStats'])) {
 					$globalStatInTopOpenedDashBoard[] = $globalStatsKey;
-					$openedDashBoard .= '<span class="info-box-icon-text" title="'.$groupElement['globalStats']['text'].'">'.$groupElement['globalStats']['nbTotal'].'</span>';
+					$openedDashBoard .= '<span class="info-box-icon-text" title="' . $groupElement['globalStats']['text'] . '">' . $groupElement['globalStats']['nbTotal'] . '</span>';
 				}
 
-				$openedDashBoard .= '</span>'."\n";
-				$openedDashBoard .= '<div class="info-box-content">'."\n";
+				$openedDashBoard .= '</span>' . "\n";
+				$openedDashBoard .= '<div class="info-box-content">' . "\n";
 
-				$openedDashBoard .= '<div class="info-box-title" title="'.strip_tags($groupName).'">'.$groupName.'</div>'."\n";
-				$openedDashBoard .= '<div class="info-box-lines">'."\n";
+				$openedDashBoard .= '<div class="info-box-title" title="' . strip_tags($groupName) . '">' . $groupName . '</div>' . "\n";
+				$openedDashBoard .= '<div class="info-box-lines">' . "\n";
 
 				foreach ($boards as $board) {
 					$openedDashBoard .= '<div class="info-box-line spanoverflow nowrap">';
 
 					if (!empty($board->labelShort)) {
-						$infoName = '<span class="marginrightonly" title="'.$board->label.'">'.$board->labelShort.'</span>';
+						$infoName = '<span class="marginrightonly" title="' . $board->label . '">' . $board->labelShort . '</span>';
 					} else {
-						$infoName = '<span class="marginrightonly">'.$board->label.'</span>';
+						$infoName = '<span class="marginrightonly">' . $board->label . '</span>';
 					}
 
 					$textLateTitle = $langs->trans("NActionsLate", $board->nbtodolate);
-					$textLateTitle .= ' ('.$langs->trans("Late").' = '.$langs->trans("DateReference").' > '.$langs->trans("DateToday").' '.(ceil(empty($board->warning_delay) ? 0 : $board->warning_delay) >= 0 ? '+' : '').ceil(empty($board->warning_delay) ? 0 : $board->warning_delay).' '.$langs->trans("days").')';
+					$textLateTitle .= ' (' . $langs->trans("Late") . ' = ' . $langs->trans("DateReference") . ' > ' . $langs->trans("DateToday") . ' ' . (ceil(empty($board->warning_delay) ? 0 : $board->warning_delay) >= 0 ? '+' : '') . ceil(empty($board->warning_delay) ? 0 : $board->warning_delay) . ' ' . $langs->trans("days") . ')';
 
 					if ($board->id == 'bank_account') {
-						$textLateTitle .= '<br><span class="opacitymedium">'.$langs->trans("IfYouDontReconcileDisableProperty", $langs->transnoentitiesnoconv("Conciliable")).'</span>';
+						$textLateTitle .= '<br><span class="opacitymedium">' . $langs->trans("IfYouDontReconcileDisableProperty", $langs->transnoentitiesnoconv("Conciliable")) . '</span>';
 					}
 
 					$textLate = '';
 					if ($board->nbtodolate > 0) {
-						$textLate .= '<span title="'.dol_escape_htmltag($textLateTitle).'" class="classfortooltip badge badge-warning">';
-						$textLate .= '<i class="fa fa-exclamation-triangle"></i> '.$board->nbtodolate;
+						$textLate .= '<span title="' . dol_escape_htmltag($textLateTitle) . '" class="classfortooltip badge badge-warning">';
+						$textLate .= '<i class="fa fa-exclamation-triangle"></i> ' . $board->nbtodolate;
 						$textLate .= '</span>';
 					}
 
@@ -573,35 +696,35 @@ if (empty($conf->global->MAIN_DISABLE_GLOBAL_WORKBOARD)) {
 					}
 
 					// Forge the line to show into the open object box
-					$labeltoshow = $board->label.' ('.$board->nbtodo.')';
+					$labeltoshow = $board->label . ' (' . $board->nbtodo . ')';
 					if ($board->total > 0) {
-						$labeltoshow .= ' - '.price($board->total, 0, $langs, 1, -1, -1, $conf->currency);
+						$labeltoshow .= ' - ' . price($board->total, 0, $langs, 1, -1, -1, $conf->currency);
 					}
-					$openedDashBoard .= '<a href="'.$board->url.'" class="info-box-text info-box-text-a">'.$infoName.'<span class="classfortooltip'.($nbtodClass ? ' '.$nbtodClass : '').'" title="'.$labeltoshow.'" >';
+					$openedDashBoard .= '<a href="' . $board->url . '" class="info-box-text info-box-text-a">' . $infoName . '<span class="classfortooltip' . ($nbtodClass ? ' ' . $nbtodClass : '') . '" title="' . $labeltoshow . '" >';
 					$openedDashBoard .= $board->nbtodo;
 					if ($board->total > 0 && !empty($conf->global->MAIN_WORKBOARD_SHOW_TOTAL_WO_TAX)) {
-						$openedDashBoard .= ' : '.price($board->total, 0, $langs, 1, -1, -1, $conf->currency);
+						$openedDashBoard .= ' : ' . price($board->total, 0, $langs, 1, -1, -1, $conf->currency);
 					}
 					$openedDashBoard .= '</span>';
 					if ($textLate) {
 						if ($board->url_late) {
 							$openedDashBoard .= '</a>';
-							$openedDashBoard .= ' <a href="'.$board->url_late.'" class="info-box-text info-box-text-a paddingleft">';
+							$openedDashBoard .= ' <a href="' . $board->url_late . '" class="info-box-text info-box-text-a paddingleft">';
 						} else {
 							$openedDashBoard .= ' ';
 						}
 						$openedDashBoard .= $textLate;
 					}
-					$openedDashBoard .= '</a>'."\n";
-					$openedDashBoard .= '</div>'."\n";
+					$openedDashBoard .= '</a>' . "\n";
+					$openedDashBoard .= '</div>' . "\n";
 				}
 
 				// TODO Add hook here to add more "info-box-line"
 
-				$openedDashBoard .= '		</div><!-- /.info-box-lines --></div><!-- /.info-box-content -->'."\n";
-				$openedDashBoard .= '	</div><!-- /.info-box -->'."\n";
-				$openedDashBoard .= '</div><!-- /.box-flex-item-with-margin -->'."\n";
-				$openedDashBoard .= '</div><!-- /.box-flex-item -->'."\n";
+				$openedDashBoard .= '		</div><!-- /.info-box-lines --></div><!-- /.info-box-content -->' . "\n";
+				$openedDashBoard .= '	</div><!-- /.info-box -->' . "\n";
+				$openedDashBoard .= '</div><!-- /.box-flex-item-with-margin -->' . "\n";
+				$openedDashBoard .= '</div><!-- /.box-flex-item -->' . "\n";
 				$openedDashBoard .= "\n";
 			}
 		}
@@ -612,52 +735,52 @@ if (empty($conf->global->MAIN_DISABLE_GLOBAL_WORKBOARD)) {
 
 			$text = '';
 			if ($totallate > 0) {
-				$text = $langs->transnoentitiesnoconv("WarningYouHaveAtLeastOneTaskLate").' ('.$langs->transnoentitiesnoconv(
+				$text = $langs->transnoentitiesnoconv("WarningYouHaveAtLeastOneTaskLate") . ' (' . $langs->transnoentitiesnoconv(
 					"NActionsLate",
-					$totallate.(!empty($conf->global->MAIN_USE_METEO_WITH_PERCENTAGE) ? '%' : '')
-				).')';
+					$totallate . (!empty($conf->global->MAIN_USE_METEO_WITH_PERCENTAGE) ? '%' : '')
+				) . ')';
 			} else {
 				$text = $langs->transnoentitiesnoconv("NoItemLate");
 			}
-			$text .= '. '.$langs->transnoentitiesnoconv("LateDesc");
+			$text .= '. ' . $langs->transnoentitiesnoconv("LateDesc");
 
-			$weatherDashBoard = '<div class="box-flex-item '.$appendClass.'"><div class="box-flex-item-with-margin">'."\n";
-			$weatherDashBoard .= '	<div class="info-box '.$openedDashBoardSize.' info-box-weather info-box-weather-level'.$weather->level.'">'."\n";
+			$weatherDashBoard = '<div class="box-flex-item ' . $appendClass . '"><div class="box-flex-item-with-margin">' . "\n";
+			$weatherDashBoard .= '	<div class="info-box ' . $openedDashBoardSize . ' info-box-weather info-box-weather-level' . $weather->level . '">' . "\n";
 			$weatherDashBoard .= '		<span class="info-box-icon">';
 			$weatherDashBoard .= img_weather('', $weather->level, '', 0, 'valignmiddle width50');
-			$weatherDashBoard .= '       </span>'."\n";
-			$weatherDashBoard .= '		<div class="info-box-content">'."\n";
-			$weatherDashBoard .= '			<div class="info-box-title">'.$langs->trans('GlobalOpenedElemView').'</div>'."\n";
+			$weatherDashBoard .= '       </span>' . "\n";
+			$weatherDashBoard .= '		<div class="info-box-content">' . "\n";
+			$weatherDashBoard .= '			<div class="info-box-title">' . $langs->trans('GlobalOpenedElemView') . '</div>' . "\n";
 
 			if ($totallatePercentage > 0 && !empty($conf->global->MAIN_USE_METEO_WITH_PERCENTAGE)) {
-				$weatherDashBoard .= '			<span class="info-box-number">'.$langs->transnoentitiesnoconv(
+				$weatherDashBoard .= '			<span class="info-box-number">' . $langs->transnoentitiesnoconv(
 					"NActionsLate",
-					price($totallatePercentage).'%'
-				).'</span>'."\n";
-				$weatherDashBoard .= '			<span class="progress-description">'.$langs->trans(
+					price($totallatePercentage) . '%'
+				) . '</span>' . "\n";
+				$weatherDashBoard .= '			<span class="progress-description">' . $langs->trans(
 					'NActionsLate',
 					$totalLateNumber
-				).'</span>'."\n";
+				) . '</span>' . "\n";
 			} else {
-				$weatherDashBoard .= '			<span class="info-box-number">'.$langs->transnoentitiesnoconv(
+				$weatherDashBoard .= '			<span class="info-box-number">' . $langs->transnoentitiesnoconv(
 					"NActionsLate",
 					$totalLateNumber
-				).'</span>'."\n";
+				) . '</span>' . "\n";
 				if ($totallatePercentage > 0) {
-					$weatherDashBoard .= '			<span class="progress-description">'.$langs->trans(
+					$weatherDashBoard .= '			<span class="progress-description">' . $langs->trans(
 						'NActionsLate',
-						price($totallatePercentage).'%'
-					).'</span>'."\n";
+						price($totallatePercentage) . '%'
+					) . '</span>' . "\n";
 				}
 			}
 
-			$weatherDashBoard .= '		</div><!-- /.info-box-content -->'."\n";
-			$weatherDashBoard .= '	</div><!-- /.info-box -->'."\n";
-			$weatherDashBoard .= '</div><!-- /.box-flex-item-with-margin -->'."\n";
-			$weatherDashBoard .= '</div><!-- /.box-flex-item -->'."\n";
+			$weatherDashBoard .= '		</div><!-- /.info-box-content -->' . "\n";
+			$weatherDashBoard .= '	</div><!-- /.info-box -->' . "\n";
+			$weatherDashBoard .= '</div><!-- /.box-flex-item-with-margin -->' . "\n";
+			$weatherDashBoard .= '</div><!-- /.box-flex-item -->' . "\n";
 			$weatherDashBoard .= "\n";
 
-			$openedDashBoard = $weatherDashBoard.$openedDashBoard;
+			$openedDashBoard = $weatherDashBoard . $openedDashBoard;
 		}
 
 		if (!empty($isIntopOpenedDashBoard)) {
@@ -680,27 +803,27 @@ if (empty($conf->global->MAIN_DISABLE_GLOBAL_WORKBOARD)) {
 
 
 			$textlate = $langs->trans("NActionsLate", $board->nbtodolate);
-			$textlate .= ' ('.$langs->trans("Late").' = '.$langs->trans("DateReference").' > '.$langs->trans("DateToday").' '.(ceil($board->warning_delay) >= 0 ? '+' : '').ceil($board->warning_delay).' '.$langs->trans("days").')';
+			$textlate .= ' (' . $langs->trans("Late") . ' = ' . $langs->trans("DateReference") . ' > ' . $langs->trans("DateToday") . ' ' . (ceil($board->warning_delay) >= 0 ? '+' : '') . ceil($board->warning_delay) . ' ' . $langs->trans("days") . ')';
 
 
 			$boxwork .= '<div class="boxstatsindicator thumbstat150 nobold nounderline"><div class="boxstats130 boxstatsborder">';
 			$boxwork .= '<div class="boxstatscontent">';
-			$boxwork .= '<span class="boxstatstext" title="'.dol_escape_htmltag($board->label).'">'.$board->img.' <span>'.$board->label.'</span></span><br>';
-			$boxwork .= '<a class="valignmiddle dashboardlineindicator" href="'.$board->url.'"><span class="dashboardlineindicator'.(($board->nbtodo == 0) ? ' dashboardlineok' : '').'">'.$board->nbtodo.'</span></a>';
+			$boxwork .= '<span class="boxstatstext" title="' . dol_escape_htmltag($board->label) . '">' . $board->img . ' <span>' . $board->label . '</span></span><br>';
+			$boxwork .= '<a class="valignmiddle dashboardlineindicator" href="' . $board->url . '"><span class="dashboardlineindicator' . (($board->nbtodo == 0) ? ' dashboardlineok' : '') . '">' . $board->nbtodo . '</span></a>';
 			if ($board->total > 0 && !empty($conf->global->MAIN_WORKBOARD_SHOW_TOTAL_WO_TAX)) {
-				$boxwork .= '&nbsp;/&nbsp;<a class="valignmiddle dashboardlineindicator" href="'.$board->url.'"><span class="dashboardlineindicator'.(($board->nbtodo == 0) ? ' dashboardlineok' : '').'">'.price($board->total).'</span></a>';
+				$boxwork .= '&nbsp;/&nbsp;<a class="valignmiddle dashboardlineindicator" href="' . $board->url . '"><span class="dashboardlineindicator' . (($board->nbtodo == 0) ? ' dashboardlineok' : '') . '">' . price($board->total) . '</span></a>';
 			}
 			$boxwork .= '</div>';
 			if ($board->nbtodolate > 0) {
 				$boxwork .= '<div class="dashboardlinelatecoin nowrap">';
-				$boxwork .= '<a title="'.dol_escape_htmltag($textlate).'" class="valignmiddle dashboardlineindicatorlate'.($board->nbtodolate > 0 ? ' dashboardlineko' : ' dashboardlineok').'" href="'.((!$board->url_late) ? $board->url : $board->url_late).'">';
+				$boxwork .= '<a title="' . dol_escape_htmltag($textlate) . '" class="valignmiddle dashboardlineindicatorlate' . ($board->nbtodolate > 0 ? ' dashboardlineko' : ' dashboardlineok') . '" href="' . ((!$board->url_late) ? $board->url : $board->url_late) . '">';
 				//$boxwork .= img_picto($textlate, "warning_white", 'class="valigntextbottom"');
 				$boxwork .= img_picto(
 					$textlate,
 					"warning_white",
 					'class="inline-block hideonsmartphone valigntextbottom"'
 				);
-				$boxwork .= '<span class="dashboardlineindicatorlate'.($board->nbtodolate > 0 ? ' dashboardlineko' : ' dashboardlineok').'">';
+				$boxwork .= '<span class="dashboardlineindicatorlate' . ($board->nbtodolate > 0 ? ' dashboardlineko' : ' dashboardlineok') . '">';
 				$boxwork .= $board->nbtodolate;
 				$boxwork .= '</span>';
 				$boxwork .= '</a>';
@@ -732,7 +855,7 @@ if (empty($conf->global->MAIN_DISABLE_GLOBAL_WORKBOARD)) {
 
 	if (!empty($isIntopOpenedDashBoard)) {
 		print '<div class="fichecenter">';
-		print '<div class="opened-dash-board-wrap"><div class="box-flex-container">'.$openedDashBoard.'</div></div>';
+		print '<div class="opened-dash-board-wrap"><div class="box-flex-container">' . $openedDashBoard . '</div></div>';
 		print '</div>';
 	}
 }
@@ -819,13 +942,13 @@ function getWeatherStatus($totallate)
 
 	$weather->level = 0;
 	$level0 = $offset;
-	$level0 = getDolGlobalString($used_conf.'0', $level0);
+	$level0 = getDolGlobalString($used_conf . '0', $level0);
 	$level1 = $offset + $factor;
-	$level1 = getDolGlobalString($used_conf.'1', $level1);
+	$level1 = getDolGlobalString($used_conf . '1', $level1);
 	$level2 = $offset + 2 * $factor;
-	$level2 = getDolGlobalString($used_conf.'2', $level2);
+	$level2 = getDolGlobalString($used_conf . '2', $level2);
 	$level3 = $offset + 3 * $factor;
-	$level3 = getDolGlobalString($used_conf.'3', $level3);
+	$level3 = getDolGlobalString($used_conf . '3', $level3);
 
 	if ($totallate <= $level0) {
 		$weather->picto = 'weather-clear.png';
