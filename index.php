@@ -30,6 +30,18 @@ define('CSRFCHECK_WITH_TOKEN', 1); // We force need to use a token to login when
 
 require 'main.inc.php';
 require_once DOL_DOCUMENT_ROOT . '/core/class/html.formother.class.php';
+require_once DOL_DOCUMENT_ROOT . '/compta/facture/class/facture.class.php';
+require_once DOL_DOCUMENT_ROOT . '/compta/facture/class/facture-rec.class.php';
+
+require_once DOL_DOCUMENT_ROOT . '/core/modules/facture/modules_facture.php';
+require_once DOL_DOCUMENT_ROOT . '/core/class/discount.class.php';
+require_once DOL_DOCUMENT_ROOT . '/core/class/html.formfile.class.php';
+require_once DOL_DOCUMENT_ROOT . '/core/class/html.formother.class.php';
+require_once DOL_DOCUMENT_ROOT . '/core/class/html.formmargin.class.php';
+require_once DOL_DOCUMENT_ROOT . '/core/lib/invoice.lib.php';
+require_once DOL_DOCUMENT_ROOT . '/core/lib/functions2.lib.php';
+require_once DOL_DOCUMENT_ROOT . '/core/lib/date.lib.php';
+require_once DOL_DOCUMENT_ROOT . '/core/class/extrafields.class.php';
 
 // If not defined, we select menu "home"
 $_GET['mainmenu'] = GETPOST('mainmenu', 'aZ09') ? GETPOST('mainmenu', 'aZ09') : 'home';
@@ -37,7 +49,11 @@ $action = GETPOST('action', 'aZ09');
 
 $hookmanager->initHooks(array('index'));
 
-
+$socid = GETPOST('socid', 'int');
+$projectid = (GETPOST('projectid', 'int') ? GETPOST('projectid', 'int') : 0);
+if ($user->socid) {
+	$socid = $user->socid;
+}
 /*
  * Actions
  */
@@ -69,6 +85,7 @@ if (GETPOST('addbox')) {	// Add box (when submit is done from a form when ajax d
 	}
 }
 
+$soc = new Societe($db);
 if (isModEnabled('project')) {
 	require_once DOL_DOCUMENT_ROOT . '/projet/class/project.class.php';
 	require_once DOL_DOCUMENT_ROOT . '/core/class/html.formprojet.class.php';
@@ -77,6 +94,7 @@ if (isModEnabled('project')) {
 if (isModEnabled('project')) {
 	$formproject = new FormProjets($db);
 }
+
 /*
  * View
  */
@@ -151,120 +169,205 @@ if (!empty($conf->global->MAIN_MOTD)) {
 // 	}
 // }
 
+
 // for summary
-print '<table class="border centpercent">';
-// Third Party
-print '<tr class="field_socid">';
-print '<td class="titlefieldcreate fieldrequired">' . $langs->trans('Customer') . '</td>';
-$shipping_method_id = 0;
 if ($socid > 0) {
-	print '<td class="valuefieldcreate">';
+	$res = $soc->fetch($socid);
+}
+print '<form name="add" action="' . $_SERVER["PHP_SELF"] . '" method="POST" id="formtocreate" name="formtocreate">';
+print '<input type="hidden" name="token" value="' . newToken() . '">';
+print '<input type="hidden" name="action" id="formtocreateaction" value="add">';
+if ($soc->id > 0) {
+	print '<input type="hidden" name="socid" value="' . $soc->id . '">' . "\n";
+}
+
+print '<table class="border centpercent" style="margin-bottom: 25px;">';
+// Thirdparty
+if ($soc->id > 0) {
+	// If thirdparty known and not a predefined invoiced without a recurring rule
+	print '<tr><td class="fieldrequired">' . $langs->trans('Company Name:') . '</td>';
+	print '<td colspan="2">';
 	print $soc->getNomUrl(1, 'customer');
 	print '<input type="hidden" name="socid" value="' . $soc->id . '">';
 	print '</td>';
-	if (!empty($conf->global->SOCIETE_ASK_FOR_SHIPPING_METHOD) && !empty($soc->shipping_method_id)) {
-		$shipping_method_id = $soc->shipping_method_id;
-	}
+	print '</tr>' . "\n";
 } else {
-	print '<td class="valuefieldcreate"> ';
+	print '<tr><td class="fieldrequired">' . $langs->trans('Customer') . '</td>';
+	print '<td colspan="2">';
 	$filter = '(s.status:=:1)';
-	print img_picto('', 'company', 'class="pictofixedwidth"') . $form->select_company('', 'socid', $filter, 'SelectThirdParty', 1, 0, null, 0, 'minwidth300 maxwidth500 widthcentpercentminusxx');
-	// reload page to retrieve customer informations
+	print img_picto('', 'company', 'class="pictofixedwidth"') . $form->select_company($soc->id, 'socid', $filter, 'SelectThirdParty', 1, 0, null, 0, 'minwidth300 widthcentpercentminusxx maxwidth500');
+	// Option to reload page to retrieve customer informations.
 	if (empty($conf->global->RELOAD_PAGE_ON_CUSTOMER_CHANGE_DISABLED)) {
 		print '<script>
-		  $(document).ready(function() {
-			  $("#socid").change(function() {
-				  console.log("We have changed the company - Reload page");
-				  var socid = $(this).val();
-				  // reload page
-				  $("input[name=action]").val("create");
-				  $("input[name=changecompany]").val("1");
-				  $("form[name=addprop]").submit();
-			  });
-		  });
-		  </script>';
+			$(document).ready(function() {
+				$("#socid").change(function() {
+					/*
+					console.log("Submit page");
+					$(\'input[name="action"]\').val(\'create\');
+					$(\'input[name="force_cond_reglement_id"]\').val(\'1\');
+					$(\'input[name="force_mode_reglement_id"]\').val(\'1\');
+					$(\'input[name="force_fk_account"]\').val(\'1\');
+					$("#formtocreate").submit(); */
+
+					// For company change, we must submit page with action=create instead of action=add
+					console.log("We have changed the company - Resubmit page");
+					jQuery("#formtocreateaction").val("create");
+					jQuery("#formtocreate").submit();
+				});
+			});
+			</script>';
 	}
-
-	print ' <a href="' . DOL_URL_ROOT . '/societe/card.php?action=create&client=3&fournisseur=0&backtopage=' . urlencode($_SERVER["PHP_SELF"] . '?action=create') . '">
-	  </a>';
 	print '</td>';
+	print '</tr>' . "\n";
 }
-print '</tr>' . "\n";
-
-// Project
+// project
 if (isModEnabled('project')) {
 	$langs->load('projects');
-	print '<tr class="field_project">';
-	print '<td>' . $langs->trans('Project') . '</td>';
-	print '<td colspan="2">';
+	print '<tr><td class="fieldrequired">' . $langs->trans('Project:') . '</td><td colspan="2">';
 	print img_picto('', 'project', 'class="pictofixedwidth"') . $formproject->select_projects(($socid > 0 ? $socid : -1), $projectid, 'projectid', 0, 0, 1, 1, 0, 0, 0, '', 1, 0, 'maxwidth500 widthcentpercentminusxx');
-	print ' <a href="' . DOL_URL_ROOT . '/projet/card.php?socid=' . $soc->id . '&action=create&status=1&backtopage=' . urlencode($_SERVER["PHP_SELF"] . '?action=create&socid=' . $soc->id . ($fac_rec ? '&fac_rec=' . $fac_rec : '')) . '"></a>';
-	print '</td>';
-	print '</tr>' . "\n";
+	print ' <a href="' . DOL_URL_ROOT . '/projet/card.php?socid=' . $soc->id . '&action=create&status=1&backtopage=' . urlencode($_SERVER["PHP_SELF"] . '?action=create&socid=' . $soc->id . ($fac_rec ? '&fac_rec=' . $fac_rec : '')) . '">
+			</a>';
+	print '</td></tr>';
 }
+
+print '<script>
+        $(document).ready(function() {
+            $("#projectid").change(function() {
+                console.log("We have changed the project - Reload page");
+                var projectid = $(this).val();
+                // reload page
+                $("input[name=action]").val("create");
+                $("input[name=changeproject]").val("1");
+				$("form[name=add]").submit();
+                
+            });
+        });
+</script>';
 print "</table>\n";
 
-print '<div class="liste_titre liste_titre_bydiv centpercent"  style="margin-top: 20px;">';
-print '<table class="nobordernopadding">' . "\n";
-$firstColumnData = array(
-	'Date:',
-	'Customer:',
-	'Project:',
-	'Contact:',
-	'Cell:',
-	'Email:',
-	'Client VAT:'
-);
-$secondColumnData = array(
-	'Division:',
-	'Vendor No.:',
-	'P.O. No.:',
-	'Delivery No.:',
-	'Quote No.:',
-	'Invoice No.:',
-	'VAT No.:'
-);
-$databaseValuesForSecondColumn = array(
-	'DivisionValue',
-	'VendorNoValue',
-	'PONoValue',
-	'DeliveryNoValue',
-	'QuoteNoValue',
-	'InvoiceNoValue',
-	'VATNoValue'
-);
+// to display data after selecting project
+if ($projectid > 0) {
+	$sql_llx_societe = "SELECT * FROM " . MAIN_DB_PREFIX . "societe WHERE rowid = $socid";
+	$res_llx_societe = $db->query($sql_llx_societe);
 
-$databaseValuesForFourthColumn = array(
-	'ValueForCell',
-	'ValueForContact',
-	'ValueForEmail',
-	'ValueForClientVAT',
-	'AnotherValueForCell',
-	'AnotherValueForContact',
-	'AnotherValueForEmail'
-);
+	if ($res_llx_societe) {
+		while ($row = $db->fetch_object($res_llx_societe)) {
+			$object->client_vat = $row->client_vat;
+			$object->vendor_no = $row->vendor_no;
+			$object->po_no = $row->po_no;
+			$object->vat_no = $row->vat_no;
+			$object->company_name = $row->nom;
+		}
+	} else {
+		echo "Error executing llx_societe query: " . $db->lasterror();
+	}
 
-for ($row = 0; $row < 7; $row++) {
-	print '<tr class="liste_titre_filter">' . "\n";
-	print '<td class="liste_titre" style="width: 100px;">' . $firstColumnData[$row] . '</td>' . "\n";
-	print '<td class="liste_titre" style="width: 200px">' . $databaseValuesForSecondColumn[$row] . '</td>' . "\n";
-	print '<td class="liste_titre" style="width: 500px"></td>' . "\n";
-	print '<td class="liste_titre" style="width: 100px">' . $secondColumnData[$row] . '</td>' . "\n";
-	print '<td class="liste_titre" style="width: 200px">' . $databaseValuesForFourthColumn[$row] . '</td>' . "\n";
-	print '</tr>' . "\n";
+	$sql_llx_projet = "SELECT * FROM " . MAIN_DB_PREFIX . "projet WHERE rowid = $projectid";
+	$res_llx_projet = $db->query($sql_llx_projet);
+
+	if ($res_llx_projet) {
+		while ($row = $db->fetch_object($res_llx_projet)) {
+			$object->date = $row->dateo;
+			$object->project_name = $row->title;
+			$object->email = $row->email;
+			$object->contact_person = $row->contact_person;
+			$object->cell = $row->phone;
+			$object->division = $row->division;
+		}
+	} else {
+		echo "Error executing llx_projet query: " . $db->lasterror();
+	}
+
+
+	// $sql_llx_propal = "SELECT * FROM " . MAIN_DB_PREFIX . "propal WHERE rowid = $socid";
+	// $res_llx_propal = $db->query($sql_llx_propal);
+
+	// if ($res_llx_propal) {
+	// 	while ($row = $db->fetch_object($res_llx_propal)) {
+	// 		$object->quote_no = $row->ref;
+	// 	}
+	// }
+	$sql_llx_facture = "SELECT * FROM " . MAIN_DB_PREFIX . "facture WHERE rowid = $socid";
+	$res_llx_facture = $db->query($sql_llx_facture);
+
+	if ($res_llx_facture) {
+		while ($row = $db->fetch_object($res_llx_facture)) {
+			$object->invoice_no = $row->ref;
+			$object->po_no = $row->po_no;
+			$object->quote_no = $row->quote_no;
+		}
+	}
+
+	$firstColumnData = array(
+		'Date:',
+		'Company Name:',
+		'Project:',
+		'Contact:',
+		'Cell:',
+		'Email:',
+		'Client VAT:'
+	);
+
+	$secondColumnData = array(
+		'Division:',
+		'Vendor/Client No.:',
+		'P.O. No.:',
+		'Delivery No.:',
+		'Quote No.:',
+		'Invoice No.:',
+		'VAT No.:'
+	);
+
+	$firstColumnValues = array(
+		$object->date,
+		$object->company_name,
+		$object->project_name,
+		$object->contact_person,
+		$object->cell,
+		$object->email,
+		$object->client_vat
+	);
+	$secondColumnValues = array(
+		$object->division,
+		$object->vendor_no,
+		$object->po_no,
+		"",
+		$object->quote_no,
+		$object->invoice_no,
+		$object->client_vat
+	);
+	print '<table class="noborder centpercent" style="margin-top: 20px;">' . "\n";
+	for ($row = 0; $row < 7; $row++) {
+		print '<tr><td class="liste_titre_filter">' .  $firstColumnData[$row]  . '</td><td class="liste_titre_filter" colspan="2">';
+		print $firstColumnValues[$row];
+		print '</td>';
+		print '<td class="liste_titre_filter" colspan="2">';
+		print  $secondColumnData[$row];
+		print '</td>';
+		print '<td colspan="2" class="liste_titre_filter">';
+		print $secondColumnValues[$row];
+		print '</td></tr>';
+	}
+	print '</table>' . "\n";
+
+	print '<table class="noborder" style="margin-top: 20px;">' . "\n";
+	print '<tr><td>' . $langs->trans('No.') . '</td><td colspan="2">';
+	print $langs->trans('QTY.');
+	print '</td>';
+	print '<td colspan="2">';
+	print  $langs->trans('Description.');
+	print '</td>';
+	print '<td colspan="2">';
+	print  $langs->trans('Unit Price.');
+	print '</td>';
+	print '<td colspan="2">';
+	print $langs->trans('Total Price.');
+	print '</td></tr>';
+
+	print '</table>' . "\n";
 }
-print '</table>' . "\n";
-print '</div>';
 
-print '<table class="tagtable nobottomiftotal liste listwithfilterbefore border">' . "\n";
-print '<tr class="">' . "\n";
-print '<td class="liste_titre" style="width: 100px;">' . $firstColumnData[$row] . '</td>' . "\n";
-print '<td class="liste_titre" style="width: 200px">' . $databaseValuesForSecondColumn[$row] . '</td>' . "\n";
-print '<td class="liste_titre" style="width: 500px"></td>' . "\n";
-print '<td class="liste_titre" style="width: 100px">' . $secondColumnData[$row] . '</td>' . "\n";
-print '<td class="liste_titre" style="width: 200px">' . $databaseValuesForFourthColumn[$row] . '</td>' . "\n";
-print '</tr>' . "\n";
-print '</table>' . "\n";
+print "</form>\n";
 
 
 /*
