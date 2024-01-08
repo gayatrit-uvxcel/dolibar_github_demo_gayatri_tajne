@@ -619,11 +619,11 @@ class pdf_cornas extends ModelePDFSuppliersOrders
                     $pdf->SetFont('', '', $default_font_size - 1); // On repositionne la police par defaut
 
                     // VAT Rate
-                    if ($this->getColumnStatus('vat')) {
-                        $vat_rate = pdf_getlinevatrate($object, $i, $outputlangs, $hidedetails);
-                        $this->printStdColumnContent($pdf, $curY, 'vat', $vat_rate);
-                        $nexY = max($pdf->GetY(), $nexY);
-                    }
+                    // if ($this->getColumnStatus('vat')) {
+                    //     $vat_rate = pdf_getlinevatrate($object, $i, $outputlangs, $hidedetails);
+                    //     $this->printStdColumnContent($pdf, $curY, 'vat', $vat_rate);
+                    //     $nexY = max($pdf->GetY(), $nexY);
+                    // }
 
                     // Unit price before discount
                     if ($this->getColumnStatus('subprice')) {
@@ -1457,13 +1457,39 @@ class pdf_cornas extends ModelePDFSuppliersOrders
          */
 
         $rank = 0; // do not use negative rank
+
+        $this->cols['qty'] = array(
+            'rank' => $rank,
+            'width' => 16, // in mm
+            'status' => true,
+            'title' => array(
+                'textkey' => 'Qty',
+            ),
+            'border-left' => true, // add left line separator
+        );
+
+        $rank = $rank + 10;
+        $this->cols['unit'] = array(
+            'rank' => $rank,
+            'width' => 16, // in mm
+            'status' => true,
+            'title' => array(
+                'textkey' => 'Unit',
+            ),
+            'border-left' => true, // add left line separator
+        );
+
+        if (getDolGlobalInt('PRODUCT_USE_UNITS')) {
+            $this->cols['unit']['status'] = true;
+        }
+        $rank = $rank + 10;
         $this->cols['desc'] = array(
             'rank' => $rank,
             'width' => false, // only for desc
             'status' => true,
             'title' => array(
                 'textkey' => 'Designation', // use lang key is usefull in somme case with module
-                'align' => 'L',
+                'align' => 'C',
                 // 'textkey' => 'yourLangKey', // if there is no label, yourLangKey will be translated to replace label
                 // 'label' => ' ', // the final label
                 'padding' => array(0.5, 1, 0.5, 1.5), // Like css 0 => top , 1 => right, 2 => bottom, 3 => left
@@ -1472,6 +1498,7 @@ class pdf_cornas extends ModelePDFSuppliersOrders
                 'align' => 'L',
                 'padding' => array(1, 0.5, 1, 1.5), // Like css 0 => top , 1 => right, 2 => bottom, 3 => left
             ),
+            'border-left' => true,
         );
 
         $rank = $rank + 10;
@@ -1493,20 +1520,20 @@ class pdf_cornas extends ModelePDFSuppliersOrders
             $this->cols['photo']['status'] = true;
         }
 
-        $rank = $rank + 10;
-        $this->cols['vat'] = array(
-            'rank' => $rank,
-            'status' => false,
-            'width' => 16, // in mm
-            'title' => array(
-                'textkey' => 'VAT',
-            ),
-            'border-left' => true, // add left line separator
-        );
+        // $rank = $rank + 10;
+        // $this->cols['vat'] = array(
+        //     'rank' => $rank,
+        //     'status' => false,
+        //     'width' => 16, // in mm
+        //     'title' => array(
+        //         'textkey' => 'VAT',
+        //     ),
+        //     'border-left' => true, // add left line separator
+        // );
 
-        if (empty($conf->global->MAIN_GENERATE_DOCUMENTS_WITHOUT_VAT) && empty($conf->global->MAIN_GENERATE_DOCUMENTS_WITHOUT_VAT_COLUMN)) {
-            $this->cols['vat']['status'] = true;
-        }
+        // if (empty($conf->global->MAIN_GENERATE_DOCUMENTS_WITHOUT_VAT) && empty($conf->global->MAIN_GENERATE_DOCUMENTS_WITHOUT_VAT_COLUMN)) {
+        //     $this->cols['vat']['status'] = true;
+        // }
 
         $rank = $rank + 10;
         $this->cols['subprice'] = array(
@@ -1514,38 +1541,13 @@ class pdf_cornas extends ModelePDFSuppliersOrders
             'width' => 19, // in mm
             'status' => false,
             'title' => array(
-                'textkey' => 'PriceUHT',
+                'textkey' => 'Per',
             ),
             'border-left' => true, // add left line separator
         );
 
         if (empty($conf->global->MAIN_GENERATE_DOCUMENTS_PURCHASE_ORDER_WITHOUT_UNIT_PRICE)) {
             $this->cols['subprice']['status'] = true;
-        }
-
-        $rank = $rank + 10;
-        $this->cols['qty'] = array(
-            'rank' => $rank,
-            'width' => 16, // in mm
-            'status' => true,
-            'title' => array(
-                'textkey' => 'Qty',
-            ),
-            'border-left' => true, // add left line separator
-        );
-
-        $rank = $rank + 10;
-        $this->cols['unit'] = array(
-            'rank' => $rank,
-            'width' => 11, // in mm
-            'status' => false,
-            'title' => array(
-                'textkey' => 'Unit',
-            ),
-            'border-left' => true, // add left line separator
-        );
-        if (getDolGlobalInt('PRODUCT_USE_UNITS')) {
-            $this->cols['unit']['status'] = true;
         }
 
         $rank = $rank + 10;
@@ -1568,7 +1570,7 @@ class pdf_cornas extends ModelePDFSuppliersOrders
             'width' => 26, // in mm
             'status' => true,
             'title' => array(
-                'textkey' => 'TotalHT',
+                'textkey' => 'Price',
             ),
             'border-left' => true, // add left line separator
         );
@@ -1610,16 +1612,16 @@ class pdf_cornas extends ModelePDFSuppliersOrders
 
         if ($res_llx_commande_fournisseur) {
             while ($row = $this->db->fetch_object($res_llx_commande_fournisseur)) {
-                $terms_and_conditions = json_decode($row->terms_and_conditions, true); 
+                $terms_and_conditions = json_decode($row->terms_and_conditions, true);
             }
         }
-        
+
         // Define your terms and conditions content
         if (isset($terms_and_conditions) && is_array($terms_and_conditions)) {
             $termsContent = "Terms and Conditions";
 
             foreach ($terms_and_conditions as $index => $condition) {
-                $termsContent .= "\n" . str_repeat(' ', 9) . ($index + 1) . ". " . $condition .".";
+                $termsContent .= "\n" . str_repeat(' ', 9) . ($index + 1) . ". " . $condition . ".";
             }
         } else {
             $termsContent = "Default Terms and Conditions: No specific terms found.";
@@ -1627,10 +1629,10 @@ class pdf_cornas extends ModelePDFSuppliersOrders
 
         // Define your terms and conditions content
         // $termsContent = "Terms and Conditions:
-		// 1. Weekly Progress sign-off report to be emailed on Mondays.
-		// 2. Delivery is 4 weeks from order placement.
-		// 3. Payment terms – 40% on order placement, 40% on fabrication complete and release for
-		//    powder coating and 20% on panel delivery";
+        // 1. Weekly Progress sign-off report to be emailed on Mondays.
+        // 2. Delivery is 4 weeks from order placement.
+        // 3. Payment terms – 40% on order placement, 40% on fabrication complete and release for
+        //    powder coating and 20% on panel delivery";
 
         // Explode the terms content into an array of lines
         $termsLines = explode("\n", $termsContent);

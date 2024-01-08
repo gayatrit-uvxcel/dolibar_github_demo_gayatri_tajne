@@ -218,6 +218,7 @@ class CommandeFournisseur extends CommonOrder
      * @var int ID
      */
     public $fk_multicurrency;
+    public $unit;
 
     public $multicurrency_code;
     public $multicurrency_tx;
@@ -527,7 +528,7 @@ class CommandeFournisseur extends CommonOrder
         $sql .= " l.localtax1_tx, l. localtax2_tx, l.localtax1_type, l. localtax2_type, l.total_localtax1, l.total_localtax2,";
         $sql .= " l.total_ht, l.total_tva, l.total_ttc, l.special_code, l.fk_parent_line, l.rang,";
         $sql .= " p.rowid as product_id, p.ref as product_ref, p.label as product_label, p.description as product_desc, p.tobatch as product_tobatch, p.barcode as product_barcode,";
-        $sql .= " l.fk_unit,";
+        $sql .= " l.fk_unit,l.unit,";
         $sql .= " l.date_start, l.date_end,";
         $sql .= ' l.fk_multicurrency, l.multicurrency_code, l.multicurrency_subprice, l.multicurrency_total_ht, l.multicurrency_total_tva, l.multicurrency_total_ttc';
         $sql .= " FROM " . MAIN_DB_PREFIX . "commande_fournisseurdet as l";
@@ -617,6 +618,7 @@ class CommandeFournisseur extends CommonOrder
                 $line->date_start = $this->db->jdate($objp->date_start);
                 $line->date_end = $this->db->jdate($objp->date_end);
                 $line->fk_unit = $objp->fk_unit;
+                $line->unit = $objp->unit;
 
                 // Multicurrency
                 $line->fk_multicurrency = $objp->fk_multicurrency;
@@ -1516,7 +1518,7 @@ class CommandeFournisseur extends CommonOrder
         $sql .= ", " . ($this->quote_no ? "'" . $this->db->escape($this->quote_no) . "'" : "null");
         $sql .= ", " . ($this->vat_no ? "'" . $this->db->escape($this->vat_no) . "'" : "null");
         $sql .= ", '(PROV)'";
-        $sql .= ", '".$this->db->escape($this->terms_and_conditions)."'";
+        $sql .= ", '" . $this->db->escape($this->terms_and_conditions) . "'";
         $sql .= ")";
 
         dol_syslog(get_class($this) . "::create", LOG_DEBUG);
@@ -1556,6 +1558,7 @@ class CommandeFournisseur extends CommonOrder
                         $line->date_end,
                         $line->array_options,
                         $line->fk_unit,
+                        $line->unit,
                         $line->special_code
                     );
                     if ($result < 0) {
@@ -1859,11 +1862,11 @@ class CommandeFournisseur extends CommonOrder
      *     @param        int        $special_code            Special code
      *    @return     int                             <=0 if KO, >0 if OK
      */
-    public function addline($desc, $pu_ht, $qty, $txtva, $txlocaltax1 = 0.0, $txlocaltax2 = 0.0, $fk_product = 0, $fk_prod_fourn_price = 0, $ref_supplier = '', $remise_percent = 0.0, $price_base_type = 'HT', $pu_ttc = 0.0, $type = 0, $info_bits = 0, $notrigger = false, $date_start = null, $date_end = null, $array_options = 0, $fk_unit = null, $pu_ht_devise = 0, $origin = '', $origin_id = 0, $rang = -1, $special_code = 0)
+    public function addline($desc, $pu_ht, $qty, $txtva, $txlocaltax1 = 0.0, $txlocaltax2 = 0.0, $fk_product = 0, $fk_prod_fourn_price = 0, $ref_supplier = '', $remise_percent = 0.0, $price_base_type = 'HT', $pu_ttc = 0.0, $type = 0, $info_bits = 0, $notrigger = false, $date_start = null, $date_end = null, $array_options = 0, $fk_unit = null, $unit = null, $pu_ht_devise = 0, $origin = '', $origin_id = 0, $rang = -1, $special_code = 0)
     {
         global $langs, $mysoc, $conf;
 
-        dol_syslog(get_class($this) . "::addline $desc, $pu_ht, $qty, $txtva, $txlocaltax1, $txlocaltax2, $fk_product, $fk_prod_fourn_price, $ref_supplier, $remise_percent, $price_base_type, $pu_ttc, $type, $info_bits, $notrigger, $date_start, $date_end, $fk_unit, $pu_ht_devise, $origin, $origin_id");
+        dol_syslog(get_class($this) . "::addline $desc, $pu_ht, $qty, $txtva, $txlocaltax1, $txlocaltax2, $fk_product, $fk_prod_fourn_price, $ref_supplier, $remise_percent, $price_base_type, $pu_ttc, $type, $info_bits, $notrigger, $date_start, $date_end, $fk_unit, $unit,$pu_ht_devise, $origin, $origin_id");
         include_once DOL_DOCUMENT_ROOT . '/core/lib/price.lib.php';
 
         if ($this->statut == self::STATUS_DRAFT) {
@@ -2073,6 +2076,7 @@ class CommandeFournisseur extends CommonOrder
             $this->line->origin = $origin;
             $this->line->origin_id = $origin_id;
             $this->line->fk_unit = $fk_unit;
+            $this->line->unit = $unit;
 
             $this->line->date_start = $date_start;
             $this->line->date_end = $date_end;
@@ -2757,11 +2761,11 @@ class CommandeFournisseur extends CommonOrder
             }
 
             $sql = "INSERT INTO " . MAIN_DB_PREFIX . "commande_fournisseurdet";
-            $sql .= " (fk_commande, label, description, fk_product, price, qty, tva_tx, localtax1_tx, localtax2_tx, remise_percent, subprice, remise, ref)";
+            $sql .= " (fk_commande, label, description, fk_product, price, qty, tva_tx, localtax1_tx, localtax2_tx, remise_percent, subprice, remise, ref,unit)";
             $sql .= " VALUES (" . ((int) $idc) . ", '" . $this->db->escape($label) . "', '" . $this->db->escape($comclient->lines[$i]->desc) . "'";
             $sql .= "," . $comclient->lines[$i]->fk_product . ", " . price2num($comclient->lines[$i]->price, 'MU');
             $sql .= ", " . price2num($comclient->lines[$i]->qty, 'MS') . ", " . price2num($comclient->lines[$i]->tva_tx, 5) . ", " . price2num($comclient->lines[$i]->localtax1_tx, 5) . ", " . price2num($comclient->lines[$i]->localtax2_tx, 5) . ", " . price2num($comclient->lines[$i]->remise_percent, 3);
-            $sql .= ", '" . price2num($comclient->lines[$i]->subprice, 'MT') . "','0', '" . $this->db->escape($ref) . "');";
+            $sql .= ", '" . price2num($comclient->lines[$i]->subprice, 'MT') . "','0', '" . $this->db->escape($ref) . "', '" . $this->db->escape($unit) . "');";
             if ($this->db->query($sql)) {
                 $this->update_price(1);
             }
@@ -2848,10 +2852,10 @@ class CommandeFournisseur extends CommonOrder
      *  @param        string        $ref_supplier        Supplier ref
      *    @return        int                             < 0 if error, > 0 if ok
      */
-    public function updateline($rowid, $desc, $pu, $qty, $remise_percent, $txtva, $txlocaltax1 = 0, $txlocaltax2 = 0, $price_base_type = 'HT', $info_bits = 0, $type = 0, $notrigger = 0, $date_start = '', $date_end = '', $array_options = 0, $fk_unit = null, $pu_ht_devise = 0, $ref_supplier = '')
+    public function updateline($rowid, $desc, $pu, $qty, $remise_percent, $txtva, $txlocaltax1 = 0, $txlocaltax2 = 0, $price_base_type = 'HT', $info_bits = 0, $type = 0, $notrigger = 0, $date_start = '', $date_end = '', $array_options = 0, $fk_unit = null, $unit = null, $pu_ht_devise = 0, $ref_supplier = '')
     {
         global $mysoc, $conf, $langs;
-        dol_syslog(get_class($this) . "::updateline $rowid, $desc, $pu, $qty, $remise_percent, $txtva, $price_base_type, $info_bits, $type, $fk_unit");
+        dol_syslog(get_class($this) . "::updateline $rowid, $desc, $pu, $qty, $remise_percent, $txtva, $price_base_type, $info_bits, $type, $fk_unit,$unit");
         include_once DOL_DOCUMENT_ROOT . '/core/lib/price.lib.php';
 
         $error = 0;
@@ -2987,6 +2991,7 @@ class CommandeFournisseur extends CommonOrder
             $this->line->special_code = (!empty($this->special_code) ? $this->special_code : 0);
             $this->line->origin = $this->origin;
             $this->line->fk_unit = $fk_unit;
+            $this->line->unit = $unit;
 
             $this->line->date_start = $date_start;
             $this->line->date_end = $date_end;
@@ -3788,7 +3793,7 @@ class CommandeFournisseurLigne extends CommonOrderLine
         $sql .= ' cd.info_bits, cd.total_ht, cd.total_tva, cd.total_ttc,';
         $sql .= ' cd.total_localtax1, cd.total_localtax2,';
         $sql .= ' p.ref as product_ref, p.label as product_label, p.description as product_desc,';
-        $sql .= ' cd.date_start, cd.date_end, cd.fk_unit,';
+        $sql .= ' cd.date_start, cd.date_end, cd.fk_unit,cd.unit,';
         $sql .= ' cd.multicurrency_subprice, cd.multicurrency_total_ht, cd.multicurrency_total_tva, cd.multicurrency_total_ttc,';
         $sql .= ' c.fk_soc as socid';
         $sql .= ' FROM ' . MAIN_DB_PREFIX . 'commande_fournisseur as c, ' . MAIN_DB_PREFIX . 'commande_fournisseurdet as cd';
@@ -3862,6 +3867,7 @@ class CommandeFournisseurLigne extends CommonOrderLine
                 $this->date_start = $this->db->jdate($objp->date_start);
                 $this->date_end = $this->db->jdate($objp->date_end);
                 $this->fk_unit = $objp->fk_unit;
+                $this->unit = $objp->unit;
 
                 $this->multicurrency_subprice = $objp->multicurrency_subprice;
                 $this->multicurrency_total_ht = $objp->multicurrency_total_ht;
@@ -3961,7 +3967,7 @@ class CommandeFournisseurLigne extends CommonOrderLine
         $sql .= " fk_product, product_type, special_code, rang,";
         $sql .= " qty, vat_src_code, tva_tx, localtax1_tx, localtax2_tx, localtax1_type, localtax2_type, remise_percent, subprice, ref,";
         $sql .= " total_ht, total_tva, total_localtax1, total_localtax2, total_ttc, fk_unit,";
-        $sql .= " fk_multicurrency, multicurrency_code, multicurrency_subprice, multicurrency_total_ht, multicurrency_total_tva, multicurrency_total_ttc";
+        $sql .= " fk_multicurrency, multicurrency_code, multicurrency_subprice, multicurrency_total_ht, multicurrency_total_tva, multicurrency_total_ttc,unit";
         $sql .= ")";
         $sql .= " VALUES (" . $this->fk_commande . ", '" . $this->db->escape($this->label) . "','" . $this->db->escape($this->desc) . "',";
         $sql .= " " . ($this->date_start ? "'" . $this->db->idate($this->date_start) . "'" : "null") . ",";
@@ -3987,14 +3993,14 @@ class CommandeFournisseurLigne extends CommonOrderLine
         $sql .= " " . price2num($this->total_localtax1) . ",";
         $sql .= " " . price2num($this->total_localtax2) . ",";
         $sql .= " " . price2num($this->total_ttc) . ",";
-        $sql .= ($this->fk_unit ? "'" . $this->db->escape($this->fk_unit) . "'" : "null");
-        $sql .= ", " . ($this->fk_multicurrency ? ((int) $this->fk_multicurrency) : "null");
-        $sql .= ", '" . $this->db->escape($this->multicurrency_code) . "'";
-        $sql .= ", " . ($this->multicurrency_subprice ? price2num($this->multicurrency_subprice) : '0');
-        $sql .= ", " . ($this->multicurrency_total_ht ? price2num($this->multicurrency_total_ht) : '0');
-        $sql .= ", " . ($this->multicurrency_total_tva ? price2num($this->multicurrency_total_tva) : '0');
-        $sql .= ", " . ($this->multicurrency_total_ttc ? price2num($this->multicurrency_total_ttc) : '0');
-        $sql .= ")";
+        $sql .= ($this->fk_unit ? "'" . $this->db->escape($this->fk_unit) . "'" : "null") . ",";
+        $sql .= " " . ($this->fk_multicurrency ? ((int) $this->fk_multicurrency) : "null") . ",";
+        $sql .= "'" . $this->db->escape($this->multicurrency_code) . "'";
+        $sql .= ", " . ($this->multicurrency_subprice ? price2num($this->multicurrency_subprice) : '0') . ",";
+        $sql .= " " . ($this->multicurrency_total_ht ? price2num($this->multicurrency_total_ht) : '0') . ",";
+        $sql .= " " . ($this->multicurrency_total_tva ? price2num($this->multicurrency_total_tva) : '0') . ",";
+        $sql .= " " . ($this->multicurrency_total_ttc ? price2num($this->multicurrency_total_ttc) : '0');
+        $sql .= ", '" . $this->db->escape(GETPOSTISSET("unit") ? GETPOST("unit") : '') . "')";
 
         dol_syslog(get_class($this) . "::insert", LOG_DEBUG);
         $resql = $this->db->query($sql);
@@ -4075,7 +4081,7 @@ class CommandeFournisseurLigne extends CommonOrderLine
         $sql .= ", product_type=" . $this->product_type;
         $sql .= ", special_code=" . (!empty($this->special_code) ? $this->special_code : 0);
         $sql .= ($this->fk_unit ? ", fk_unit='" . $this->db->escape($this->fk_unit) . "'" : ", fk_unit=null");
-
+        $sql .= ", unit='" . $this->db->escape(GETPOSTISSET("unit") ? GETPOST("unit") : '') . "'";
         // Multicurrency
         $sql .= ", multicurrency_subprice=" . price2num($this->multicurrency_subprice);
         $sql .= ", multicurrency_total_ht=" . price2num($this->multicurrency_total_ht);

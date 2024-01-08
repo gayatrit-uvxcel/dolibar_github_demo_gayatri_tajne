@@ -4530,6 +4530,8 @@ class PropaleLigne extends CommonObjectLine
 
         if (!$error) {
             $sql = "DELETE FROM " . MAIN_DB_PREFIX . "propaldet WHERE rowid = " . ((int) $this->rowid);
+            $sqlFacture = "DELETE FROM " . MAIN_DB_PREFIX . "facturedet WHERE rowid = " . ((int) $this->rowid);
+            $sqlFactureRes = $this->db->query($sqlFacture);
             dol_syslog("PropaleLigne::delete", LOG_DEBUG);
             if ($this->db->query($sql)) {
                 // Remove extrafields
@@ -4639,54 +4641,101 @@ class PropaleLigne extends CommonObjectLine
         $this->db->begin();
 
         // Mise a jour ligne en base
-        $sql = "UPDATE " . MAIN_DB_PREFIX . "propaldet SET";
-        $sql .= " description='" . $this->db->escape($this->desc) . "'";
-        $sql .= ", label=" . (!empty($this->label) ? "'" . $this->db->escape($this->label) . "'" : "null");
-        $sql .= ", product_type=" . $this->product_type;
-        $sql .= ", vat_src_code = '" . (empty($this->vat_src_code) ? '' : $this->vat_src_code) . "'";
-        $sql .= ", tva_tx='" . price2num($this->tva_tx) . "'";
-        $sql .= ", localtax1_tx=" . price2num($this->localtax1_tx);
-        $sql .= ", localtax2_tx=" . price2num($this->localtax2_tx);
-        $sql .= ", localtax1_type='" . $this->db->escape($this->localtax1_type) . "'";
-        $sql .= ", localtax2_type='" . $this->db->escape($this->localtax2_type) . "'";
-        $sql .= ", qty='" . price2num($this->qty) . "'";
-        $sql .= ", subprice=" . price2num($this->subprice);
-        $sql .= ", remise_percent=" . price2num($this->remise_percent);
-        $sql .= ", price=" . (float) price2num($this->price); // TODO A virer
-        $sql .= ", remise=" . (float) price2num($this->remise); // TODO A virer
-        $sql .= ", info_bits='" . $this->db->escape($this->info_bits) . "'";
+        $sqlPropal = "UPDATE " . MAIN_DB_PREFIX . "propaldet SET";
+        $sqlPropal .= " description='" . $this->db->escape($this->desc) . "'";
+        $sqlPropal .= ", label=" . (!empty($this->label) ? "'" . $this->db->escape($this->label) . "'" : "null");
+        $sqlPropal .= ", product_type=" . $this->product_type;
+        $sqlPropal .= ", vat_src_code = '" . (empty($this->vat_src_code) ? '' : $this->vat_src_code) . "'";
+        $sqlPropal .= ", tva_tx='" . price2num($this->tva_tx) . "'";
+        $sqlPropal .= ", localtax1_tx=" . price2num($this->localtax1_tx);
+        $sqlPropal .= ", localtax2_tx=" . price2num($this->localtax2_tx);
+        $sqlPropal .= ", localtax1_type='" . $this->db->escape($this->localtax1_type) . "'";
+        $sqlPropal .= ", localtax2_type='" . $this->db->escape($this->localtax2_type) . "'";
+        $sqlPropal .= ", qty='" . price2num($this->qty) . "'";
+        $sqlPropal .= ", subprice=" . price2num($this->subprice);
+        $sqlPropal .= ", remise_percent=" . price2num($this->remise_percent);
+        $sqlPropal .= ", price=" . (float) price2num($this->price); // TODO A virer
+        $sqlPropal .= ", remise=" . (float) price2num($this->remise); // TODO A virer
+        $sqlPropal .= ", info_bits='" . $this->db->escape($this->info_bits) . "'";
         if (empty($this->skip_update_total)) {
-            $sql .= ", total_ht=" . price2num($this->total_ht);
-            $sql .= ", total_tva=" . price2num($this->total_tva);
-            $sql .= ", total_ttc=" . price2num($this->total_ttc);
-            $sql .= ", total_localtax1=" . price2num($this->total_localtax1);
-            $sql .= ", total_localtax2=" . price2num($this->total_localtax2);
+            $sqlPropal .= ", total_ht=" . price2num($this->total_ht);
+            $sqlPropal .= ", total_tva=" . price2num($this->total_tva);
+            $sqlPropal .= ", total_ttc=" . price2num($this->total_ttc);
+            $sqlPropal .= ", total_localtax1=" . price2num($this->total_localtax1);
+            $sqlPropal .= ", total_localtax2=" . price2num($this->total_localtax2);
         }
-        $sql .= ", fk_product_fournisseur_price=" . (!empty($this->fk_fournprice) ? "'" . $this->db->escape($this->fk_fournprice) . "'" : "null");
-        $sql .= ", buy_price_ht=" . price2num($this->pa_ht);
+        $sqlPropal .= ", fk_product_fournisseur_price=" . (!empty($this->fk_fournprice) ? "'" . $this->db->escape($this->fk_fournprice) . "'" : "null");
+        $sqlPropal .= ", buy_price_ht=" . price2num($this->pa_ht);
         if (strlen($this->special_code)) {
-            $sql .= ", special_code=" . $this->special_code;
+            $sqlPropal .= ", special_code=" . $this->special_code;
         }
-        $sql .= ", fk_parent_line=" . ($this->fk_parent_line > 0 ? $this->fk_parent_line : "null");
+        $sqlPropal .= ", fk_parent_line=" . ($this->fk_parent_line > 0 ? $this->fk_parent_line : "null");
         if (!empty($this->rang)) {
-            $sql .= ", rang=" . ((int) $this->rang);
+            $sqlPropal .= ", rang=" . ((int) $this->rang);
         }
-        $sql .= ", date_start=" . (!empty($this->date_start) ? "'" . $this->db->idate($this->date_start) . "'" : "null");
-        $sql .= ", date_end=" . (!empty($this->date_end) ? "'" . $this->db->idate($this->date_end) . "'" : "null");
-        $sql .= ", fk_unit=" . (!$this->fk_unit ? 'NULL' : $this->fk_unit);
-        $sql .= ", unit='" . $this->db->escape(GETPOSTISSET("unit") ? GETPOST("unit") : '') . "'";
+        $sqlPropal .= ", date_start=" . (!empty($this->date_start) ? "'" . $this->db->idate($this->date_start) . "'" : "null");
+        $sqlPropal .= ", date_end=" . (!empty($this->date_end) ? "'" . $this->db->idate($this->date_end) . "'" : "null");
+        $sqlPropal .= ", fk_unit=" . (!$this->fk_unit ? 'NULL' : $this->fk_unit);
+        $sqlPropal .= ", unit='" . $this->db->escape(GETPOSTISSET("unit") ? GETPOST("unit") : '') . "'";
 
         // Multicurrency
-        $sql .= ", multicurrency_subprice=" . price2num($this->multicurrency_subprice);
-        $sql .= ", multicurrency_total_ht=" . price2num($this->multicurrency_total_ht);
-        $sql .= ", multicurrency_total_tva=" . price2num($this->multicurrency_total_tva);
-        $sql .= ", multicurrency_total_ttc=" . price2num($this->multicurrency_total_ttc);
+        $sqlPropal .= ", multicurrency_subprice=" . price2num($this->multicurrency_subprice);
+        $sqlPropal .= ", multicurrency_total_ht=" . price2num($this->multicurrency_total_ht);
+        $sqlPropal .= ", multicurrency_total_tva=" . price2num($this->multicurrency_total_tva);
+        $sqlPropal .= ", multicurrency_total_ttc=" . price2num($this->multicurrency_total_ttc);
 
-        $sql .= " WHERE rowid = " . ((int) $this->id);
+        $sqlPropal .= " WHERE rowid = " . ((int) $this->id);
+
+        $sqlFacture = "UPDATE " . MAIN_DB_PREFIX . "facturedet SET";
+        $sqlFacture .= " description='" . $this->db->escape($this->desc) . "'";
+        $sqlFacture .= ", label=" . (!empty($this->label) ? "'" . $this->db->escape($this->label) . "'" : "null");
+        $sqlFacture .= ", product_type=" . $this->product_type;
+        $sqlFacture .= ", vat_src_code = '" . (empty($this->vat_src_code) ? '' : $this->vat_src_code) . "'";
+        $sqlFacture .= ", tva_tx='" . price2num($this->tva_tx) . "'";
+        $sqlFacture .= ", localtax1_tx=" . price2num($this->localtax1_tx);
+        $sqlFacture .= ", localtax2_tx=" . price2num($this->localtax2_tx);
+        $sqlFacture .= ", localtax1_type='" . $this->db->escape($this->localtax1_type) . "'";
+        $sqlFacture .= ", localtax2_type='" . $this->db->escape($this->localtax2_type) . "'";
+        $sqlFacture .= ", qty='" . price2num($this->qty) . "'";
+        $sqlFacture .= ", subprice=" . price2num($this->subprice);
+        $sqlFacture .= ", remise_percent=" . price2num($this->remise_percent);
+        $sqlFacture .= ", price=" . (float) price2num($this->price); // TODO A virer
+        $sqlFacture .= ", remise=" . (float) price2num($this->remise); // TODO A virer
+        $sqlFacture .= ", info_bits='" . $this->db->escape($this->info_bits) . "'";
+        if (empty($this->skip_update_total)) {
+            $sqlFacture .= ", total_ht=" . price2num($this->total_ht);
+            $sqlFacture .= ", total_tva=" . price2num($this->total_tva);
+            $sqlFacture .= ", total_ttc=" . price2num($this->total_ttc);
+            $sqlFacture .= ", total_localtax1=" . price2num($this->total_localtax1);
+            $sqlFacture .= ", total_localtax2=" . price2num($this->total_localtax2);
+        }
+        $sqlFacture .= ", fk_product_fournisseur_price=" . (!empty($this->fk_fournprice) ? "'" . $this->db->escape($this->fk_fournprice) . "'" : "null");
+        $sqlFacture .= ", buy_price_ht=" . price2num($this->pa_ht);
+        if (strlen($this->special_code)) {
+            $sqlFacture .= ", special_code=" . $this->special_code;
+        }
+        $sqlFacture .= ", fk_parent_line=" . ($this->fk_parent_line > 0 ? $this->fk_parent_line : "null");
+        if (!empty($this->rang)) {
+            $sqlFacture .= ", rang=" . ((int) $this->rang);
+        }
+        $sqlFacture .= ", date_start=" . (!empty($this->date_start) ? "'" . $this->db->idate($this->date_start) . "'" : "null");
+        $sqlFacture .= ", date_end=" . (!empty($this->date_end) ? "'" . $this->db->idate($this->date_end) . "'" : "null");
+        $sqlFacture .= ", fk_unit=" . (!$this->fk_unit ? 'NULL' : $this->fk_unit);
+        $sqlFacture .= ", unit='" . $this->db->escape(GETPOSTISSET("unit") ? GETPOST("unit") : '') . "'";
+
+        // Multicurrency
+        $sqlFacture .= ", multicurrency_subprice=" . price2num($this->multicurrency_subprice);
+        $sqlFacture .= ", multicurrency_total_ht=" . price2num($this->multicurrency_total_ht);
+        $sqlFacture .= ", multicurrency_total_tva=" . price2num($this->multicurrency_total_tva);
+        $sqlFacture .= ", multicurrency_total_ttc=" . price2num($this->multicurrency_total_ttc);
+
+        $sqlFacture .= " WHERE rowid = " . ((int) $this->id);
 
         dol_syslog(get_class($this) . "::update", LOG_DEBUG);
-        $resql = $this->db->query($sql);
-        if ($resql) {
+        $sqlPropalRes = $this->db->query($sqlPropal);
+        $sqlFactureRes = $this->db->query($sqlFacture);
+        // $sqlFactureRes = $this->db->query($sqlFacture);
+        if ($sqlPropalRes) {
             if (!$error) {
                 $result = $this->insertExtraFields();
                 if ($result < 0) {
