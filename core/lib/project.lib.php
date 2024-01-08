@@ -1473,7 +1473,7 @@ function projectLinesPerDay(&$inc, $parent, $fuser, $lines, &$level, &$projectsr
 					}
 
 					print '<tr class="oddeven trforbreak nobold">'."\n";
-					print '<td colspan="'.(7 + $addcolspan).'">';
+					print '<td colspan="'.(21 + $addcolspan).'">';
 					print $projectstatic->getNomUrl(1, '', 0, '<strong>'.$langs->transnoentitiesnoconv("YourRole").':</strong> '.$projectsrole[$lines[$i]->fk_project]);
 					if ($thirdpartystatic->id > 0) {
 						print ' - '.$thirdpartystatic->getNomUrl(1);
@@ -1713,6 +1713,124 @@ function projectLinesPerDay(&$inc, $parent, $fuser, $lines, &$level, &$projectsr
 				print '<td class="center">';
 				print '<textarea name="'.$lines[$i]->id.'note" rows="'.ROWS_2.'" id="'.$lines[$i]->id.'note"'.($disabledtask ? ' disabled="disabled"' : '').'>';
 				print '</textarea>';
+				print '</td>';
+
+				// leave information
+				print '<td class="center">';
+				print '<select name="'.$lines[$i]->id.'leave_information" rows="'.ROWS_2.'" id="'.$lines[$i]->id.'leave_information"'.($disabledtask ? ' disabled="disabled"' : '').'>';
+				print '<option value="FVA-ANN-LEAVE">FVA-ANN-LEAVE</option>';
+				print '<option value="FVA-UNPAID-LEAVE">FVA-UNPAID-LEAVE</option>';
+				print '<option value="FVA-PUBLIC-HOL">FVA-PUBLIC-HOL</option>';
+				print '<option value="FVA-SICK-LEAVE">FVA-SICK-LEAVE</option>';
+				print '<option value="FVA-WORKING">FVA-WORKING</option>';
+				print '</select>';
+				print '</td>';
+
+				// Over Time
+				print '<td class="center">';
+				print '<input name="'.$lines[$i]->id.'over_time" rows="'.ROWS_2.'" id="'.$lines[$i]->id.'over_time"'.($disabledtask ? ' disabled="disabled"' : '').'>';
+				print '</input>';
+				print '</td>';
+
+				// Night Out
+				print '<td class="center">';
+				print '<input name="'.$lines[$i]->id.'night_out" rows="'.ROWS_2.'" id="'.$lines[$i]->id.'night_out"'.($disabledtask ? ' disabled="disabled"' : '').'>';
+				print '</input>';
+				print '</td>';
+
+				// Travel KM
+				print '<td class="center">';
+				print '<input name="'.$lines[$i]->id.'travel_km" rows="'.ROWS_2.'" id="'.$lines[$i]->id.'travel_km"'.($disabledtask ? ' disabled="disabled"' : '').'>';
+				print '</input>';
+				print '</td>';
+
+				// Main Activity
+				print '<td class="center">';
+				print '<select name="'.$lines[$i]->id.'main_activity" rows="'.ROWS_2.'" id="'.$lines[$i]->id.'main_activity"'.($disabledtask ? ' disabled="disabled"' : '').'>';
+				print '<option value="Meeting Client">Meeting Client</option>';
+				print '<option value="Meeting Technical Clarification">Meeting Technical Clarification</option>';
+				print '<option value="Meeting Tender Discussion">Meeting Tender Discussion</option>';
+				print '<option value="Meeting Commercial Discussion">Meeting Commercial Discussion</option>';
+				print '<option value="Site Specific Inductions">Site Specific Inductions</option>';
+				print '<option value="Site Specific Medicals">Site Specific Medicals</option>';
+				print '<option value="In Office Work">In Office Work</option>';
+				print '<option value="In Office Training">In Office Training</option>';
+				print '<option value="Instrumentation Design">Instrumentation Design</option>';
+				print '<option value="Instrumentation IO Count">Instrumentation IO Count</option>';
+				print '<option value="Instrumentation P&ID Review">Instrumentation P&ID Review</option>';
+				print '<option value="Instrumentation Drawing CAD Review">Instrumentation Drawing CAD Review</option>';
+				print '<option value="Instrumentation Datasheet">Instrumentation Datasheet</option>';
+				print '<option value="Instrumentation Specification Document">Instrumentation Specification Document</option>';
+				print '<option value="Site Acceptance Test - Panel">Site Acceptance Test - Panel</option>';
+				print '<option value="Instrumentation Vendor Adjudication">Instrumentation Vendor Adjudication</option>';
+				print '<option value="Instrumentation Ordering">Instrumentation Ordering</option>';
+				print '<option value="Instrumentation Installation">Instrumentation Installation</option>';
+				print '<option value="Instrumentation IO Testing">Instrumentation IO Testing</option>';
+				print '<option value="Instrumentation Commissioning">Instrumentation Commissioning</option>';
+				print '<option value="Instrumentation Handover">Instrumentation Handover</option>';
+				print '<option value="Instrumentation Handover Signoff">Instrumentation Handover Signoff</option>';
+				print '</select>';
+				print '</td>';
+
+
+					// Comments
+				print '<td class="center">';
+				print '<textarea name="'.$lines[$i]->id.'comments" rows="'.ROWS_2.'" id="'.$lines[$i]->id.'comments"'.($disabledtask ? ' disabled="disabled"' : '').'>';
+				print '</textarea>';
+				print '</td>';
+
+				//OT Pay
+				print '<td class="center">';
+				print '<input name="'.$lines[$i]->id.'ot_pay" rows="'.ROWS_2.'" id="'.$lines[$i]->id.'ot_pay"'.($disabledtask ? ' disabled="disabled"' : '').'>';
+				print '</input>';
+				print '</td>';
+
+				//KM pay
+				print '<td class="center">';
+				print '<input name="'.$lines[$i]->id.'km_pay" rows="'.ROWS_2.'" id="'.$lines[$i]->id.'km_pay"'.($disabledtask ? ' disabled="disabled"' : '').'>';
+				print '</input>';
+				print '</td>';
+
+				//Overhead work
+				print '<td class="center">';
+				print '<input name="'.$lines[$i]->id.'overhead_work" rows="'.ROWS_2.'" id="'.$lines[$i]->id.'overhead_work"'.($disabledtask ? ' disabled="disabled"' : '').'>';
+				print '</input>';
+				print '</td>';
+
+				//Accommodation
+				print '<td class="center">';
+				print '<input name="'.$lines[$i]->id.'accommodation" rows="'.ROWS_2.'" id="'.$lines[$i]->id.'accommodation"'.($disabledtask ? ' disabled="disabled"' : '').'>';
+				print '</input>';
+				print '</td>';
+
+				//Local Night Out
+				print '<td class="center">';
+				print '<input name="'.$lines[$i]->id.'local_night_out" rows="'.ROWS_2.'" id="'.$lines[$i]->id.'local_night_out"'.($disabledtask ? ' disabled="disabled"' : '').'>';
+				print '</input>';
+				print '</td>';
+
+				//Intal Night Out
+				print '<td class="center">';
+				print '<input name="'.$lines[$i]->id.'nital_night_out" rows="'.ROWS_2.'" id="'.$lines[$i]->id.'nital_night_out"'.($disabledtask ? ' disabled="disabled"' : '').'>';
+				print '</input>';
+				print '</td>';
+
+				//Night Out Allowance
+				print '<td class="center">';
+				print '<input name="'.$lines[$i]->id.'night_out_allowance" rows="'.ROWS_2.'" id="'.$lines[$i]->id.'night_out_allowance"'.($disabledtask ? ' disabled="disabled"' : '').'>';
+				print '</input>';
+				print '</td>';
+
+				//Other
+				print '<td class="center">';
+				print '<input name="'.$lines[$i]->id.'other" rows="'.ROWS_2.'" id="'.$lines[$i]->id.'other"'.($disabledtask ? ' disabled="disabled"' : '').'>';
+				print '</input>';
+				print '</td>';
+
+				//Other Comments
+				print '<td class="center">';
+				print '<input name="'.$lines[$i]->id.'other_comments" rows="'.ROWS_2.'" id="'.$lines[$i]->id.'other_comments"'.($disabledtask ? ' disabled="disabled"' : '').'>';
+				print '</input>';
 				print '</td>';
 
 				// Warning

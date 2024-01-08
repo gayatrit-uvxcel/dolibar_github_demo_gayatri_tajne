@@ -196,14 +196,15 @@ if ($action == 'addtime' && $user->rights->projet->lire && GETPOST('assigntask')
 		if ($result < 0) {
 			$error++;
 		}
-	} else {
-		setEventMessages($langs->transnoentitiesnoconv("ErrorFieldRequired", $langs->transnoentitiesnoconv("Task")), null, 'errors');
-		$error++;
-	}
-	if (!GETPOST('type')) {
-		setEventMessages($langs->transnoentitiesnoconv("ErrorFieldRequired", $langs->transnoentitiesnoconv("Type")), null, 'errors');
-		$error++;
-	}
+	} 
+	// else {
+	// 	setEventMessages($langs->transnoentitiesnoconv("ErrorFieldRequired", $langs->transnoentitiesnoconv("Task")), null, 'errors');
+	// 	$error++;
+	// }
+	// if (!GETPOST('type')) {
+	// 	setEventMessages($langs->transnoentitiesnoconv("ErrorFieldRequired", $langs->transnoentitiesnoconv("Type")), null, 'errors');
+	// 	$error++;
+	// }
 	if (!$error) {
 		$idfortaskuser = $usertoprocess->id;
 		$result = $object->add_contact($idfortaskuser, GETPOST("type"), 'internal');
@@ -290,6 +291,7 @@ if ($action == 'addtime' && $user->rights->projet->lire && GETPOST('formfilterac
 
 			$object->timespent_duration = $val;
 			$object->timespent_fk_user = $usertoprocess->id;
+			//$object->over_time = GETPOST($key.'over_time');
 			$object->timespent_note = GETPOST($key.'note');
 			if (GETPOST($key."hour", 'int') != '' && GETPOST($key."hour", 'int') >= 0) {	// If hour was entered
 				$object->timespent_datehour = dol_mktime(GETPOST($key."hour", 'int'), GETPOST($key."min", 'int'), 0, $monthofday, $dayofday, $yearofday);
@@ -480,10 +482,28 @@ $titleassigntask = $langs->transnoentities("AssignTaskToMe");
 if ($usertoprocess->id != $user->id) {
 	$titleassigntask = $langs->transnoentities("AssignTaskToUser", $usertoprocess->getFullName($langs));
 }
+
+//Task List
 print '<div class="taskiddiv inline-block">';
 print img_picto('', 'projecttask', 'class="pictofixedwidth"');
 $formproject->selectTasks($socid ? $socid : -1, $taskid, 'taskid', 32, 0, '-- '.$langs->trans("ChooseANotYetAssignedTask").' --', 1, 0, 0, '', '', 'all', $usertoprocess);
 print '</div>';
+
+
+
+
+// print '<div class="taskiddiv inline-block">';
+// print img_picto('', 'projecttask', 'class="pictofixedwidth"');
+// // Pass your custom item text as the last parameter
+// $formproject->selectTasksWithCustomItem($socid ? $socid : -1, $taskid, 'taskid', 32, 0, '-- '.$langs->trans("ChooseANotYetAssignedTask").' --', 1, 0, 0, '', '', 'all', $usertoprocess, 'Other Task Assign');
+// print '</div>';
+
+// print '<div class="taskiddiv inline-block">';
+// print img_picto('', 'projecttask', 'class="pictofixedwidth"');
+// $formproject->selectTasksWithCustomItem($socid ? $socid : -1, $taskid, 'taskid', 32, 0, '-- '.$langs->trans("ChooseANotYetAssignedTask").' --', 1, 0, 0, '', '', 'all', $usertoprocess, 'Other Task Assign');
+// print '</div>';
+
+
 print ' ';
 print $formcompany->selectTypeContact($object, '', 'type', 'internal', 'position', 0, 'maxwidth150onsmartphone');
 print '<input type="submit" class="button valignmiddle smallonsmartphone small" name="assigntask" value="'.dol_escape_htmltag($titleassigntask).'">';
@@ -667,6 +687,21 @@ if (!$isavailable[$daytoparse]['morning'] && !$isavailable[$daytoparse]['afterno
 
 print '<th class="center'.($cssonholiday ? ' '.$cssonholiday : '').($cssweekend ? ' '.$cssweekend : '').'">'.$langs->trans("Duration").'</th>';
 print '<th class="center">'.$langs->trans("Note").'</th>';
+print '<th class="center">'.$langs->trans("Leave Information").'</th>';
+print '<th class="center">'.$langs->trans("OT").'</th>';
+print '<th class="center">'.$langs->trans("Night Out").'</th>';
+print '<th class="center">'.$langs->trans("Travel KM").'</th>';
+print '<th class="center">'.$langs->trans("Main Activity").'</th>';
+print '<th class="center">'.$langs->trans("Comments").'</th>';
+print '<th class="center">'.$langs->trans("OT Pay").'</th>';
+print '<th class="center">'.$langs->trans("KM Pay").'</th>';
+print '<th class="center">'.$langs->trans("Overhead Work").'</th>';
+print '<th class="center">'.$langs->trans("Accommodation").'</th>';
+print '<th class="center">'.$langs->trans("Local Night Out").'</th>';
+print '<th class="center">'.$langs->trans("Intl Night Out").'</th>';
+print '<th class="center">'.$langs->trans("Night Out Allowance").'</th>';
+print '<th class="center">'.$langs->trans("Other").'</th>';
+print '<th class="center">'.$langs->trans("Other Comments").'</th>';
 //print '<td class="center"></td>';
 print_liste_field_titre($selectedfields, $_SERVER["PHP_SELF"], "", '', '', '', $sortfield, $sortorder, 'center maxwidthsearch ');
 
@@ -691,6 +726,9 @@ if ($conf->use_javascript_ajax) {
 
 	print '<td class="liste_total"></td>';
 	print '<td class="liste_total"></td>';
+	print '<td class="liste_total"></td>';
+	print '<td class="liste_total"></td>';
+	
 	print '</tr>';
 }
 
