@@ -49,6 +49,7 @@ $action = GETPOST('action', 'aZ09');
 $hookmanager->initHooks(array('index'));
 
 $socid = GETPOST('socid', 'int');
+$vendor = false;
 $projectid = (GETPOST('projectid', 'int') ? GETPOST('projectid', 'int') : 0);
 if ($user->socid) {
     $socid = $user->socid;
@@ -196,7 +197,7 @@ if ($soc->id > 0) {
     print '</td>';
     print '</tr>' . "\n";
 } else {
-    print '<tr><td class="fieldrequired">' . $langs->trans('Customer') . '</td>';
+    print '<tr><td class="fieldrequired">' . $langs->trans('Company Name:') . '</td>';
     print '<td colspan="2">';
     $filter = '(s.status:=:1)';
     print img_picto('', 'company', 'class="pictofixedwidth"') . $form->select_company($soc->id, 'socid', $filter, 'SelectThirdParty', 1, 0, null, 0, 'minwidth300 widthcentpercentminusxx maxwidth500');
@@ -224,14 +225,29 @@ if ($soc->id > 0) {
     print '</td>';
     print '</tr>' . "\n";
 }
+if ($socid > 0) {
+
+    $sql_llx_societe = "SELECT client FROM " . MAIN_DB_PREFIX . "societe WHERE rowid = $socid";
+    $res_llx_societe = $db->query($sql_llx_societe);
+
+    if ($res_llx_societe) {
+        $row = $db->fetch_object($res_llx_societe);
+        if ($row && $row->client == 0) {
+            $vendor = true;
+        } else {
+            $vendor = false;
+        }
+    }
+
 // project
-if (isModEnabled('project')) {
-    $langs->load('projects');
-    print '<tr><td class="fieldrequired">' . $langs->trans('Project:') . '</td><td colspan="2">';
-    print img_picto('', 'project', 'class="pictofixedwidth"') . $formproject->select_projects(($socid > 0 ? $socid : -1), $projectid, 'projectid', 0, 0, 1, 1, 0, 0, 0, '', 1, 0, 'maxwidth500 widthcentpercentminusxx');
-    print ' <a href="' . DOL_URL_ROOT . '/projet/card.php?socid=' . $soc->id . '&action=create&status=1&backtopage=' . urlencode($_SERVER["PHP_SELF"] . '?action=create&socid=' . $soc->id . ($fac_rec ? '&fac_rec=' . $fac_rec : '')) . '">
+    if (isModEnabled('project')) {
+        $langs->load('projects');
+        print '<tr><td class="fieldrequired">' . $langs->trans('Project:') . '</td><td colspan="2">';
+        print img_picto('', 'project', 'class="pictofixedwidth"') . $formproject->select_projects(($socid > 0 ? $socid : -1), $projectid, 'projectid', 0, 0, 1, 1, 0, 0, 0, '', 1, 0, 'maxwidth500 widthcentpercentminusxx');
+        print ' <a href="' . DOL_URL_ROOT . '/projet/card.php?socid=' . $soc->id . '&action=create&status=1&backtopage=' . urlencode($_SERVER["PHP_SELF"] . '?action=create&socid=' . $soc->id . ($fac_rec ? '&fac_rec=' . $fac_rec : '')) . '">
 			</a>';
-    print '</td></tr>';
+        print '</td></tr>';
+    }
 }
 
 print '<script>
@@ -292,7 +308,7 @@ if ($projectid > 0) {
     //         $object->quote_no = $row->ref;
     //     }
     // }
-    $sql_llx_facture = "SELECT * FROM " . MAIN_DB_PREFIX . "facture WHERE rowid = $socid";
+    $sql_llx_facture = "SELECT * FROM " . MAIN_DB_PREFIX . "facture WHERE fk_projet = $projectid";
     $res_llx_facture = $db->query($sql_llx_facture);
 
     if ($res_llx_facture) {
@@ -302,8 +318,6 @@ if ($projectid > 0) {
             $object->quote_no = $row->quote_no;
             $object->delivery_no = $row->delivery_no;
         }
-
-        print '<script>console.log("delivery number ' . json_encode($row) . ' ")</script>';
     }
 
     $firstColumnData = array(
@@ -316,16 +330,6 @@ if ($projectid > 0) {
         'Client VAT:',
     );
 
-    $secondColumnData = array(
-        'Division:',
-        'Vendor/Client No.:',
-        'P.O. No.:',
-        'Delivery No.:',
-        'Quote No.:',
-        'Invoice No.:',
-        'VAT No.:',
-    );
-
     $firstColumnValues = array(
         $object->date,
         $object->company_name,
@@ -335,16 +339,48 @@ if ($projectid > 0) {
         $object->email,
         $object->client_vat,
     );
-    $secondColumnValues = array(
-        $object->division,
-        $object->vendor_no,
-        $object->po_no,
-        // str_replace('I', 'D', $object->invoice_no),
-        $object->delivery_no,
-        $object->quote_no,
-        $object->invoice_no,
-        $object->client_vat,
-    );
+
+    $secondColumnData = array();
+    $secondColumnValues = array();
+
+    if ($vendor) {
+        $secondColumnData = array(
+            'Division:',
+            'Vendor/Client No.:',
+            'P.O. No.:',
+            'Quote No.:',
+            'VAT No.:',
+        );
+
+        $secondColumnValues = array(
+            $object->division,
+            $object->vendor_no,
+            $object->po_no,
+            $object->quote_no,
+            $object->client_vat,
+        );
+    } else {
+        $secondColumnData = array(
+            'Division:',
+            'Vendor/Client No.:',
+            'P.O. No.:',
+            'Delivery No.:',
+            'Quote No.:',
+            'Invoice No.:',
+            'VAT No.:',
+        );
+
+        $secondColumnValues = array(
+            $object->division,
+            $object->vendor_no,
+            $object->po_no,
+            $object->delivery_no,
+            $object->quote_no,
+            $object->invoice_no,
+            $object->client_vat,
+        );
+    }
+
     print '<table class="noborder centpercent" style="margin-top: 20px;">' . "\n";
     for ($row = 0; $row < 7; $row++) {
         print '<tr><td class="liste_titre_filter">' . $firstColumnData[$row] . '</td><td class="liste_titre_filter" colspan="2">';
