@@ -274,7 +274,6 @@ if ($projectid > 0) {
         while ($row = $db->fetch_object($res_llx_societe)) {
             $object->client_vat = $row->client_vat;
             $object->vendor_no = $row->vendor_no;
-            $object->po_no = $row->po_no;
             $object->vat_no = $row->vat_no;
             $object->company_name = $row->nom;
         }
@@ -344,6 +343,15 @@ if ($projectid > 0) {
     $secondColumnValues = array();
 
     if ($vendor) {
+        $sql_llx_commande_fournisseur = "SELECT * FROM " . MAIN_DB_PREFIX . "commande_fournisseur WHERE fk_projet = $projectid";
+        $res_llx_commande_fournisseur = $db->query($sql_llx_commande_fournisseur);
+
+        if ($res_llx_facture) {
+            while ($row = $db->fetch_object($res_llx_commande_fournisseur)) {
+                $object->po_no = $row->po_no;
+                $object->quote_no = $row->quote_no;
+            }
+        }
         $secondColumnData = array(
             'Division:',
             'Vendor/Client No.:',
@@ -357,7 +365,7 @@ if ($projectid > 0) {
             $object->vendor_no,
             $object->po_no,
             $object->quote_no,
-            $object->client_vat,
+            dol_escape_htmltag(!empty($conf->global->MAIN_INFO_TVAINTRA) ? $conf->global->MAIN_INFO_TVAINTRA : ''),
         );
     } else {
         $secondColumnData = array(
@@ -377,7 +385,7 @@ if ($projectid > 0) {
             $object->delivery_no,
             $object->quote_no,
             $object->invoice_no,
-            $object->client_vat,
+            dol_escape_htmltag(!empty($conf->global->MAIN_INFO_TVAINTRA) ? $conf->global->MAIN_INFO_TVAINTRA : ''),
         );
     }
 
