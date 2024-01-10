@@ -909,30 +909,91 @@ class pdf_cyan extends ModelePDFPropales
 
                 // Display total zone
                 $posy = $this->drawTotalTable($pdf, $object, 0, $bottomlasttab, $outputlangs);
-                print "<script>console.log(`first page " . $pagenb . "`)</script>";
+
+                // display terms and condition
+                // $posy = $this->displayNotesAndTerms($pdf, $object, $posy, $outputlangs);
+                $remainingSpaceforNotes = $this->page_hauteur - $pdf->GetY() - $heightforfooter;
+                $notesContentHeight = $this->displayNotes($pdf, $posy, $object, $outputlangs, true);
+                if ($remainingSpaceforNotes > $notesContentHeight) {
+                    $posy = $this->displayNotes($pdf, $posy, $object, $outputlangs, false);
+                } else {
+                    $this->_pagefoot($pdf, $object, $outputlangs, 1);
+                    // New page
+                    $pdf->AddPage();
+                    if (!empty($tplidx)) {
+                        $pdf->useTemplate($tplidx);
+                    }
+                    $pagenb++;
+                    if (!getDolGlobalInt('MAIN_PDF_DONOTREPEAT_HEAD')) {
+                        $this->_pagehead($pdf, $object, 1, $outputlangs, $outputlangsbis, $pagenb);
+                    }
+
+                    $this->displayNotes($pdf, $posy, $object, $outputlangs, false);
+                }
+
+                $termsContentHeight = $this->displayTermsAndCondition($pdf, $object, true);
+                $remainingSpaceforTerms = $this->page_hauteur - $pdf->GetY() - $heightforfooter;
+                if ($remainingSpaceforTerms > $termsContentHeight) {
+                    $posy = $this->displayTermsAndCondition($pdf, $object, false);
+                } else {
+                    $this->_pagefoot($pdf, $object, $outputlangs, 1);
+                    // New page
+                    $pdf->AddPage();
+                    if (!empty($tplidx)) {
+                        $pdf->useTemplate($tplidx);
+                    }
+                    $pagenb++;
+                    if (!getDolGlobalInt('MAIN_PDF_DONOTREPEAT_HEAD')) {
+                        $this->_pagehead($pdf, $object, 1, $outputlangs, $outputlangsbis, $pagenb);
+                    }
+
+                    $posy = $this->displayTermsAndCondition($pdf, $object, false);
+                }
+                $remainingforRegards = $this->page_hauteur - $pdf->GetY() - $heightforfooter;
+                $heightOfRegards = $this->displayRegards($pdf, $object, true);
+                if ($remainingforRegards > $heightOfRegards) {
+                    $posy = $this->displayRegards($pdf, $object, false);
+                } else {
+                    $this->_pagefoot($pdf, $object, $outputlangs, 1);
+                    // New page
+                    $pdf->AddPage();
+                    if (!empty($tplidx)) {
+                        $pdf->useTemplate($tplidx);
+                    }
+                    $pagenb++;
+                    if (!getDolGlobalInt('MAIN_PDF_DONOTREPEAT_HEAD')) {
+                        $this->_pagehead($pdf, $object, 1, $outputlangs, $outputlangsbis, $pagenb);
+                    }
+
+                    $posy = $this->displayRegards($pdf, $object, false);
+                }
+
+
                 $this->_pagefoot($pdf, $object, $outputlangs);
                 if (method_exists($pdf, 'AliasNbPages')) {
                     $pdf->AliasNbPages();
                 }
-                $posy = $this->displayNotesAndTerms($pdf, $object, $posy, $outputlangs);
-                $remainingSpaceRegards = $pdf->getPageHeight() - $posy;
-                $heightForRegards = 4 * 4 + 5 * 3;
 
-                if ($remainingSpaceRegards < $heightForRegards) {
-                    $pdf->AddPage();
-                    $pagenb++;
-                    $posy = 15;
-                }
-                $this->_pagehead($pdf, $object, 1, $outputlangs, $outputlangsbis, $pagenb);
-                print "<script>console.log(`second page" . $pagenb . "`)</script>";
+                // $remainingSpaceRegards = $pdf->getPageHeight() - $posy;
+                // $heightForRegards = 4 * 4 + 5 * 3;
+
+                // if ($remainingSpaceRegards < $heightForRegards) {
+                //     $pdf->AddPage();
+                //     $pagenb++;
+                //     $posy = 15;
+                // }
+                // $this->_pagehead($pdf, $object, 1, $outputlangs, $outputlangsbis, $pagenb);
+
+
+
                 // Display the Regards content
-                $posy = $this->displayRegards($pdf, $object, $posy, $outputlangs);
+                // $posy = $this->displayRegards($pdf, $object, $posy, $outputlangs);
 
                 // Pagefoot
-                $this->_pagefoot($pdf, $object, $outputlangs);
-                if (method_exists($pdf, 'AliasNbPages')) {
-                    $pdf->AliasNbPages();
-                }
+                // $this->_pagefoot($pdf, $object, $outputlangs);
+                // if (method_exists($pdf, 'AliasNbPages')) {
+                //     $pdf->AliasNbPages();
+                // }
 
                 //If propal merge product PDF is active
                 if (!empty($conf->global->PRODUIT_PDF_MERGE_PROPAL)) {
@@ -1867,94 +1928,157 @@ class pdf_cyan extends ModelePDFPropales
     // {
     //     global $conf;
     //     $default_font_size = pdf_getPDFFontSize($outputlangs);
+    //     $heightforfooter = $this->marge_basse + (empty($conf->global->MAIN_GENERATE_DOCUMENTS_SHOW_FOOT_DETAILS) ? 12 : 22); // Height reserved to output the footer (value include bottom margin)
     //     print "<script>console.log(`position in start" . $posy . "`)</script>";
-    //     $xPosition = 20;
+    //     $xPosition = 10;
     //     $lineHeight = 5;
-    //     $marginTop = 5;
+    //     $marginTop = 3;
 
-    //     // Define your notes and terms
-    //     $content = "Notes:
-    //      1. Upon Award a SLD will be provided as per the quoted design.
-    //      2. If design is altered with component additions or changes, the quote will be revised. ";
+    //     // Define your notes content
+    //     // $notesContent = "Notes:
+    //     //  1. Upon Award a SLD will be provided as per the quoted design.
+    //     //  2. If design is altered with component additions or changes, the quote will be revised. ";
 
-    //     // Explode the content into an array of lines
-    //     $lines = explode("\n", $content);
+    //     $sql_llx_facture = "SELECT * FROM " . MAIN_DB_PREFIX . "propal WHERE rowid = $object->id";
+    //     $res_llx_facture = $this->db->query($sql_llx_facture);
 
-    //     // Now you can use $posy to set the Y position for your content
-    //     $pdf->SetFont('', '', $default_font_size);
+    //     if ($res_llx_facture) {
+    //         while ($row = $this->db->fetch_object($res_llx_facture)) {
+    //             $notes = json_decode($row->notes, true);
+    //         }
+    //     }
 
-    //     // Calculate the remaining space on the current page
-    //     $remainingSpace = $pdf->getPageHeight() - $posy;
-    //     print "<script>console.log(`posi" . $posy . "`)</script>";
-    //     print "<script>console.log(`remaining space " . $remainingSpace . "`)</script>";
-    //     // Calculate the height of the content
-    //     $contentHeight = count($lines) * $lineHeight + $marginTop;
+    //     // Define your terms and conditions content
+    //     if (isset($notes) && is_array($notes)) {
+    //         $notesContent = "Notes :";
+
+    //         foreach ($notes as $index => $condition) {
+    //             $notesContent .= "\n" . str_repeat(' ', 6) . ($index + 1) . ". " . $condition . ".";
+    //         }
+    //     }
+
+
+    //     $notesLines = explode("\n", $notesContent);
+
+    //     $pdf->SetFont('', '', $default_font_size - 1);
+
+    //     $remainingSpaceNotes = $pdf->getPageHeight() - $posy;
+
+    //     // Calculate the height of the notes content
+    //     $notesContentHeight = count($notesLines) * $lineHeight + $marginTop;
 
     //     // If there's not enough space, move to the next page
-    //     if ($remainingSpace < $contentHeight) {
+    //     if ($remainingSpaceNotes < $notesContentHeight) {
+    //         $pdf->AddPage();
+    //         $posy = 15;
+    //     }
+
+    //     // Set the position for the notes content
+    //     $pdf->SetXY($xPosition, $posy);
+
+    //     // Iterate through each line of notes and add it to the PDF
+    //     foreach ($notesLines as $line) {
+    //         $pdf->MultiCell(0, $lineHeight, $line, 0, 'L', 0);
+    //     }
+
+    //     // Update the Y position based on the notes content height if needed
+    //     $posy += $notesContentHeight; // Adjust the value based on your needs
+
+    //     $sql_llx_facture = "SELECT * FROM " . MAIN_DB_PREFIX . "propal WHERE rowid = $object->id";
+    //     $res_llx_facture = $this->db->query($sql_llx_facture);
+
+    //     if ($res_llx_facture) {
+    //         while ($row = $this->db->fetch_object($res_llx_facture)) {
+    //             $terms_and_conditions = json_decode($row->terms_and_conditions, true);
+    //         }
+    //     }
+
+    //     // Define your terms and conditions content
+    //     if (isset($terms_and_conditions) && is_array($terms_and_conditions)) {
+    //         $termsContent = "Terms and Conditions :";
+
+    //         foreach ($terms_and_conditions as $index => $condition) {
+    //             $termsContent .= "\n" . str_repeat(' ', 6) . ($index + 1) . ". " . $condition . ".";
+    //         }
+    //     }
+
+
+    //     // Explode the terms content into an array of lines
+    //     $termsLines = explode("\n", $termsContent);
+    //     // Calculate the height of the terms content
+    //     $termsContentHeight = count($termsLines) * $lineHeight + $marginTop;
+    //     // Calculate the remaining space on the current page for terms content
+    //     $remainingSpaceTerms = $pdf->getPageHeight() - $posy - $heightforfooter + $termsContentHeight;
+
+    //     // If there's not enough space, move to the next page
+    //     if ($remainingSpaceTerms < $termsContentHeight) {
     //         $pdf->AddPage();
     //         $posy = 15; // Adjust the value based on your needs and the position of the new page
     //     }
 
-    //     // Set the position for the content
+    //     // Set the position for the terms content
     //     $pdf->SetXY($xPosition, $posy);
 
-    //     // Iterate through each line and add it to the PDF
-    //     foreach ($lines as $line) {
+    //     // Iterate through each line of terms and add it to the PDF
+    //     foreach ($termsLines as $line) {
     //         $pdf->MultiCell(0, $lineHeight, $line, 0, 'L', 0);
     //     }
 
-    //     // Update the Y position based on the content height if needed
-    //     $posy += $contentHeight + 5; // Adjust the value based on your needs
-
+    //     return $posy += $termsContentHeight + 5;
     // }
 
-    protected function displayNotesAndTerms(&$pdf, $object, $posy, $outputlangs)
+    // to display note
+    public function displayNotes(&$pdf, $posy, $object, $outputlangs, $calculateHeightOnly = false)
     {
-        global $conf;
         $default_font_size = pdf_getPDFFontSize($outputlangs);
-        $heightforfooter = $this->marge_basse + (empty($conf->global->MAIN_GENERATE_DOCUMENTS_SHOW_FOOT_DETAILS) ? 12 : 22); // Height reserved to output the footer (value include bottom margin)
-        print "<script>console.log(`position in start" . $posy . "`)</script>";
-        $xPosition = 20;
         $lineHeight = 5;
-        $marginTop = 3;
-
-        // Define your notes content
-        $notesContent = "Notes:
-         1. Upon Award a SLD will be provided as per the quoted design.
-         2. If design is altered with component additions or changes, the quote will be revised. ";
-
-        $notesLines = explode("\n", $notesContent);
-
-        $pdf->SetFont('', '', $default_font_size - 1);
-
-        $remainingSpaceNotes = $pdf->getPageHeight() - $posy;
-
-        // Calculate the height of the notes content
-        $notesContentHeight = count($notesLines) * $lineHeight + $marginTop;
-
-        // If there's not enough space, move to the next page
-        if ($remainingSpaceNotes < $notesContentHeight) {
-            $pdf->AddPage();
-            $posy = 15;
-        }
-
-        // Set the position for the notes content
-        $pdf->SetXY($xPosition, $posy);
-
-        // Iterate through each line of notes and add it to the PDF
-        foreach ($notesLines as $line) {
-            $pdf->MultiCell(0, $lineHeight, $line, 0, 'L', 0);
-        }
-
-        // Update the Y position based on the notes content height if needed
-        $posy += $notesContentHeight; // Adjust the value based on your needs
+        $marginTop = 5;
 
         $sql_llx_facture = "SELECT * FROM " . MAIN_DB_PREFIX . "propal WHERE rowid = $object->id";
         $res_llx_facture = $this->db->query($sql_llx_facture);
 
         if ($res_llx_facture) {
             while ($row = $this->db->fetch_object($res_llx_facture)) {
+                $notes = json_decode($row->notes, true);
+            }
+        }
+
+        // Define your terms and conditions content
+        if (isset($notes) && is_array($notes)) {
+
+            $notesContent = "Notes :";
+            foreach ($notes as $index => $condition) {
+                $notesContent .= "\n" . str_repeat(' ', 6) . ($index + 1) . ". " . $condition . ".";
+            }
+        }
+
+        $notesLines = explode("\n", $notesContent);
+
+        $pdf->SetFont('', '', $default_font_size - 1);
+
+        // Calculate the height of the notes content
+        $notesContentHeight = count($notesLines) * $lineHeight + $marginTop;
+
+        // Iterate through each line of notes and add it to the PDF
+        if (!$calculateHeightOnly) {
+            $pdf->SetY($pdf->GetY() + $marginTop);
+            foreach ($notesLines as $line) {
+                $pdf->MultiCell(0, $lineHeight, $line, 0, 'L', 0);
+            }
+        }
+        return $notesContentHeight;
+    }
+
+    // to display terms ad conditions
+    public function displayTermsAndCondition(&$pdf, $object, $calculateHeightOnly = false)
+    {
+        $lineHeight = 5;
+        $marginTop = 8;
+        $sql_llx_propal = "SELECT * FROM " . MAIN_DB_PREFIX . "propal WHERE rowid = $object->id";
+        $res_llx_propal = $this->db->query($sql_llx_propal);
+
+        if ($res_llx_propal) {
+            while ($row = $this->db->fetch_object($res_llx_propal)) {
                 $terms_and_conditions = json_decode($row->terms_and_conditions, true);
             }
         }
@@ -1966,43 +2090,43 @@ class pdf_cyan extends ModelePDFPropales
             foreach ($terms_and_conditions as $index => $condition) {
                 $termsContent .= "\n" . str_repeat(' ', 9) . ($index + 1) . ". " . $condition . ".";
             }
-        } else {
-            $termsContent = "Default Terms and Conditions: No specific terms found.";
         }
+
 
         // Explode the terms content into an array of lines
         $termsLines = explode("\n", $termsContent);
-        // Calculate the height of the terms content
+
         $termsContentHeight = count($termsLines) * $lineHeight + $marginTop;
-        // Calculate the remaining space on the current page for terms content
-        $remainingSpaceTerms = $pdf->getPageHeight() - $posy - $heightforfooter + $termsContentHeight;
-
-        // If there's not enough space, move to the next page
-        if ($remainingSpaceTerms < $termsContentHeight) {
-            $pdf->AddPage();
-            $posy = 15; // Adjust the value based on your needs and the position of the new page
-        }
-
-        // Set the position for the terms content
-        $pdf->SetXY($xPosition, $posy);
 
         // Iterate through each line of terms and add it to the PDF
-        foreach ($termsLines as $line) {
-            $pdf->MultiCell(0, $lineHeight, $line, 0, 'L', 0);
+        if (!$calculateHeightOnly) {
+            // Iterate through each line of terms and add it to the PDF
+            $pdf->SetY($pdf->GetY() + $marginTop);
+            foreach ($termsLines as $line) {
+                $pdf->MultiCell(0, $lineHeight, $line, 0, 'L', 0);
+            }
         }
-
-        return $posy += $termsContentHeight + 5;
+        return $termsContentHeight;
     }
-    protected function displayRegards(&$pdf, $object, $posy, $outputlangs)
+
+    // to display regards
+    public function displayRegards(&$pdf, $object, $calculateHeightOnly = false)
     {
-        $pdf->Ln();
-        $pdf->MultiCell(0, 4, "We trust our offer meets your requirements.Should you require any additional information, please do not hesitate to call upon the undersigned.", 0, 'L');
-        $pdf->Ln();
-        $pdf->MultiCell(0, 4, "With Kind Regards", 0, 'L');
-        $pdf->Ln();
-        $pdf->MultiCell(0, 4, "Atul Rajgure.", 0, 'L');
-        $pdf->Ln();
-        $pdf->MultiCell(0, 4, "Cell: +27 83 268 8819.", 0, 'L');
+        // $contentHeight;
+        $initialY = $pdf->GetY();
+        $marginTop = 3;
+        $lineHeight = 8;
+        $pdf->SetY($initialY + $marginTop);
+        // to display message
+        if (!$calculateHeightOnly) {
+            $pdf->MultiCell(0, $lineHeight, "We trust our offer meets your requirements.Should you require any additional information, please do not hesitate to call upon the undersigned.", 0, 'L');
+            $pdf->MultiCell(0, $lineHeight, "With Kind Regards", 0, 'L');
+            $pdf->MultiCell(0, $lineHeight, "Atul Rajgure.", 0, 'L');
+            $pdf->MultiCell(0, $lineHeight, "Cell: +27 83 268 8819.", 0, 'L');
+        }
+        $finalY = $pdf->GetY();
+        $contentHeight = $finalY - $initialY + $lineHeight * 4;
+        return $contentHeight;
     }
 
     /**

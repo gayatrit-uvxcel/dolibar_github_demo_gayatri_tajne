@@ -462,6 +462,10 @@ if (empty($reshook)) {
                     $selected_terms = GETPOST('multi_tc_content');
                     $selected_terms_json = json_encode($selected_terms);
                     $object->terms_and_conditions = $selected_terms_json;
+
+                    $selected_notes = GETPOST('notes_content');
+                    $selected_terms_json = json_encode($selected_notes);
+                    $object->notes = $selected_terms_json;
                 } else {
                     setEventMessages($langs->trans("ErrorFailedToCopyProposal", GETPOST('copie_propal')), null, 'errors');
                 }
@@ -502,6 +506,10 @@ if (empty($reshook)) {
                 $selected_terms = GETPOST('multi_tc_content');
                 $selected_terms_json = json_encode($selected_terms);
                 $object->terms_and_conditions = $selected_terms_json;
+
+                $selected_notes = GETPOST('notes_content');
+                $selected_terms_json = json_encode($selected_notes);
+                $object->notes = $selected_terms_json;
 
                 $object->origin = GETPOST('origin');
                 $object->origin_id = GETPOST('originid');
@@ -2077,6 +2085,25 @@ if ($action == 'create') {
             print '<td class="maxwidthonsmartphone">';
             // $selected = (GETPOSTISSET('tc_content') ? GETPOST('tc_content') : $object->tc_content);
             print $form->multiselectarray('multi_tc_content', $options, $selected, 0, 0, 'form-control', 1, '300px', '', '', 'Select Multiple Terms and Conditions', 1);
+
+            print '</td>';
+            print '</tr>';
+
+            // for Notes
+            $sql_llx_notes = "SELECT notes FROM " . MAIN_DB_PREFIX . "terms_conditions WHERE category_name='Quotation'";
+            $res_llx_notes = $db->query($sql_llx_notes);
+            $options = array();
+
+            if ($res_llx_notes) {
+                while ($row = $db->fetch_object($res_llx_notes)) {
+                    $notes = htmlspecialchars($row->notes);
+                    $options[$notes] = $notes;
+                }
+            }
+            print '<tr>';
+            print '<td class="titlefieldcreate">' . $langs->trans('Notes:') . '</td>';
+            print '<td class="maxwidthonsmartphone">';
+            print $form->multiselectarray('notes_content', $options, $selected, 0, 0, 'form-control', 1, '300px', '', '', 'Select Multiple Notes', 1);
 
             print '</td>';
             print '</tr>';

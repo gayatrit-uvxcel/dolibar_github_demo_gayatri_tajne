@@ -1148,6 +1148,7 @@ class Propal extends CommonObject
         $sql .= ", vat_no";
         $sql .= ", quote_no";
         $sql .= ", terms_and_conditions";
+        $sql .= ", notes";
         $sql .= ") ";
         $sql .= " VALUES (";
         $sql .= $this->socid;
@@ -1193,6 +1194,7 @@ class Propal extends CommonObject
         $sql .= ", " . ($this->vat_no ? "'" . $this->db->escape($this->vat_no) . "'" : "null");
         $sql .= ", '(PROV)'";
         $sql .= ", '" . $this->db->escape($this->terms_and_conditions) . "'";
+        $sql .= ", '" . $this->db->escape($this->notes) . "'";
         $sql .= ")";
 
         dol_syslog(get_class($this) . "::create", LOG_DEBUG);

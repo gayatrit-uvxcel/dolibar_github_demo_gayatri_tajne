@@ -183,7 +183,6 @@ class pdf_cornas extends ModelePDFSuppliersOrders
      */
     public function write_file($object, $outputlangs = '', $srctemplatepath = '', $hidedetails = 0, $hidedesc = 0, $hideref = 0, $contentHeight)
     {
-        print "<script>console.log(`height in write  " . $contentHeight . "`)</script>";
         // phpcs:enable
         global $user, $langs, $conf, $hookmanager, $mysoc, $nblines;
 
@@ -821,9 +820,28 @@ class pdf_cornas extends ModelePDFSuppliersOrders
                     $posy = $this->_tableau_versements($pdf, $object, $posy, $outputlangs);
                 }
 
+                $remainingSpaceforNotes = $this->page_hauteur - $pdf->GetY() - $heightforfooter;
+                $notesContentHeight = $this->displayNotes($pdf, $posy, $object, $outputlangs, true);
+                if ($remainingSpaceforNotes > $notesContentHeight) {
+                    $posy = $this->displayNotes($pdf, $posy, $object, $outputlangs, false);
+                } else {
+                    $this->_pagefoot($pdf, $object, $outputlangs, 1);
+                    // New page
+                    $pdf->AddPage();
+                    if (!empty($tplidx)) {
+                        $pdf->useTemplate($tplidx);
+                    }
+                    $pagenb++;
+                    if (!getDolGlobalInt('MAIN_PDF_DONOTREPEAT_HEAD')) {
+                        $this->_pagehead($pdf, $object, 0, $outputlangs, $pagenb);
+                    }
+
+                    $this->displayNotes($pdf, $posy, $object, $outputlangs, false);
+                }
+
                 $termsContentHeight = $this->displayTermsAndCondition($pdf, $object, true);
-                $remainingSpaceOnFirstPage = $this->page_hauteur - $posy - $heightforfooter;
-                if ($remainingSpaceOnFirstPage > $termsContentHeight) {
+                $remainingSpaceforTerms = $this->page_hauteur - $pdf->GetY() - $heightforfooter;
+                if ($remainingSpaceforTerms > $termsContentHeight) {
                     $posy = $this->displayTermsAndCondition($pdf, $object, false);
                 } else {
                     $this->_pagefoot($pdf, $object, $outputlangs, 1);
@@ -839,7 +857,26 @@ class pdf_cornas extends ModelePDFSuppliersOrders
 
                     $posy = $this->displayTermsAndCondition($pdf, $object, false);
                 }
-                $posy = $this->displayRegards($pdf, $object);
+
+                $remainingforRegards = $this->page_hauteur - $pdf->GetY() - $heightforfooter;
+                $heightOfRegards = $this->displayRegards($pdf, $object, true);
+                if ($remainingforRegards > $heightOfRegards) {
+                    $posy = $this->displayRegards($pdf, $object, false);
+                } else {
+                    $this->_pagefoot($pdf, $object, $outputlangs, 1);
+                    // New page
+                    $pdf->AddPage();
+                    if (!empty($tplidx)) {
+                        $pdf->useTemplate($tplidx);
+                    }
+                    $pagenb++;
+                    if (!getDolGlobalInt('MAIN_PDF_DONOTREPEAT_HEAD')) {
+                        $this->_pagehead($pdf, $object, 0, $outputlangs, $pagenb);
+                    }
+
+                    $posy = $this->displayRegards($pdf, $object, false);
+                }
+
                 // Pied de page
                 $this->_pagefoot($pdf, $object, $outputlangs);
                 if (method_exists($pdf, 'AliasNbPages')) {
@@ -861,7 +898,6 @@ class pdf_cornas extends ModelePDFSuppliersOrders
                 }
 
                 dolChmod($file);
-                print "<script>console.log(`page no in write " . $pagenb . "`)</script>";
                 $this->result = array('fullpath' => $file);
 
                 return 1; // No error
@@ -1230,7 +1266,6 @@ class pdf_cornas extends ModelePDFSuppliersOrders
     {
         global $langs, $conf, $mysoc;
         $ltrdirection = 'L';
-        print "<script>console.log(`page no in head " . $pagenb . "`)</script>";
         $default_font_size = pdf_getPDFFontSize($outputlangs);
 
         $pdf->SetTextColor(0, 0, 60);
@@ -1248,39 +1283,7 @@ class pdf_cornas extends ModelePDFSuppliersOrders
         $pdf->SetY($pdf->GetY() - 7);
         $pdf->SetX($pdf->GetX() + 30);
         $pdf->MultiCell($w, 4, "First Sight Automation t/a", 0, 'L');
-        // // to display company logo
-        // if (!getDolGlobalInt('PDF_DISABLE_MYCOMPANY_LOGO')) {
-        //     if ($this->emetteur->logo) {
-        //         $logodir = $conf->mycompany->dir_output;
-        //         if (!empty($conf->mycompany->multidir_output[$object->entity])) {
-        //             $logodir = $conf->mycompany->multidir_output[$object->entity];
-        //         }
-        //         if (!getDolGlobalInt('MAIN_PDF_USE_LARGE_LOGO')) {
-        //             $logo = 'C:/dolibarr/www/dolibarr/htdocs/install/doctemplates/websites/website_template-corporate/medias/image/websitekey/pdfLogo.jpg';
-        //         } else {
-        //             $logo = $logodir . '/logos/' . $this->emetteur->logo;
-        //         }
-        //         if (is_readable($logo)) {
-        //             $height = pdf_getHeightForLogo($logo);
-        //             $logoWidth = 120;
-
-        //             // Calculate the X coordinate to center the logo
-        //             $xCoordinate = ($pdf->GetPageWidth() - $logoWidth) / 2;
-        //             // $yCoordinate = $posy + 10;
-        //             $pdf->Image($logo, $xCoordinate, $posy, $logoWidth);
-        //             // $pdf->Image($logo, $this->marge_gauche, $posy, 0, $height); // width=0 (auto)
-        //         } else {
-        //             $pdf->SetTextColor(200, 0, 0);
-        //             $pdf->SetFont('', 'B', $default_font_size - 2);
-        //             $pdf->MultiCell($w, 3, $outputlangs->transnoentities("ErrorLogoFileNotFound", $logo), 0, 'L');
-        //             $pdf->MultiCell($w, 3, $outputlangs->transnoentities("ErrorGoToGlobalSetup"), 0, 'L');
-        //         }
-        //     } else {
-        //         $text = $this->emetteur->name;
-        //         $pdf->MultiCell($w, 4, $outputlangs->convToOutputCharset($text), 0, $ltrdirection);
-        //     }
-        // }
-
+        // to display company logo
         $logo = 'C:/dolibarr/www/dolibarr/htdocs/install/doctemplates/websites/website_template-corporate/medias/image/websitekey/pdfLogo.jpg';
         if (is_readable($logo)) {
             $height = pdf_getHeightForLogo($logo);
@@ -1366,28 +1369,29 @@ class pdf_cornas extends ModelePDFSuppliersOrders
             }
         }
 
-        $pdf->SetFont('', 'B', 14); // Set bold font with size 14
-        $pdf->Cell(0, 10, 'PURCHASE ORDER', 0, 1, 'C'); // Centered heading
-        $tableX = $this->marge_gauche;
-        $tableY = $posy + 40;
-        $pdf->SetFont('');
-        $pdf->SetFont('', '', $default_font_size);
-        $pdf->SetXY($tableX, $tableY);
-        $pdf->Cell(0, 5, 'Date: ' . $po_obj->dateValue, 'LTR', 0, 'L');
-        $pdf->Cell(0, 5, 'Division: ' . $po_obj->division, 'R', 1, 'R');
-        $pdf->Cell(0, 5, 'Company: ' . $po_obj->company, 'L', 0, 'L');
-        $pdf->Cell(0, 5, 'Vendor No: ' . $po_obj->vendorNO, 'R', 1, 'R');
-        $pdf->Cell(0, 5, 'Project: ' . $po_obj->project, 'L', 0, 'L');
-        $pdf->Cell(0, 5, 'P.O. No.: ' . $po_obj->poNo, 'R', 1, 'R');
-        $pdf->Cell(0, 5, 'Contact: ' . $po_obj->contact, 'L', 0, 'L');
-        $pdf->Cell(0, 5, '                 ', 'R', 1, 'R');
-        $pdf->Cell(0, 5, 'Tel No: ' . $po_obj->tellNo, 'L', 0, 'L');
-        $pdf->Cell(0, 5, 'Quote No.: ' . $po_obj->quoteNo, 'R', 1, 'R');
-        $pdf->Cell(0, 5, 'Email: ' . $po_obj->email, 'L', 0, 'L');
-        $pdf->Cell(0, 5, '              ', 'R', 1, 'R');
-        $pdf->Cell(0, 5, 'Vendor Vat: ' . $po_obj->vendorVat, 'LB', 0, 'L');
-        $pdf->Cell(0, 5, 'Our Vat No.: ' . $po_obj->ourVatNo, 'RB', 1, 'R');
-
+        if ($pdf->getPage() === 1) {
+            $pdf->SetFont('', 'B', 14); // Set bold font with size 14
+            $pdf->Cell(0, 10, 'PURCHASE ORDER', 0, 1, 'C'); // Centered heading
+            $tableX = $this->marge_gauche;
+            $tableY = $posy + 40;
+            $pdf->SetFont('');
+            $pdf->SetFont('', '', $default_font_size);
+            $pdf->SetXY($tableX, $tableY);
+            $pdf->Cell(0, 5, 'Date: ' . $po_obj->dateValue, 'LTR', 0, 'L');
+            $pdf->Cell(0, 5, 'Division: ' . $po_obj->division, 'R', 1, 'R');
+            $pdf->Cell(0, 5, 'Company: ' . $po_obj->company, 'L', 0, 'L');
+            $pdf->Cell(0, 5, 'Vendor No: ' . $po_obj->vendorNO, 'R', 1, 'R');
+            $pdf->Cell(0, 5, 'Project: ' . $po_obj->project, 'L', 0, 'L');
+            $pdf->Cell(0, 5, 'P.O. No.: ' . $po_obj->poNo, 'R', 1, 'R');
+            $pdf->Cell(0, 5, 'Contact: ' . $po_obj->contact, 'L', 0, 'L');
+            $pdf->Cell(0, 5, '                 ', 'R', 1, 'R');
+            $pdf->Cell(0, 5, 'Tel No: ' . $po_obj->tellNo, 'L', 0, 'L');
+            $pdf->Cell(0, 5, 'Quote No.: ' . $po_obj->quoteNo, 'R', 1, 'R');
+            $pdf->Cell(0, 5, 'Email: ' . $po_obj->email, 'L', 0, 'L');
+            $pdf->Cell(0, 5, '              ', 'R', 1, 'R');
+            $pdf->Cell(0, 5, 'Vendor Vat: ' . $po_obj->vendorVat, 'LB', 0, 'L');
+            $pdf->Cell(0, 5, 'Our Vat No.: ' . $po_obj->ourVatNo, 'RB', 1, 'R');
+        }
         return $posy;
     }
 
@@ -1603,10 +1607,52 @@ class pdf_cornas extends ModelePDFSuppliersOrders
         }
     }
 
+    public function displayNotes(&$pdf, $posy, $object, $outputlangs, $calculateHeightOnly = false)
+    {
+        $default_font_size = pdf_getPDFFontSize($outputlangs);
+        $lineHeight = 5;
+        $marginTop = 5;
+
+        $sql_llx_commande_fournisseur = "SELECT * FROM " . MAIN_DB_PREFIX . "commande_fournisseur WHERE rowid = $object->id";
+        $res_llx_commande_fournisseur = $this->db->query($sql_llx_commande_fournisseur);
+
+        if ($res_llx_commande_fournisseur) {
+            while ($row = $this->db->fetch_object($res_llx_commande_fournisseur)) {
+                $notes = json_decode($row->notes, true);
+            }
+        }
+
+        // Define your terms and conditions content
+        if (isset($notes) && is_array($notes)) {
+
+            $notesContent = "Notes :";
+            foreach ($notes as $index => $condition) {
+                $notesContent .= "\n" . str_repeat(' ', 6) . ($index + 1) . ". " . $condition . ".";
+            }
+        }
+
+        $notesLines = explode("\n", $notesContent);
+
+        $pdf->SetFont('', '', $default_font_size - 1);
+
+        // Calculate the height of the notes content
+        $notesContentHeight = count($notesLines) * $lineHeight + $marginTop;
+
+        // Iterate through each line of notes and add it to the PDF
+        if (!$calculateHeightOnly) {
+            $pdf->SetY($pdf->GetY() + $marginTop);
+            foreach ($notesLines as $line) {
+                $pdf->MultiCell(0, $lineHeight, $line, 0, 'L', 0);
+            }
+        }
+        return $notesContentHeight;
+    }
+
+
     public function displayTermsAndCondition(&$pdf, $object, $calculateHeightOnly = false)
     {
         $lineHeight = 5;
-        $marginTop = 3;
+        $marginTop = 8;
         $sql_llx_commande_fournisseur = "SELECT * FROM " . MAIN_DB_PREFIX . "commande_fournisseur WHERE rowid = $object->id";
         $res_llx_commande_fournisseur = $this->db->query($sql_llx_commande_fournisseur);
 
@@ -1623,16 +1669,8 @@ class pdf_cornas extends ModelePDFSuppliersOrders
             foreach ($terms_and_conditions as $index => $condition) {
                 $termsContent .= "\n" . str_repeat(' ', 9) . ($index + 1) . ". " . $condition . ".";
             }
-        } else {
-            $termsContent = "Default Terms and Conditions: No specific terms found.";
         }
 
-        // Define your terms and conditions content
-        // $termsContent = "Terms and Conditions:
-        // 1. Weekly Progress sign-off report to be emailed on Mondays.
-        // 2. Delivery is 4 weeks from order placement.
-        // 3. Payment terms – 40% on order placement, 40% on fabrication complete and release for
-        //    powder coating and 20% on panel delivery";
 
         // Explode the terms content into an array of lines
         $termsLines = explode("\n", $termsContent);
@@ -1642,6 +1680,7 @@ class pdf_cornas extends ModelePDFSuppliersOrders
         // Iterate through each line of terms and add it to the PDF
         if (!$calculateHeightOnly) {
             // Iterate through each line of terms and add it to the PDF
+            $pdf->SetY($pdf->GetY() + $marginTop);
             foreach ($termsLines as $line) {
                 $pdf->MultiCell(0, $lineHeight, $line, 0, 'L', 0);
             }
@@ -1649,20 +1688,22 @@ class pdf_cornas extends ModelePDFSuppliersOrders
         return $termsContentHeight;
     }
 
-    public function displayRegards(&$pdf, $object, $contentHeight = false)
+    public function displayRegards(&$pdf, $object, $calculateHeightOnly = false)
     {
-        global $contentHeight;
+        // $contentHeight;
         $initialY = $pdf->GetY();
-        $marginTop = 8;
+        $marginTop = 3;
+        $lineHeight = 8;
         $pdf->SetY($initialY + $marginTop);
         // to display message
-        $pdf->MultiCell(0, 5, "We trust our offer meets your requirements.Should you require any additional information, please do not hesitate to call upon the undersigned.", 0, 'L');
-        $pdf->MultiCell(0, 5, "With Kind Regards", 0, 'L');
-        $pdf->MultiCell(0, 5, "Atul Rajgure.", 0, 'L');
-        $pdf->MultiCell(0, 5, "Cell: +27 83 268 8819.", 0, 'L');
-
+        if (!$calculateHeightOnly) {
+            $pdf->MultiCell(0, $lineHeight, "We trust our offer meets your requirements.Should you require any additional information, please do not hesitate to call upon the undersigned.", 0, 'L');
+            $pdf->MultiCell(0, $lineHeight, "With Kind Regards", 0, 'L');
+            $pdf->MultiCell(0, $lineHeight, "Atul Rajgure.", 0, 'L');
+            $pdf->MultiCell(0, $lineHeight, "Cell: +27 83 268 8819.", 0, 'L');
+        }
         $finalY = $pdf->GetY();
-
-        $contentHeight = $finalY - $initialY;
+        $contentHeight = $finalY - $initialY + $lineHeight * 4;
+        return $contentHeight;
     }
 }
