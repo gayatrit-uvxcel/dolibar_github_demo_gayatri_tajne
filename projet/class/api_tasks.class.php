@@ -547,6 +547,21 @@ class Tasks extends DolibarrApi
 		$this->task->timespent_duration = $duration;
 		$this->task->timespent_fk_user  = $uid;
 		$this->task->timespent_note     = $note;
+		$this->task->timespent_leave_information     = $leave_information;
+		$this->task->timespent_over_time     = $over_time;
+		$this->task->timespent_night_out     = $night_out;
+		$this->task->timespent_travel_km     = $travel_km;
+		$this->task->timespent_main_activity     = $main_activity;
+		$this->task->timespent_comments     = $comments;
+		$this->task->timespent_ot_pay     = $ot_pay;
+		$this->task->timespent_km_pay     = $km_pay;
+		$this->task->timespent_overhead_work     = $overhead_work;
+		$this->task->timespent_accommodation     = $accommodation;
+		$this->task->timespent_local_night_out     = $local_night_out;
+		$this->task->timespent_nital_night_out     = $nital_night_out;
+		$this->task->timespent_night_out_allowance     = $night_out_allowance;
+		$this->task->timespent_other     = $other;
+		$this->task->timespent_other_comments     = $timespent_other_comments;
 
 		$result = $this->task->addTimeSpent(DolibarrApiAccess::$user, 0);
 		if ($result == 0) {
@@ -598,6 +613,21 @@ class Tasks extends DolibarrApi
 		$this->task->timespent_duration = $duration;
 		$this->task->timespent_fk_user  = $user_id ?? DolibarrApiAccess::$user->id;
 		$this->task->timespent_note     = $note;
+		$this->task->timespent_leave_information     = $leave_information;
+		$this->task->timespent_over_time     = $over_time;
+		$this->task->timespent_night_out     = $night_out;
+		$this->task->timespent_travel_km     = $travel_km;
+		$this->task->timespent_main_activity     = $main_activity;
+		$this->task->timespent_comments     = $comments;
+		$this->task->timespent_ot_pay     = $ot_pay;
+		$this->task->timespent_km_pay     = $km_pay;
+		$this->task->timespent_overhead_work     = $overhead_work;
+		$this->task->timespent_accommodation     = $accommodation;
+		$this->task->timespent_local_night_out     = $local_night_out;
+		$this->task->timespent_nital_night_out     = $nital_night_out;
+		$this->task->timespent_night_out_allowance     = $night_out_allowance;
+		$this->task->timespent_other     = $other;
+		$this->task->timespent_other_comments     = $other_comments;
 
 		$result = $this->task->updateTimeSpent(DolibarrApiAccess::$user, 0);
 		if ($result == 0) {

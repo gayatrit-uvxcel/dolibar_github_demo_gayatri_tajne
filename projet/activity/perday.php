@@ -291,8 +291,23 @@ if ($action == 'addtime' && $user->rights->projet->lire && GETPOST('formfilterac
 
 			$object->timespent_duration = $val;
 			$object->timespent_fk_user = $usertoprocess->id;
-			//$object->over_time = GETPOST($key.'over_time');
 			$object->timespent_note = GETPOST($key.'note');
+			$object->timespent_over_time = GETPOST($key.'over_time');
+			$object->timespent_night_out = GETPOST($key.'night_out');
+			$object->timespent_travel_km = GETPOST($key.'travel_km');
+			$object->timespent_leave_information = GETPOST($key.'leave_information');			
+            $object->timespent_main_activity = GETPOST($key.'main_activity');
+            $object->timespent_comments = GETPOST($key.'comments');
+            $object->timespent_ot_pay = GETPOST($key.'ot_pay');
+            $object->timespent_km_pay = GETPOST($key.'km_pay');
+            $object->timespent_overhead_work = GETPOST($key.'overhead_work');
+            $object->timespent_accommodation = GETPOST($key.'accommodation');
+            $object->timespent_local_night_out = GETPOST($key.'local_night_out');
+            $object->timespent_nital_night_out = GETPOST($key.'nital_night_out');
+            $object->timespent_night_out_allowance = GETPOST($key.'night_out_allowance');
+            $object->timespent_other = GETPOST($key.'other');
+            $object->timespent_other_comments = GETPOST($key.'other_comments');
+			
 			if (GETPOST($key."hour", 'int') != '' && GETPOST($key."hour", 'int') >= 0) {	// If hour was entered
 				$object->timespent_datehour = dol_mktime(GETPOST($key."hour", 'int'), GETPOST($key."min", 'int'), 0, $monthofday, $dayofday, $yearofday);
 				$object->timespent_withhour = 1;
@@ -687,12 +702,12 @@ if (!$isavailable[$daytoparse]['morning'] && !$isavailable[$daytoparse]['afterno
 }
 
 print '<th class="center'.($cssonholiday ? ' '.$cssonholiday : '').($cssweekend ? ' '.$cssweekend : '').'">'.$langs->trans("Duration").'</th>';
+print '<th class="center">'.$langs->trans("Main Activity").'</th>';
 print '<th class="center">'.$langs->trans("Note").'</th>';
 print '<th class="center">'.$langs->trans("Leave Information").'</th>';
 print '<th class="center">'.$langs->trans("OT").'</th>';
 print '<th class="center">'.$langs->trans("Night Out").'</th>';
 print '<th class="center">'.$langs->trans("Travel KM").'</th>';
-print '<th class="center">'.$langs->trans("Main Activity").'</th>';
 print '<th class="center">'.$langs->trans("Comments").'</th>';
 print '<th class="center">'.$langs->trans("OT Pay").'</th>';
 print '<th class="center">'.$langs->trans("KM Pay").'</th>';

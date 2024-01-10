@@ -132,6 +132,21 @@ class TimeSpent extends CommonObject
 		'intervention_line_id' => array('type'=>'integer', 'label'=>'intervention_line_id', 'enabled'=>'1', 'position'=>14, 'notnull'=>0, 'visible'=>-1, 'default'=>'NULL',),
 		'datec' => array('type'=>'datetime', 'label'=>'datec', 'enabled'=>'1', 'position'=>16, 'notnull'=>0, 'visible'=>-1,),
 		'note' => array('type'=>'text', 'label'=>'note', 'enabled'=>'1', 'position'=>18, 'notnull'=>0, 'visible'=>-1,),
+		'over_time' => array('type'=>'varchar(256)', 'label'=>'over_time', 'enabled'=>'1', 'position'=>19, 'notnull'=>0, 'visible'=>-1,),
+		'night_out' => array('type'=>'varchar(256)', 'label'=>'night_out', 'enabled'=>'1', 'position'=>20, 'notnull'=>0, 'visible'=>-1,),
+		'travel_km' => array('type'=>'varchar(256)', 'label'=>'travel_km', 'enabled'=>'1', 'position'=>21, 'notnull'=>0, 'visible'=>-1,),
+		'leave_information' => array('type'=>'varchar(256)', 'label'=>'leave_information', 'enabled'=>'1', 'position'=>22, 'notnull'=>0, 'visible'=>-1,),
+		'main_activity' => array('type'=>'varchar(256)', 'label'=>'main_activity', 'enabled'=>'1', 'position'=>22, 'notnull'=>0, 'visible'=>-1,),
+		'comments' => array('type'=>'varchar(256)', 'label'=>'comments', 'enabled'=>'1', 'position'=>22, 'notnull'=>0, 'visible'=>-1,),
+		'ot_pay' => array('type'=>'varchar(256)', 'label'=>'ot_pay', 'enabled'=>'1', 'position'=>22, 'notnull'=>0, 'visible'=>-1,),
+		'km_pay' => array('type'=>'varchar(256)', 'label'=>'km_pay', 'enabled'=>'1', 'position'=>22, 'notnull'=>0, 'visible'=>-1,),
+		'overhead_work' => array('type'=>'varchar(256)', 'label'=>'overhead_work', 'enabled'=>'1', 'position'=>22, 'notnull'=>0, 'visible'=>-1,),
+		'accommodation' => array('type'=>'varchar(256)', 'label'=>'accommodation', 'enabled'=>'1', 'position'=>22, 'notnull'=>0, 'visible'=>-1,),
+		'local_night_out' => array('type'=>'varchar(256)', 'label'=>'local_night_out', 'enabled'=>'1', 'position'=>22, 'notnull'=>0, 'visible'=>-1,),
+		'nital_night_out' => array('type'=>'varchar(256)', 'label'=>'nital_night_out', 'enabled'=>'1', 'position'=>22, 'notnull'=>0, 'visible'=>-1,),
+		'night_out_allowance' => array('type'=>'varchar(256)', 'label'=>'night_out_allowance', 'enabled'=>'1', 'position'=>22, 'notnull'=>0, 'visible'=>-1,),
+		'other' => array('type'=>'varchar(256)', 'label'=>'other', 'enabled'=>'1', 'position'=>22, 'notnull'=>0, 'visible'=>-1,),
+		'other_comments' => array('type'=>'varchar(256)', 'label'=>'other_comments', 'enabled'=>'1', 'position'=>22, 'notnull'=>0, 'visible'=>-1,),
 	);
 	public $rowid;
 	public $tms;
@@ -151,6 +166,22 @@ class TimeSpent extends CommonObject
 	public $intervention_line_id;
 	public $datec;
 	public $note;
+	public $over_time;
+	public $night_out;
+	public $travel_km;
+	public $leave_information;
+	public $main_activity;
+	public $comments;
+	public $ot_pay;
+	public $km_pay;
+	public $overhead_work;
+	public $accommodation;
+	public $local_night_out;
+	public $nital_night_out;
+	public $night_out_allowance;
+	public $other;
+	public $other_comments;
+	
 	// END MODULEBUILDER PROPERTIES
 
 

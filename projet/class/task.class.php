@@ -129,6 +129,21 @@ class Task extends CommonObjectLine
 	public $timespent_fk_user;
 	public $timespent_thm;
 	public $timespent_note;
+	public $timespent_over_time;
+	public $timespent_night_out;
+	public $timespent_travel_km;
+	public $timespent_leave_information;
+	public $timespent_main_activity;
+	public $timespent_comments;
+	public $timespent_ot_pay;
+	public $timespent_km_pay;
+	public $timespent_overhead_work;
+	public $timespent_accommodation;
+	public $timespent_local_night_out;
+	public $timespent_nital_night_out;
+	public $timespent_night_out_allowance;
+	public $timespent_other;
+	public $timespent_other_comments;
 	public $timespent_fk_product;
 	public $timespent_invoiceid;
 	public $timespent_invoicelineid;
@@ -315,6 +330,7 @@ class Task extends CommonObjectLine
 		$sql .= " t.fk_task_parent,";
 		$sql .= " t.label,";
 		$sql .= " t.description,";
+		//$sql .= " t.over_time,";
 		$sql .= " t.duration_effective,";
 		$sql .= " t.planned_workload,";
 		$sql .= " t.datec,";
@@ -902,6 +918,7 @@ class Task extends CommonObjectLine
 		$sql .= " t.rowid as taskid, t.ref as taskref, t.label, t.description, t.fk_task_parent, t.duration_effective, t.progress, t.fk_statut as status,";
 		$sql .= " t.dateo as date_start, t.datee as date_end, t.planned_workload, t.rang,";
 		$sql .= " t.description, ";
+		//$sql .= " t.over_time, ";
 		$sql .= " t.budget_amount, ";
 		$sql .= " s.rowid as thirdparty_id, s.nom as thirdparty_name, s.email as thirdparty_email,";
 		$sql .= " p.fk_opp_status, p.opp_amount, p.opp_percent, p.budget_amount as project_budget_amount";
@@ -1309,6 +1326,21 @@ class Task extends CommonObjectLine
 		$timespent->fk_user = $this->timespent_fk_user;
 		$timespent->fk_product = $this->timespent_fk_product;
 		$timespent->note = $this->timespent_note;
+		$timespent->over_time = $this->timespent_over_time;
+		$timespent->night_out = $this->timespent_night_out;
+		$timespent->travel_km = $this->timespent_travel_km;
+		$timespent->leave_information = $this->timespent_leave_information;
+		$timespent->main_activity = $this->timespent_main_activity;
+		$timespent->comments = $this->timespent_comments;
+		$timespent->ot_pay = $this->timespent_ot_pay;
+		$timespent->km_pay = $this->timespent_km_pay;
+		$timespent->overhead_work = $this->timespent_overhead_work;
+		$timespent->accommodation = $this->timespent_accommodation;
+		$timespent->local_night_out = $this->timespent_local_night_out;
+		$timespent->nital_night_out = $this->timespent_nital_night_out;
+		$timespent->night_out_allowance = $this->timespent_night_out_allowance;
+		$timespent->other = $this->timespent_other;
+		$timespent->other_comments = $this->timespent_other_comments;
 		$timespent->datec = $this->db->idate($now);
 
 		$result = $timespent->create($user);
@@ -1606,7 +1638,22 @@ class Task extends CommonObjectLine
 			$this->timespent_fk_product	= $timespent->fk_product;
 			$this->timespent_thm    	= $timespent->thm; // hourly rate
 			$this->timespent_note = $timespent->note;
-
+			$this->timespent_over_time = $timespent->over_time;
+			$this->timespent_night_out = $timespent->night_out;
+			$this->timespent_travel_km = $timespent->travel_km;
+			$this->timespent_leave_information = $timespent->leave_information;
+			$this->timespent_main_activity = $timespent->main_activity;
+			$this->timespent_comments = $timespent->comments;
+			$this->timespent_ot_pay = $timespent->ot_pay;
+			$this->timespent_km_pay = $timespent->km_pay;
+			$this->timespent_overhead_work = $timespent->overhead_work;
+			$this->timespent_accommodation = $timespent->accommodation;
+			$this->timespent_local_night_out = $timespent->local_night_out;
+			$this->timespent_nital_night_out = $timespent->nital_night_out;
+			$this->timespent_night_out_allowance = $timespent->night_out_allowance;
+			$this->timespent_other = $timespent->other;
+			$this->timespent_other_comments = $timespent->other_comments;
+			
 			return 1;
 		}
 
@@ -1686,7 +1733,22 @@ class Task extends CommonObjectLine
 				$newobj->timespent_fk_user = $obj->fk_user;
 				$newobj->timespent_thm = $obj->thm;	// hourly rate
 				$newobj->timespent_note = $obj->note;
-
+				$newobj->timespent_over_time = $obj->over_time;
+				$newobj->timespent_night_out = $obj->night_out;
+				$newobj->timespent_travel_km = $obj->travel_km;
+				$newobj->timespent_leave_information = $obj->leave_information;
+				$newobj->timespent_main_activity = $obj->main_activity;
+				$newobj->timespent_comments = $obj->comments;
+				$newobj->timespent_ot_pay = $obj->ot_pay;
+				$newobj->timespent_km_pay = $obj->km_pay;
+				$newobj->timespent_overhead_work = $obj->overhead_work;
+				$newobj->timespent_accommodation = $obj->accommodation;
+				$newobj->timespent_local_night_out = $obj->local_night_out;
+				$newobj->timespent_nital_night_out = $obj->nital_night_out;
+				$newobj->timespent_night_out_allowance = $obj->night_out_allowance;
+				$newobj->timespent_other = $obj->other;
+				$newobj->timespent_other_comments = $obj->other_comments;
+				
 				$arrayres[] = $newobj;
 
 				$i++;
@@ -1755,6 +1817,21 @@ class Task extends CommonObjectLine
 		$timespent->fk_user = $this->timespent_fk_user;
 		$timespent->fk_product = $this->timespent_fk_product;
 		$timespent->note = $this->timespent_note;
+		$timespent->over_time = $this->timespent_over_time;
+		$timespent->night_out = $this->timespent_night_out;
+		$timespent->travel_km = $this->timespent_travel_km;
+		$timespent->leave_information = $this->timespent_leave_information;
+		$timespent->main_activity = $this->timespent_main_activity;
+		$timespent->comments = $this->timespent_comments;
+		$timespent->ot_pay = $this->timespent_ot_pay;
+		$timespent->km_pay = $this->timespent_km_pay;
+		$timespent->overhead_work = $this->timespent_overhead_work;
+		$timespent->accommodation = $this->timespent_accommodation;
+		$timespent->local_night_out = $this->timespent_local_night_out;
+		$timespent->nital_night_out = $this->timespent_nital_night_out;
+		$timespent->night_out_allowance = $this->timespent_night_out_allowance;
+		$timespent->other = $this->timespent_other;
+		$timespent->other_comments = $this->timespent_other_comments;
 		$timespent->invoice_id = $this->timespent_invoiceid;
 		$timespent->invoice_line_id = $this->timespent_invoicelineid;
 

@@ -1334,6 +1334,7 @@ function projectLinesPerAction(&$inc, $parent, $fuser, $lines, &$level, &$projec
 			print '</textarea>';
 			print '</td>';
 
+			
 			// Warning
 			print '<td class="right">';
 			/*if ((! $lines[$i]->public) && $disabledproject) print $form->textwithpicto('',$langs->trans("UserIsNotContactOfProject"));
@@ -1709,6 +1710,60 @@ function projectLinesPerDay(&$inc, $parent, $fuser, $lines, &$level, &$projectsr
 
 				print '</td>';
 
+				// Main Activity
+				print '<td class="center">';
+				print '<select name="'.$lines[$i]->id.'main_activity" rows="'.ROWS_2.'" id="'.$lines[$i]->id.'main_activity"'.($disabledtask ? ' disabled="disabled"' : '').'>';
+				print '<option value="Meeting Client" disabled selected>Select Main Activity</option>';
+				print '<option value="Meeting Client">Meeting Client</option>';
+				print '<option value="Meeting Technical Clarification">Meeting Technical Clarification</option>';
+				print '<option value="Meeting Tender Discussion">Meeting Tender Discussion</option>';
+				print '<option value="Meeting Commercial Discussion">Meeting Commercial Discussion</option>';
+				print '<option value="Site Specific Inductions">Site Specific Inductions</option>';
+				print '<option value="Site Specific Medicals">Site Specific Medicals</option>';
+				print '<option value="In Office Work">In Office Work</option>';
+				print '<option value="In Office Training">In Office Training</option>';
+				print '<option value="Instrumentation Design">Instrumentation Design</option>';
+				print '<option value="Instrumentation IO Count">Instrumentation IO Count</option>';
+				print '<option value="Instrumentation P&ID Review">Instrumentation P&ID Review</option>';
+				print '<option value="Instrumentation Drawing CAD Review">Instrumentation Drawing CAD Review</option>';
+				print '<option value="Instrumentation Datasheet">Instrumentation Datasheet</option>';
+				print '<option value="Instrumentation Specification Document">Instrumentation Specification Document</option>';
+				print '<option value="Site Acceptance Test - Panel">Site Acceptance Test - Panel</option>';
+				print '<option value="Instrumentation Vendor Adjudication">Instrumentation Vendor Adjudication</option>';
+				print '<option value="Instrumentation Ordering">Instrumentation Ordering</option>';
+				print '<option value="Instrumentation Installation">Instrumentation Installation</option>';
+				print '<option value="Instrumentation IO Testing">Instrumentation IO Testing</option>';
+				print '<option value="Instrumentation Commissioning">Instrumentation Commissioning</option>';
+				print '<option value="Instrumentation Handover">Instrumentation Handover</option>';
+				print '<option value="Instrumentation Handover Signoff">Instrumentation Handover Signoff</option>';
+				print '<option value="Control System Design ">Control System Design</option>';
+				print '<option value="Control System IO Count ">Control System IO Count</option>';
+				print '<option value="Control System P&ID Review ">Control System P&ID Review</option>';
+				print '<option value="Control System Specification Document ">Control System Specification Document</option>';
+				print '<option value="Control System Enquiry Vendors ">Control System Enquiry Vendors</option>';
+				print '<option value="Control System Vendor Adjudication ">Control System Vendor Adjudication</option>';
+				print '<option value="Control System Ordering ">Control System Ordering</option>';
+				print '<option value="Control System Installation ">Control System Installation</option>';
+				print '<option value="Control System IO Testing ">Control System IO Testing</option>';
+				print '<option value="Control System Commissioning ">Control System Commissioning</option>';
+				print '<option value="Control System Handover ">Control System Handover</option>';
+				print '<option value="Control System Handover Signoff ">Control System Handover Signoff</option>';
+				print '<option value="Control System Programming Office">Control System Programming Office</option>';
+				print '<option value="Control System Programming Site">Control System Programming Site</option>';
+				print '<option value="Factory Acceptance Test - Panel">Factory Acceptance Test - Panel</option>';
+				print '<option value="Factory Acceptance Test - Hardware ">Factory Acceptance Test - Hardware </option>';
+				print '<option value="Factory Acceptance Test - Software ">Factory Acceptance Test - Software </option>';
+				print '<option value="Site Acceptance Test - Panel ">Site Acceptance Test - Panel </option>';
+				print '<option value="Site Acceptance Test - Software ">Site Acceptance Test - Software </option>';
+				print '<option value="Commissioning Cold ">Commissioning Cold </option>';
+				print '<option value="Commissioning Hot ">Commissioning Hot </option>';
+				print '<option value="Schematic Diagram Drawing ">Schematic Diagram Drawing </option>';
+				print '<option value="Intervention (Breakdown, Adhoc Service) ">Intervention (Breakdown, Adhoc Service) </option>';
+				print '<option value="Intervention (Remote Access,etc) ">Intervention (Remote Access,etc) </option>';
+				print '</select>';
+				print '</td>';
+
+
 				// Note
 				print '<td class="center">';
 				print '<textarea name="'.$lines[$i]->id.'note" rows="'.ROWS_2.'" id="'.$lines[$i]->id.'note"'.($disabledtask ? ' disabled="disabled"' : '').'>';
@@ -1718,6 +1773,7 @@ function projectLinesPerDay(&$inc, $parent, $fuser, $lines, &$level, &$projectsr
 				// leave information
 				print '<td class="center">';
 				print '<select name="'.$lines[$i]->id.'leave_information" rows="'.ROWS_2.'" id="'.$lines[$i]->id.'leave_information"'.($disabledtask ? ' disabled="disabled"' : '').'>';
+				print '<option value="FVA-ANN-LEAVE" disabled selected>Select Leave Information</option>';
 				print '<option value="FVA-ANN-LEAVE">FVA-ANN-LEAVE</option>';
 				print '<option value="FVA-UNPAID-LEAVE">FVA-UNPAID-LEAVE</option>';
 				print '<option value="FVA-PUBLIC-HOL">FVA-PUBLIC-HOL</option>';
@@ -1742,34 +1798,6 @@ function projectLinesPerDay(&$inc, $parent, $fuser, $lines, &$level, &$projectsr
 				print '<td class="center">';
 				print '<input name="'.$lines[$i]->id.'travel_km" rows="'.ROWS_2.'" id="'.$lines[$i]->id.'travel_km"'.($disabledtask ? ' disabled="disabled"' : '').'>';
 				print '</input>';
-				print '</td>';
-
-				// Main Activity
-				print '<td class="center">';
-				print '<select name="'.$lines[$i]->id.'main_activity" rows="'.ROWS_2.'" id="'.$lines[$i]->id.'main_activity"'.($disabledtask ? ' disabled="disabled"' : '').'>';
-				print '<option value="Meeting Client">Meeting Client</option>';
-				print '<option value="Meeting Technical Clarification">Meeting Technical Clarification</option>';
-				print '<option value="Meeting Tender Discussion">Meeting Tender Discussion</option>';
-				print '<option value="Meeting Commercial Discussion">Meeting Commercial Discussion</option>';
-				print '<option value="Site Specific Inductions">Site Specific Inductions</option>';
-				print '<option value="Site Specific Medicals">Site Specific Medicals</option>';
-				print '<option value="In Office Work">In Office Work</option>';
-				print '<option value="In Office Training">In Office Training</option>';
-				print '<option value="Instrumentation Design">Instrumentation Design</option>';
-				print '<option value="Instrumentation IO Count">Instrumentation IO Count</option>';
-				print '<option value="Instrumentation P&ID Review">Instrumentation P&ID Review</option>';
-				print '<option value="Instrumentation Drawing CAD Review">Instrumentation Drawing CAD Review</option>';
-				print '<option value="Instrumentation Datasheet">Instrumentation Datasheet</option>';
-				print '<option value="Instrumentation Specification Document">Instrumentation Specification Document</option>';
-				print '<option value="Site Acceptance Test - Panel">Site Acceptance Test - Panel</option>';
-				print '<option value="Instrumentation Vendor Adjudication">Instrumentation Vendor Adjudication</option>';
-				print '<option value="Instrumentation Ordering">Instrumentation Ordering</option>';
-				print '<option value="Instrumentation Installation">Instrumentation Installation</option>';
-				print '<option value="Instrumentation IO Testing">Instrumentation IO Testing</option>';
-				print '<option value="Instrumentation Commissioning">Instrumentation Commissioning</option>';
-				print '<option value="Instrumentation Handover">Instrumentation Handover</option>';
-				print '<option value="Instrumentation Handover Signoff">Instrumentation Handover Signoff</option>';
-				print '</select>';
 				print '</td>';
 
 
