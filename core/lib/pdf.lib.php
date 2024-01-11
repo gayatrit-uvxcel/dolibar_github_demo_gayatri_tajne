@@ -1298,15 +1298,8 @@ function pdf_pagefoot(&$pdf, $outputlangs, $paramfreetext, $fromcompany, $marge_
     $pdf->SetXY($dims['wk'] - $dims['rm'] - 18 - getDolGlobalInt('PDF_FOOTER_PAGE_NUMBER_X', 0), -$posy - getDolGlobalInt('PDF_FOOTER_PAGE_NUMBER_Y', 0));
     // $pdf->MultiCell(18, 2, $pdf->getPageNumGroupAlias().' / '.$pdf->getPageGroupAlias(), 0, 'R', 0);
     // $pdf->MultiCell(18, 2, $pdf->PageNo().' / '.$pdf->getAliasNbPages(), 0, 'R', 0); // doesn't works with all fonts
-    // $pagination = $pdf->getAliasNumPage().' / '.$pdf->getAliasNbPages(); // works with $pdf->Cell
-    $pagination = "";
-    if ($pdf->PageNo() == 1) {
-        $pagination = $pdf->PageNo() . ' / ' . ($pdf->getNumPages() + 1);
-    } else {
-        $pagination = $pdf->PageNo() . ' / ' . $pdf->getNumPages();
-    }
+    $pagination = $pdf->getAliasNumPage() . ' / ' . $pdf->getAliasNbPages(); // works with $pdf->Cell
     $pdf->MultiCell(18, 2, $pagination, 0, 'R', 0);
-    // }
 
     //  Show Draft Watermark
     if (!empty($watermark)) {
