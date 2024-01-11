@@ -586,8 +586,7 @@ foreach ($arrayfields as $key => $val) {
 	}
 }
 
-print '<div class="div-table-responsive" style="width: 924px;
-min-width: 100%;">';
+print '<div class="div-table-responsive">';
 print '<table class="tagtable liste'.($moreforfilter ? " listwithfilterbefore" : "").'" id="tablelines3">'."\n";
 
 print '<tr class="liste_titre_filter">';
