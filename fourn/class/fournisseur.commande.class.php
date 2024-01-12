@@ -202,6 +202,7 @@ class CommandeFournisseur extends CommonOrder
      * @var CommandeFournisseurLigne[]
      */
     public $lines = array();
+    public $isLinesAvailable = 0;
 
     /**
      * @var CommandeFournisseurLigne
