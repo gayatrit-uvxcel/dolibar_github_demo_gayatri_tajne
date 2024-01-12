@@ -563,23 +563,25 @@ class pdf_cornas extends ModelePDFSuppliersOrders
                         }
                     }
                     // Description of product line
-                    $curX = $this->posxdesc - 1;
-                    $showpricebeforepagebreak = 1;
+                    // $curX = $this->posxdesc - 1;
+                    // $showpricebeforepagebreak = 1;
 
                     if ($this->getColumnStatus('desc')) {
                         $pdf->startTransaction();
+
                         $this->printColDescContent($pdf, $curY, 'desc', $object, $i, $outputlangs, $hideref, $hidedesc, 1);
 
                         $pageposafter = $pdf->getPage();
                         if ($pageposafter > $pageposbefore) { // There is a pagebreak
                             $pdf->rollbackTransaction(true);
-
+                            $pdf->setPageOrientation('', 1, $heightforfooter);
                             $this->printColDescContent($pdf, $curY, 'desc', $object, $i, $outputlangs, $hideref, $hidedesc, 1);
 
                             $pageposafter = $pdf->getPage();
                             $posyafter = $pdf->GetY();
                             if ($posyafter > ($this->page_hauteur - ($heightforfooter + $heightforfreetext + $heightforinfotot))) { // There is no space left for total+free text
                                 if ($i == ($nblines - 1)) { // No more lines, and no space left to show total, so we create a new page
+                                    $object->isLinesAvailable = 1;
                                     $pdf->AddPage('', '', true);
                                     if (!empty($tplidx)) {
                                         $pdf->useTemplate($tplidx);
@@ -605,6 +607,7 @@ class pdf_cornas extends ModelePDFSuppliersOrders
 
                     $nexY = $pdf->GetY();
                     $pageposafter = $pdf->getPage();
+                    
                     $pdf->setPage($pageposbefore);
                     $pdf->setTopMargin($this->marge_haute);
                     $pdf->setPageOrientation('', 1, 0); // The only function to edit the bottom margin of current page to set it.
@@ -805,8 +808,12 @@ class pdf_cornas extends ModelePDFSuppliersOrders
                     $this->_tableau($pdf, $tab_top, $this->page_hauteur - $tab_top - $heightforinfotot - $heightforfreetext - $heightforfooter, 0, $outputlangs, $hidetop, 0, $object->multicurrency_code);
                     $bottomlasttab = $this->page_hauteur - $heightforinfotot - $heightforfreetext - $heightforfooter + 1;
                 } else {
-                    $this->_tableau($pdf, $tab_top_newpage, $this->page_hauteur - $tab_top_newpage - $heightforinfotot - $heightforfreetext - $heightforfooter, 0, $outputlangs, 1, 0, $object->multicurrency_code);
-                    $bottomlasttab = $this->page_hauteur - $heightforinfotot - $heightforfreetext - $heightforfooter + 1;
+                    if ($object->isLinesAvailable !== 1) {
+                        $this->_tableau($pdf, $tab_top_newpage, $this->page_hauteur - $tab_top_newpage - $heightforinfotot - $heightforfreetext - $heightforfooter, 0, $outputlangs, 1, 0, $object->multicurrency_code);
+                        $bottomlasttab = $this->page_hauteur - $heightforinfotot - $heightforfreetext - $heightforfooter + 1;
+                    } else {
+                        $bottomlasttab = 60;
+                    }
                 }
 
                 // Affiche zone infos
@@ -1218,6 +1225,9 @@ class pdf_cornas extends ModelePDFSuppliersOrders
 
         // Force to disable hidetop and hidebottom
         $hidebottom = 0;
+        if ($hidetop) {
+            $hidetop = -1;
+        }
         $default_font_size = pdf_getPDFFontSize($outputlangs);
 
         $pdf->SetDrawColor(128, 128, 128);
