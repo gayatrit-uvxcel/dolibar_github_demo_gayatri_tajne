@@ -772,6 +772,7 @@ class pdf_sponge extends ModelePDFFactures
                             //var_dump($posyafter); var_dump(($this->page_hauteur - ($this->heightforfooter+$this->heightforfreetext+$this->heightforinfotot))); exit;
                             if ($posyafter > ($this->page_hauteur - $page_bottom_margin)) { // There is no space left for total+free text
                                 if ($i == ($nblines - 1)) { // No more lines, and no space left to show total, so we create a new page
+                                    $object->isLinesAvailable = 1;
                                     $pdf->AddPage('', '', true);
                                     if (!empty($tplidx)) {
                                         $pdf->useTemplate($tplidx);
@@ -1020,8 +1021,12 @@ class pdf_sponge extends ModelePDFFactures
                     $this->_tableau($pdf, $this->tab_top, $this->page_hauteur - $this->tab_top - $this->heightforinfotot - $this->heightforfreetext - $this->heightforfooter - $heightforqrinvoice, 0, $outputlangs, $hidetop, 0, $object->multicurrency_code, $outputlangsbis);
                     $bottomlasttab = $this->page_hauteur - $this->heightforinfotot - $this->heightforfreetext - $this->heightforfooter - $heightforqrinvoice + 1;
                 } else {
-                    $this->_tableau($pdf, $this->tab_top_newpage, $this->page_hauteur - $this->tab_top_newpage - $this->heightforinfotot - $this->heightforfreetext - $this->heightforfooter - $heightforqrinvoice, 0, $outputlangs, 1, 0, $object->multicurrency_code, $outputlangsbis);
-                    $bottomlasttab = $this->page_hauteur - $this->heightforinfotot - $this->heightforfreetext - $this->heightforfooter - $heightforqrinvoice + 1;
+                    if ($object->isLinesAvailable !== 1) {
+                        $this->_tableau($pdf, $this->tab_top_newpage, $this->page_hauteur - $this->tab_top_newpage - $this->heightforinfotot - $this->heightforfreetext - $this->heightforfooter - $heightforqrinvoice, 0, $outputlangs, 1, 0, $object->multicurrency_code, $outputlangsbis);
+                        $bottomlasttab = $this->page_hauteur - $this->heightforinfotot - $this->heightforfreetext - $this->heightforfooter - $heightforqrinvoice + 1;
+                    }else{
+                        $bottomlasttab = 50;
+                    }
                 }
 
                 // Display infos area
@@ -1603,7 +1608,7 @@ class pdf_sponge extends ModelePDFFactures
             if ($posy > $this->page_hauteur - 4 - $this->heightforfooter) {
                 $pdf->addPage();
                 if (!getDolGlobalInt('MAIN_PDF_DONOTREPEAT_HEAD')) {
-                    $this->_pagehead($pdf, $object, 0, $outputlangs, $outputlangsbis, );
+                    $this->_pagehead($pdf, $object, 0, $outputlangs, $outputlangsbis,);
                     $pdf->setY($this->tab_top_newpage);
                 } else {
                     $pdf->setY($this->marge_haute);
@@ -2145,7 +2150,7 @@ class pdf_sponge extends ModelePDFFactures
             $pdf->MultiCell($w, 3, $outputlangs->transnoentities("ErrorLogoFileNotFound", $logo), 0, 'L');
             $pdf->MultiCell($w, 3, $outputlangs->transnoentities("ErrorGoToGlobalSetup"), 0, 'L');
         }
-		
+
         $posy += 3;
         $pdf->SetFont('', '', $default_font_size - 2);
 

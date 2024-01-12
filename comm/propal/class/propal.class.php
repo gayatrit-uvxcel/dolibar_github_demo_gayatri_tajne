@@ -251,6 +251,8 @@ class Propal extends CommonObject
 
     public $extraparams = array();
 
+    public $isLinesAvailable = 0;
+
     /**
      * @var PropaleLigne[]
      */

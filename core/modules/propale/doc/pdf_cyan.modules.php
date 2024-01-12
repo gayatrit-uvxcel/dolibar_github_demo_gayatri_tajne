@@ -643,6 +643,7 @@ class pdf_cyan extends ModelePDFPropales
                             //var_dump($posyafter); var_dump(($this->page_hauteur - ($heightforfooter+$heightforfreetext+$heightforinfotot))); exit;
                             if ($posyafter > ($this->page_hauteur - ($heightforfooter + $heightforfreetext + $heightforsignature + $heightforinfotot))) { // There is no space left for total+free text
                                 if ($i == ($nblines - 1)) { // No more lines, and no space left to show total, so we create a new page
+                                    $object->isLinesAvailable = 1;
                                     $pdf->AddPage('', '', true);
                                     if (!empty($tplidx)) {
                                         $pdf->useTemplate($tplidx);
@@ -900,8 +901,12 @@ class pdf_cyan extends ModelePDFPropales
                     $this->_tableau($pdf, $tab_top, $this->page_hauteur - $tab_top - $heightforinfotot - $heightforfreetext - $heightforsignature - $heightforfooter, 0, $outputlangs, $hidetop, 0, $object->multicurrency_code, $outputlangsbis);
                     $bottomlasttab = $this->page_hauteur - $heightforinfotot - $heightforfreetext - $heightforsignature - $heightforfooter + 1;
                 } else {
-                    $this->_tableau($pdf, $tab_top_newpage, $this->page_hauteur - $tab_top_newpage - $heightforinfotot - $heightforfreetext - $heightforsignature - $heightforfooter, 0, $outputlangs, 1, 0, $object->multicurrency_code, $outputlangsbis);
-                    $bottomlasttab = $this->page_hauteur - $heightforinfotot - $heightforfreetext - $heightforsignature - $heightforfooter + 1;
+                    if ($object->isLinesAvailable !== 1) {
+                        $this->_tableau($pdf, $tab_top_newpage, $this->page_hauteur - $tab_top_newpage - $heightforinfotot - $heightforfreetext - $heightforsignature - $heightforfooter, 0, $outputlangs, 1, 0, $object->multicurrency_code, $outputlangsbis);
+                        $bottomlasttab = $this->page_hauteur - $heightforinfotot - $heightforfreetext - $heightforsignature - $heightforfooter + 1;
+                    }else{
+                        $bottomlasttab = 50;
+                    }
                 }
 
                 // Display infos area
@@ -1582,10 +1587,10 @@ class pdf_cyan extends ModelePDFPropales
         global $conf;
 
         // Force to disable hidetop and hidebottom
-        // $hidebottom = 0;
-        // if ($hidetop) {
-        //     $hidetop = -1;
-        // }
+        $hidebottom = 0;
+        if ($hidetop) {
+            $hidetop = -1;
+        }
 
         $currency = !empty($currency) ? $currency : $conf->currency;
         $default_font_size = pdf_getPDFFontSize($outputlangs);
@@ -1594,20 +1599,12 @@ class pdf_cyan extends ModelePDFPropales
         $pdf->SetTextColor(0, 0, 0);
         $pdf->SetFont('', '', $default_font_size - 2);
 
-        // if (empty($hidetop)) {
-        //     $titre = $outputlangs->transnoentities("AmountInCurrency", $outputlangs->transnoentitiesnoconv("Currency".$currency));
-        //     if (!empty($conf->global->PDF_USE_ALSO_LANGUAGE_CODE) && is_object($outputlangsbis)) {
-        //         $titre .= ' - '.$outputlangsbis->transnoentities("AmountInCurrency", $outputlangsbis->transnoentitiesnoconv("Currency".$currency));
-        //     }
-
-        //     $pdf->SetXY($this->page_largeur - $this->marge_droite - ($pdf->GetStringWidth($titre) + 3), $tab_top - 4);
-        //     $pdf->MultiCell(($pdf->GetStringWidth($titre) + 3), 2, $titre);
-
-        //     //$conf->global->MAIN_PDF_TITLE_BACKGROUND_COLOR='230,230,230';
-        //     if (!empty($conf->global->MAIN_PDF_TITLE_BACKGROUND_COLOR)) {
-        //         $pdf->Rect($this->marge_gauche, $tab_top, $this->page_largeur - $this->marge_droite - $this->marge_gauche, $this->tabTitleHeight, 'F', null, explode(',', $conf->global->MAIN_PDF_TITLE_BACKGROUND_COLOR));
-        //     }
-        // }
+        if (empty($hidetop)) {
+            // $conf->global->MAIN_PDF_TITLE_BACKGROUND_COLOR='230,230,230';
+            if (!empty($conf->global->MAIN_PDF_TITLE_BACKGROUND_COLOR)) {
+                $pdf->Rect($this->marge_gauche, $tab_top, $this->page_largeur - $this->marge_droite - $this->marge_gauche, $this->tabTitleHeight, 'F', null, explode(',', $conf->global->MAIN_PDF_TITLE_BACKGROUND_COLOR));
+            }
+        }
 
         $pdf->SetDrawColor(128, 128, 128);
         $pdf->SetFont('', '', $default_font_size - 1);
@@ -1924,109 +1921,6 @@ class pdf_cyan extends ModelePDFPropales
         return ($tab_hl * 7);
     }
 
-    // protected function displayNotesAndTerms(&$pdf, $object, $posy, $outputlangs)
-    // {
-    //     global $conf;
-    //     $default_font_size = pdf_getPDFFontSize($outputlangs);
-    //     $heightforfooter = $this->marge_basse + (empty($conf->global->MAIN_GENERATE_DOCUMENTS_SHOW_FOOT_DETAILS) ? 12 : 22); // Height reserved to output the footer (value include bottom margin)
-    //     print "<script>console.log(`position in start" . $posy . "`)</script>";
-    //     $xPosition = 10;
-    //     $lineHeight = 5;
-    //     $marginTop = 3;
-
-    //     // Define your notes content
-    //     // $notesContent = "Notes:
-    //     //  1. Upon Award a SLD will be provided as per the quoted design.
-    //     //  2. If design is altered with component additions or changes, the quote will be revised. ";
-
-    //     $sql_llx_facture = "SELECT * FROM " . MAIN_DB_PREFIX . "propal WHERE rowid = $object->id";
-    //     $res_llx_facture = $this->db->query($sql_llx_facture);
-
-    //     if ($res_llx_facture) {
-    //         while ($row = $this->db->fetch_object($res_llx_facture)) {
-    //             $notes = json_decode($row->notes, true);
-    //         }
-    //     }
-
-    //     // Define your terms and conditions content
-    //     if (isset($notes) && is_array($notes)) {
-    //         $notesContent = "Notes :";
-
-    //         foreach ($notes as $index => $condition) {
-    //             $notesContent .= "\n" . str_repeat(' ', 6) . ($index + 1) . ". " . $condition . ".";
-    //         }
-    //     }
-
-
-    //     $notesLines = explode("\n", $notesContent);
-
-    //     $pdf->SetFont('', '', $default_font_size - 1);
-
-    //     $remainingSpaceNotes = $pdf->getPageHeight() - $posy;
-
-    //     // Calculate the height of the notes content
-    //     $notesContentHeight = count($notesLines) * $lineHeight + $marginTop;
-
-    //     // If there's not enough space, move to the next page
-    //     if ($remainingSpaceNotes < $notesContentHeight) {
-    //         $pdf->AddPage();
-    //         $posy = 15;
-    //     }
-
-    //     // Set the position for the notes content
-    //     $pdf->SetXY($xPosition, $posy);
-
-    //     // Iterate through each line of notes and add it to the PDF
-    //     foreach ($notesLines as $line) {
-    //         $pdf->MultiCell(0, $lineHeight, $line, 0, 'L', 0);
-    //     }
-
-    //     // Update the Y position based on the notes content height if needed
-    //     $posy += $notesContentHeight; // Adjust the value based on your needs
-
-    //     $sql_llx_facture = "SELECT * FROM " . MAIN_DB_PREFIX . "propal WHERE rowid = $object->id";
-    //     $res_llx_facture = $this->db->query($sql_llx_facture);
-
-    //     if ($res_llx_facture) {
-    //         while ($row = $this->db->fetch_object($res_llx_facture)) {
-    //             $terms_and_conditions = json_decode($row->terms_and_conditions, true);
-    //         }
-    //     }
-
-    //     // Define your terms and conditions content
-    //     if (isset($terms_and_conditions) && is_array($terms_and_conditions)) {
-    //         $termsContent = "Terms and Conditions :";
-
-    //         foreach ($terms_and_conditions as $index => $condition) {
-    //             $termsContent .= "\n" . str_repeat(' ', 6) . ($index + 1) . ". " . $condition . ".";
-    //         }
-    //     }
-
-
-    //     // Explode the terms content into an array of lines
-    //     $termsLines = explode("\n", $termsContent);
-    //     // Calculate the height of the terms content
-    //     $termsContentHeight = count($termsLines) * $lineHeight + $marginTop;
-    //     // Calculate the remaining space on the current page for terms content
-    //     $remainingSpaceTerms = $pdf->getPageHeight() - $posy - $heightforfooter + $termsContentHeight;
-
-    //     // If there's not enough space, move to the next page
-    //     if ($remainingSpaceTerms < $termsContentHeight) {
-    //         $pdf->AddPage();
-    //         $posy = 15; // Adjust the value based on your needs and the position of the new page
-    //     }
-
-    //     // Set the position for the terms content
-    //     $pdf->SetXY($xPosition, $posy);
-
-    //     // Iterate through each line of terms and add it to the PDF
-    //     foreach ($termsLines as $line) {
-    //         $pdf->MultiCell(0, $lineHeight, $line, 0, 'L', 0);
-    //     }
-
-    //     return $posy += $termsContentHeight + 5;
-    // }
-
     // to display note
     public function displayNotes(&$pdf, $posy, $object, $outputlangs, $calculateHeightOnly = false)
     {
@@ -2073,7 +1967,7 @@ class pdf_cyan extends ModelePDFPropales
     public function displayTermsAndCondition(&$pdf, $object, $calculateHeightOnly = false)
     {
         $lineHeight = 5;
-        $marginTop = 8;
+        $marginTop = 5;
         $sql_llx_propal = "SELECT * FROM " . MAIN_DB_PREFIX . "propal WHERE rowid = $object->id";
         $res_llx_propal = $this->db->query($sql_llx_propal);
 

@@ -243,6 +243,7 @@ class Facture extends CommonInvoice
      */
     public $line;
     public $extraparams = array();
+    public $isLinesAvailable = 0;
 
     /**
      * @var int ID facture rec

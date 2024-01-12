@@ -76,6 +76,7 @@ $search_date_endyear = GETPOST('search_date_endyear', 'int');
 $search_date_start = dol_mktime(0, 0, 0, $search_date_startmonth, $search_date_startday, $search_date_startyear); // Use tzserver
 $search_date_end = dol_mktime(23, 59, 59, $search_date_endmonth, $search_date_endday, $search_date_endyear);
 $search_note = GETPOST('search_note', 'alpha');
+$search_over_time = GETPOST('search_over_time', 'alpha');
 $search_duration = GETPOST('search_duration', 'int');
 $search_value = GETPOST('search_value', 'int');
 $search_task_ref = GETPOST('search_task_ref', 'alpha');
@@ -172,6 +173,21 @@ if (GETPOST('button_removefilter_x', 'alpha') || GETPOST('button_removefilter.x'
 	$search_month = '';
 	$search_year = '';
 	$search_note = '';
+	$search_main_activity = '';
+	$search_leave_information = '';
+	$search_over_time = '';
+	$search_night_out = '';
+	$search_travel_km = '';
+	$search_comments = '';
+	$search_ot_pay = '';
+	$search_km_pay = '';
+	$search_overhead_work = '';
+	$search_accommodation = '';
+	$search_local_night_out = '';
+	$search_nital_night_out = '';
+	$search_night_out_allowance = '';
+	$search_other = '';
+	$search_other_comments = '';
 	$search_duration = '';
 	$search_value = '';
 	$search_date_startday = '';
@@ -293,6 +309,21 @@ if (($action == 'updateline' || $action == 'updatesplitline') && !$cancel && $us
 			$object->fetch($id_temp, $ref);
 
 			$object->timespent_note = GETPOST("timespent_note_line", "alphanohtml");
+			$object->timespent_main_activity = GETPOST("timespent_main_activity_line", "alphanohtml");
+			$object->timespent_leave_information = GETPOST("timespent_leave_information_line", "alphanohtml");
+			$object->timespent_over_time = GETPOST("timespent_over_time_line", "alphanohtml");
+			$object->timespent_night_out = GETPOST("timespent_night_out_line", "alphanohtml");
+			$object->timespent_travel_km = GETPOST("timespent_travel_km_line", "alphanohtml");
+			$object->timespent_comments = GETPOST("timespent_comments_line", "alphanohtml");
+			$object->timespent_ot_pay = GETPOST("timespent_ot_pay_line", "alphanohtml");
+			$object->timespent_km_pay = GETPOST("timespent_km_pay_line", "alphanohtml");
+			$object->timespent_overhead_work = GETPOST("timespent_overhead_work_line", "alphanohtml");
+			$object->timespent_accommodation = GETPOST("timespent_accommodation_line", "alphanohtml");
+			$object->timespent_local_night_out = GETPOST("timespent_local_night_out_line", "alphanohtml");
+			$object->timespent_nital_night_out = GETPOST("timespent_nital_night_out_line", "alphanohtml");
+			$object->timespent_night_out_allowance = GETPOST("timespent_night_out_allowance_line", "alphanohtml");
+			$object->timespent_other = GETPOST("timespent_other_line", "alphanohtml");
+			$object->timespent_other_comments = GETPOST("timespent_other_comments_line", "alphanohtml");
 			$object->timespent_old_duration = GETPOST("old_duration", "int");
 			$object->timespent_duration = GETPOSTINT("new_durationhour") * 60 * 60; // We store duration in seconds
 			$object->timespent_duration += (GETPOSTINT("new_durationmin") ? GETPOSTINT('new_durationmin') : 0) * 60; // We store duration in seconds
@@ -322,6 +353,21 @@ if (($action == 'updateline' || $action == 'updatesplitline') && !$cancel && $us
 
 			$object->timespent_id = GETPOST("lineid", 'int');
 			$object->timespent_note = GETPOST("timespent_note_line", "alphanohtml");
+			$object->timespent_main_activity = GETPOST("timespent_main_activity_line", "alphanohtml");
+			$object->timespent_leave_information = GETPOST("timespent_leave_information_line", "alphanohtml");
+			$object->timespent_over_time = GETPOST("timespent_over_time_line", "alphanohtml");
+			$object->timespent_night_out = GETPOST("timespent_night_out_line", "alphanohtml");
+			$object->timespent_travel_km = GETPOST("timespent_travel_km_line", "alphanohtml");
+			$object->timespent_comments = GETPOST("timespent_comments_line", "alphanohtml");
+			$object->timespent_ot_pay = GETPOST("timespent_ot_pay_line", "alphanohtml");
+			$object->timespent_km_pay = GETPOST("timespent_km_pay_line", "alphanohtml");
+			$object->timespent_overhead_work = GETPOST("timespent_overhead_work_line", "alphanohtml");
+			$object->timespent_accommodation = GETPOST("timespent_accommodation_line", "alphanohtml");
+			$object->timespent_local_night_out = GETPOST("timespent_local_night_out_line", "alphanohtml");
+			$object->timespent_nital_night_out = GETPOST("timespent_nital_night_out_line", "alphanohtml");
+			$object->timespent_night_out_allowance = GETPOST("timespent_night_out_allowance_line", "alphanohtml");
+			$object->timespent_other = GETPOST("timespent_other_line", "alphanohtml");
+			$object->timespent_other_comments = GETPOST("timespent_other_comments_line", "alphanohtml");
 			$object->timespent_old_duration = GETPOST("old_duration", "int");
 			$object->timespent_duration = GETPOSTINT("new_durationhour") * 60 * 60; // We store duration in seconds
 			$object->timespent_duration += (GETPOSTINT("new_durationmin") ? GETPOSTINT('new_durationmin') : 0) * 60; // We store duration in seconds
@@ -1285,10 +1331,25 @@ if (($id > 0 || !empty($ref)) || $projectidforalltimes > 0 || $allprojectforuser
 		}
 		$arrayfields['author'] = array('label' => $langs->trans("By"), 'checked' => 1);
 		$arrayfields['t.note'] = array('label' => $langs->trans("Note"), 'checked' => 1);
+		$arrayfields['t.element_duration'] = array('label'=>$langs->trans("Duration"), 'checked'=>1);
+		$arrayfields['t.main_activity'] = array('label' => $langs->trans("Main Activity"), 'checked' => 1);
+		$arrayfields['t.leave_information'] = array('label' => $langs->trans("Leave Information"), 'checked' => 1);
+		$arrayfields['t.over_time'] = array('label' => $langs->trans("Over Time"), 'checked' => 1);
+		$arrayfields['t.night_out'] = array('label' => $langs->trans("Night Out"), 'checked' => 1);
+		$arrayfields['t.travel_km'] = array('label' => $langs->trans("Travel KM"), 'checked' => 1);
+		$arrayfields['t.comments'] = array('label' => $langs->trans("Comments"), 'checked' => 1);
+		$arrayfields['t.ot_pay'] = array('label' => $langs->trans("OT Pay"), 'checked' => 1);
+		$arrayfields['t.km_pay'] = array('label' => $langs->trans("KM Pay"), 'checked' => 1);
+		$arrayfields['t.overhead_work'] = array('label' => $langs->trans("Overhead Work"), 'checked' => 1);
+		$arrayfields['t.accommodation'] = array('label' => $langs->trans("Accommodation"), 'checked' => 1);
+		$arrayfields['t.local_night_out'] = array('label' => $langs->trans("Local Night Out"), 'checked' => 1);
+		$arrayfields['t.nital_night_out'] = array('label' => $langs->trans("Intl Night Out"), 'checked' => 1);
+		$arrayfields['t.night_out_allowance'] = array('label' => $langs->trans("Night Out Allowance"), 'checked' => 1);
+		$arrayfields['t.other'] = array('label' => $langs->trans("Other"), 'checked' => 1);
+		$arrayfields['t.other_comments'] = array('label' => $langs->trans("Other Comments"), 'checked' => 1);
 		if (isModEnabled('service') && !empty($projectstatic->thirdparty) && $projectstatic->thirdparty->id > 0 && $projectstatic->usage_bill_time) {
 			$arrayfields['t.fk_product'] = array('label' => $langs->trans("Product"), 'checked' => 1);
 		}
-		$arrayfields['t.element_duration'] = array('label'=>$langs->trans("Duration"), 'checked'=>1);
 		$arrayfields['value'] = array('label'=>$langs->trans("Value"), 'checked'=>1, 'enabled'=>isModEnabled("salaries"));
 		$arrayfields['valuebilled'] = array('label'=>$langs->trans("Billed"), 'checked'=>1, 'enabled'=>(((getDolGlobalInt('PROJECT_HIDE_TASKS') || !getDolGlobalInt('PROJECT_BILL_TIME_SPENT')) ? 0 : 1) && $projectstatic->usage_bill_time));
 		// Extra fields
@@ -1332,6 +1393,51 @@ if (($id > 0 || !empty($ref)) || $projectidforalltimes > 0 || $allprojectforuser
 		}
 		if ($search_note != '') {
 			$param .= '&search_note=' . urlencode($search_note);
+		}
+		if ($search_main_activity != '') {
+			$param .= '&search_main_activity=' . urlencode($search_main_activity);
+		}
+		if ($search_leave_information != '') {
+			$param .= '&search_leave_information=' . urlencode($search_leave_information);
+		}
+		if ($search_over_time != '') {
+			$param .= '&search_over_time=' . urlencode($search_over_time);
+		}
+		if ($search_night_out != '') {
+			$param .= '&search_night_out=' . urlencode($search_night_out);
+		}
+		if ($search_travel_km != '') {
+			$param .= '&search_travel_km=' . urlencode($search_travel_km);
+		}
+		if ($search_comments != '') {
+			$param .= '&search_comments=' . urlencode($search_comments);
+		}
+		if ($search_ot_pay != '') {
+			$param .= '&search_ot_pay=' . urlencode($search_ot_pay);
+		}
+		if ($search_km_pay != '') {
+			$param .= '&search_km_pay=' . urlencode($search_km_pay);
+		}
+		if ($search_overhead_work != '') {
+			$param .= '&search_overhead_work=' . urlencode($search_overhead_work);
+		}
+		if ($search_accommodation != '') {
+			$param .= '&search_accommodation=' . urlencode($search_accommodation);
+		}
+		if ($search_local_night_out != '') {
+			$param .= '&search_local_night_out=' . urlencode($search_local_night_out);
+		}
+		if ($seasearch_nital_night_outrch_note != '') {
+			$param .= '&search_nital_night_out=' . urlencode($search_nital_night_out);
+		}
+		if ($search_night_out_allowance != '') {
+			$param .= '&search_night_out_allowance=' . urlencode($search_night_out_allowance);
+		}
+		if ($search_other != '') {
+			$param .= '&search_other=' . urlencode($search_other);
+		}
+		if ($search_other_comments != '') {
+			$param .= '&search_other_comments=' . urlencode($search_other_comments);
 		}
 		if ($search_duration != '') {
 			$param .= '&amp;search_field2=' . urlencode($search_duration);
@@ -1557,7 +1663,7 @@ if (($id > 0 || !empty($ref)) || $projectidforalltimes > 0 || $allprojectforuser
 		$varpage = empty($contextpage) ? $_SERVER["PHP_SELF"] : $contextpage;
 		$selectedfields = $form->multiSelectArrayWithCheckbox('selectedfields', $arrayfields, $varpage, getDolGlobalString('MAIN_CHECKBOX_LEFT_COLUMN', '')); // This also change content of $arrayfields
 
-		$sql = "SELECT t.rowid, t.fk_element, t.element_date, t.element_datehour, t.element_date_withhour, t.element_duration, t.fk_user, t.note, t.thm,";
+		$sql = "SELECT t.rowid, t.fk_element, t.element_date, t.element_datehour, t.element_date_withhour, t.element_duration, t.fk_user, t.note, t.main_activity, t.leave_information, t.over_time, t.night_out, t.travel_km, t.comments, t.ot_pay, t.km_pay, t.overhead_work, t.accommodation, t.local_night_out, t.nital_night_out, t.night_out_allowance, t.other, t.other_comments, t.thm,";
 		$sql .= " t.fk_product,";
 		$sql .= " pt.ref, pt.label, pt.fk_projet,";
 		$sql .= " u.lastname, u.firstname, u.login, u.photo, u.statut as user_status,";
@@ -1604,6 +1710,64 @@ if (($id > 0 || !empty($ref)) || $projectidforalltimes > 0 || $allprojectforuser
 		if ($search_note) {
 			$sql .= natural_search('t.note', $search_note);
 		}
+		if (!empty($arrayfields['t.element_duration']['checked'])) {
+			if ($search_timespent_starthour || $search_timespent_startmin) {
+				$timespent_duration_start = $search_timespent_starthour * 60 * 60; // We store duration in seconds
+				$timespent_duration_start += ($search_timespent_startmin ? $search_timespent_startmin : 0) * 60; // We store duration in seconds
+				$sql .= " AND t.element_duration >= " . $timespent_duration_start;
+			}
+
+			if ($search_timespent_endhour || $search_timespent_endmin) {
+				$timespent_duration_end = $search_timespent_endhour * 60 * 60; // We store duration in seconds
+				$timespent_duration_end += ($search_timespent_endmin ? $search_timespent_endmin : 0) * 60; // We store duration in seconds
+				$sql .= " AND t.element_duration <= " . $timespent_duration_end;
+			}
+		}
+		if ($search_main_activity) {
+			$sql .= natural_search('t.main_activity', $search_main_activity);
+		}
+		if ($search_leave_information) {
+			$sql .= natural_search('t.leave_information', $search_leave_information);
+		}
+		if ($search_over_time) {
+			$sql .= natural_search('t.over_time', $search_over_time);
+		}
+		if ($search_night_out) {
+			$sql .= natural_search('t.night_out', $search_night_out);
+		}
+		if ($search_travel_km) {
+			$sql .= natural_search('t.travel_km', $search_travel_km);
+		}
+		if ($search_comments) {
+			$sql .= natural_search('t.comments', $search_comments);
+		}
+		if ($search_ot_pay) {
+			$sql .= natural_search('t.ot_pay', $search_ot_pay);
+		}
+		if ($search_km_pay) {
+			$sql .= natural_search('t.km_pay', $search_km_pay);
+		}
+		if ($search_overhead_work) {
+			$sql .= natural_search('t.overhead_work', $search_overhead_work);
+		}
+		if ($search_accommodation) {
+			$sql .= natural_search('t.accommodation', $search_accommodation);
+		}
+		if ($search_local_night_out) {
+			$sql .= natural_search('t.local_night_out', $search_local_night_out);
+		}
+		if ($search_nital_night_out) {
+			$sql .= natural_search('t.nital_night_out', $search_nital_night_out);
+		}
+		if ($search_night_out_allowance) {
+			$sql .= natural_search('t.night_out_allowance', $search_night_out_allowance);
+		}
+		if ($search_other) {
+			$sql .= natural_search('t.other', $search_other);
+		}
+		if ($search_other_comments) {
+			$sql .= natural_search('t.other_comments', $search_other_comments);
+		}
 		if ($search_task_ref) {
 			$sql .= natural_search('pt.ref', $search_task_ref);
 		}
@@ -1646,19 +1810,7 @@ if (($id > 0 || !empty($ref)) || $projectidforalltimes > 0 || $allprojectforuser
 			$sql .= " AND t.element_date <= '".$db->idate($search_date_end)."'";
 		}
 
-		if (!empty($arrayfields['t.element_duration']['checked'])) {
-			if ($search_timespent_starthour || $search_timespent_startmin) {
-				$timespent_duration_start = $search_timespent_starthour * 60 * 60; // We store duration in seconds
-				$timespent_duration_start += ($search_timespent_startmin ? $search_timespent_startmin : 0) * 60; // We store duration in seconds
-				$sql .= " AND t.element_duration >= " . $timespent_duration_start;
-			}
-
-			if ($search_timespent_endhour || $search_timespent_endmin) {
-				$timespent_duration_end = $search_timespent_endhour * 60 * 60; // We store duration in seconds
-				$timespent_duration_end += ($search_timespent_endmin ? $search_timespent_endmin : 0) * 60; // We store duration in seconds
-				$sql .= " AND t.element_duration <= " . $timespent_duration_end;
-			}
-		}
+	
 
 		$sql .= dolSqlDateFilter('t.element_datehour', $search_day, $search_month, $search_year);
 
@@ -1879,7 +2031,8 @@ if (($id > 0 || !empty($ref)) || $projectidforalltimes > 0 || $allprojectforuser
 		$selectedfields = $form->multiSelectArrayWithCheckbox('selectedfields', $arrayfields, $varpage, getDolGlobalString('MAIN_CHECKBOX_LEFT_COLUMN')); // This also change content of $arrayfields
 		$selectedfields .= (is_array($arrayofmassactions) && count($arrayofmassactions) ? $form->showCheckAddButtons('checkforselect', 1) : '');
 
-		print '<div class="div-table-responsive">';
+		print '<div class="div-table-responsive" style="width: 924px;
+		min-width: 100%;">';
 		print '<table class="tagtable nobottomiftotal liste' . ($moreforfilter ? " listwithfilterbefore" : "") . '">' . "\n";
 
 		// Fields title search
@@ -1934,10 +2087,13 @@ if (($id > 0 || !empty($ref)) || $projectidforalltimes > 0 || $allprojectforuser
 		if (!empty($arrayfields['author']['checked'])) {
 			print '<td class="liste_titre">'.$form->select_dolusers(($search_user > 0 ? $search_user : -1), 'search_user', 1, null, 0, '', '', 0, 0, 0, '', 0, '', 'maxwidth150').'</td>';
 		}
+		
 		// Note
 		if (!empty($arrayfields['t.note']['checked'])) {
 			print '<td class="liste_titre"><input type="text" class="flat maxwidth100" name="search_note" value="' . dol_escape_htmltag($search_note) . '"></td>';
 		}
+
+		
 		// Duration
 		if (!empty($arrayfields['t.element_duration']['checked'])) {
 			// Duration - Time spent
@@ -1961,6 +2117,82 @@ if (($id > 0 || !empty($ref)) || $projectidforalltimes > 0 || $allprojectforuser
 
 			print '</td>';
 		}
+
+		// Main Activity
+		if (!empty($arrayfields['t.main_activity']['checked'])) {
+			print '<td class="liste_titre"><input type="text" class="flat maxwidth100" name="search_main_activity" value="' . dol_escape_htmltag($search_main_activity) . '"></td>';
+		}
+
+		// Leave Information
+		if (!empty($arrayfields['t.leave_information']['checked'])) {
+			print '<td class="liste_titre"><input type="text" class="flat maxwidth100" name="search_leave_information" value="' . dol_escape_htmltag($search_leave_information) . '"></td>';
+		}
+
+		// Over Time
+		if (!empty($arrayfields['t.over_time']['checked'])) {
+			print '<td class="liste_titre"><input type="text" class="flat maxwidth100" name="search_over_time" value="' . dol_escape_htmltag($search_over_time) . '"></td>';
+		}
+
+		// Night Out
+		if (!empty($arrayfields['t.night_out']['checked'])) {
+			print '<td class="liste_titre"><input type="text" class="flat maxwidth100" name="search_night_out" value="' . dol_escape_htmltag($search_night_out) . '"></td>';
+		}
+
+		// Travel KM
+		if (!empty($arrayfields['t.travel_km']['checked'])) {
+			print '<td class="liste_titre"><input type="text" class="flat maxwidth100" name="search_travel_km" value="' . dol_escape_htmltag($search_travel_km) . '"></td>';
+		}
+
+		// Comments
+		if (!empty($arrayfields['t.comments']['checked'])) {
+			print '<td class="liste_titre"><input type="text" class="flat maxwidth100" name="search_comments" value="' . dol_escape_htmltag($search_comments) . '"></td>';
+		}
+
+		// OT Pay
+		if (!empty($arrayfields['t.ot_pay']['checked'])) {
+			print '<td class="liste_titre"><input type="text" class="flat maxwidth100" name="search_ot_pay" value="' . dol_escape_htmltag($search_ot_pay) . '"></td>';
+		}
+
+		// KM Pay
+		if (!empty($arrayfields['t.km_pay']['checked'])) {
+			print '<td class="liste_titre"><input type="text" class="flat maxwidth100" name="search_km_pay" value="' . dol_escape_htmltag($search_km_pay) . '"></td>';
+		}
+
+		// Overhead Work
+		if (!empty($arrayfields['t.overhead_work']['checked'])) {
+			print '<td class="liste_titre"><input type="text" class="flat maxwidth100" name="search_overhead_work" value="' . dol_escape_htmltag($search_overhead_work) . '"></td>';
+		}
+
+		// Accommodation
+		if (!empty($arrayfields['t.accommodation']['checked'])) {
+			print '<td class="liste_titre"><input type="text" class="flat maxwidth100" name="search_accommodation" value="' . dol_escape_htmltag($search_accommodation) . '"></td>';
+		}
+
+		// Local Night Out
+		if (!empty($arrayfields['t.local_night_out']['checked'])) {
+			print '<td class="liste_titre"><input type="text" class="flat maxwidth100" name="search_local_night_out" value="' . dol_escape_htmltag($search_local_night_out) . '"></td>';
+		}
+
+		// Nital Night Out
+		if (!empty($arrayfields['t.nital_night_out']['checked'])) {
+			print '<td class="liste_titre"><input type="text" class="flat maxwidth100" name="search_nital_night_out" value="' . dol_escape_htmltag($search_nital_night_out) . '"></td>';
+		}
+
+		// Night Out Allowance
+		if (!empty($arrayfields['t.night_out_allowance']['checked'])) {
+			print '<td class="liste_titre"><input type="text" class="flat maxwidth100" name="search_night_out_allowance" value="' . dol_escape_htmltag($search_night_out_allowance) . '"></td>';
+		}
+
+		// Other
+		if (!empty($arrayfields['t.other']['checked'])) {
+			print '<td class="liste_titre"><input type="text" class="flat maxwidth100" name="search_other" value="' . dol_escape_htmltag($search_other) . '"></td>';
+		}
+
+		// Other Comments
+		if (!empty($arrayfields['t.other_comments']['checked'])) {
+			print '<td class="liste_titre"><input type="text" class="flat maxwidth100" name="search_other_comments" value="' . dol_escape_htmltag($search_other_comments) . '"></td>';
+		}
+
 		// Product
 		if (!empty($arrayfields['t.fk_product']['checked'])) {
 			print '<td class="liste_titre right"></td>';
@@ -2005,6 +2237,7 @@ if (($id > 0 || !empty($ref)) || $projectidforalltimes > 0 || $allprojectforuser
 			print_liste_field_titre($arrayfields['t.element_date']['label'], $_SERVER['PHP_SELF'], 't.element_date,t.element_datehour,t.rowid', '', $param, '', $sortfield, $sortorder);
 			$totalarray['nbfield']++;
 		}
+	
 		if (!empty($arrayfields['p.fk_soc']['checked'])) {
 			print_liste_field_titre($arrayfields['p.fk_soc']['label'], $_SERVER['PHP_SELF'], 't.element_date,t.element_datehour,t.rowid', '', $param, '', $sortfield, $sortorder);
 			$totalarray['nbfield']++;
@@ -2045,6 +2278,67 @@ if (($id > 0 || !empty($ref)) || $projectidforalltimes > 0 || $allprojectforuser
 			print_liste_field_titre($arrayfields['t.element_duration']['label'], $_SERVER['PHP_SELF'], 't.element_duration', '', $param, '', $sortfield, $sortorder, 'right ');
 			$totalarray['nbfield']++;
 		}
+		if (!empty($arrayfields['t.main_activity']['checked'])) {
+			print_liste_field_titre($arrayfields['t.main_activity']['label'], $_SERVER['PHP_SELF'], 't.main_activity', '', $param, '', $sortfield, $sortorder);
+			$totalarray['nbfield']++;
+		}
+		if (!empty($arrayfields['t.leave_information']['checked'])) {
+			print_liste_field_titre($arrayfields['t.leave_information']['label'], $_SERVER['PHP_SELF'], 't.leave_information', '', $param, '', $sortfield, $sortorder);
+			$totalarray['nbfield']++;
+		}
+		if (!empty($arrayfields['t.over_time']['checked'])) {
+			print_liste_field_titre($arrayfields['t.over_time']['label'], $_SERVER['PHP_SELF'], 't.over_time', '', $param, '', $sortfield, $sortorder);
+			$totalarray['nbfield']++;
+		}
+		if (!empty($arrayfields['t.night_out']['checked'])) {
+			print_liste_field_titre($arrayfields['t.night_out']['label'], $_SERVER['PHP_SELF'], 't.night_out', '', $param, '', $sortfield, $sortorder);
+			$totalarray['nbfield']++;
+		}
+		if (!empty($arrayfields['t.travel_km']['checked'])) {
+			print_liste_field_titre($arrayfields['t.travel_km']['label'], $_SERVER['PHP_SELF'], 't.travel_km', '', $param, '', $sortfield, $sortorder);
+			$totalarray['nbfield']++;
+		}
+		if (!empty($arrayfields['t.comments']['checked'])) {
+			print_liste_field_titre($arrayfields['t.comments']['label'], $_SERVER['PHP_SELF'], 't.comments', '', $param, '', $sortfield, $sortorder);
+			$totalarray['nbfield']++;
+		}
+		if (!empty($arrayfields['t.ot_pay']['checked'])) {
+			print_liste_field_titre($arrayfields['t.ot_pay']['label'], $_SERVER['PHP_SELF'], 't.ot_pay', '', $param, '', $sortfield, $sortorder);
+			$totalarray['nbfield']++;
+		}
+		if (!empty($arrayfields['t.km_pay']['checked'])) {
+			print_liste_field_titre($arrayfields['t.km_pay']['label'], $_SERVER['PHP_SELF'], 't.km_pay', '', $param, '', $sortfield, $sortorder);
+			$totalarray['nbfield']++;
+		}
+		if (!empty($arrayfields['t.overhead_work']['checked'])) {
+			print_liste_field_titre($arrayfields['t.overhead_work']['label'], $_SERVER['PHP_SELF'], 't.overhead_work', '', $param, '', $sortfield, $sortorder);
+			$totalarray['nbfield']++;
+		}
+		if (!empty($arrayfields['t.accommodation']['checked'])) {
+			print_liste_field_titre($arrayfields['t.accommodation']['label'], $_SERVER['PHP_SELF'], 't.accommodation', '', $param, '', $sortfield, $sortorder);
+			$totalarray['nbfield']++;
+		}
+		if (!empty($arrayfields['t.local_night_out']['checked'])) {
+			print_liste_field_titre($arrayfields['t.local_night_out']['label'], $_SERVER['PHP_SELF'], 't.local_night_out', '', $param, '', $sortfield, $sortorder);
+			$totalarray['nbfield']++;
+		}
+		if (!empty($arrayfields['t.nital_night_out']['checked'])) {
+			print_liste_field_titre($arrayfields['t.nital_night_out']['label'], $_SERVER['PHP_SELF'], 't.nital_night_out', '', $param, '', $sortfield, $sortorder);
+			$totalarray['nbfield']++;
+		}
+		if (!empty($arrayfields['t.night_out_allowance']['checked'])) {
+			print_liste_field_titre($arrayfields['t.night_out_allowance']['label'], $_SERVER['PHP_SELF'], 't.night_out_allowance', '', $param, '', $sortfield, $sortorder);
+			$totalarray['nbfield']++;
+		}
+		if (!empty($arrayfields['t.other']['checked'])) {
+			print_liste_field_titre($arrayfields['t.other']['label'], $_SERVER['PHP_SELF'], 't.other', '', $param, '', $sortfield, $sortorder);
+			$totalarray['nbfield']++;
+		}
+		if (!empty($arrayfields['t.other_comments']['checked'])) {
+			print_liste_field_titre($arrayfields['t.other_comments']['label'], $_SERVER['PHP_SELF'], 't.other_comments', '', $param, '', $sortfield, $sortorder);
+			$totalarray['nbfield']++;
+		}
+		
 		if (!empty($arrayfields['t.fk_product']['checked'])) {
 			print_liste_field_titre($arrayfields['t.fk_product']['label'], $_SERVER['PHP_SELF'], 't.fk_product', '', $param, '', $sortfield, $sortorder);
 			$totalarray['nbfield']++;
@@ -2339,6 +2633,276 @@ if (($id > 0 || !empty($ref)) || $projectidforalltimes > 0 || $allprojectforuser
 				}
 			}
 
+			// Main Activity
+			if (!empty($arrayfields['t.main_activity']['checked'])) {
+				if ($action == 'editline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+					print '<td class="small">';
+					print '<textarea name="timespent_main_activity_line" width="95%" rows="' . ROWS_1 . '">' . dol_escape_htmltag($task_time->main_activity, 0, 1) . '</textarea>';
+					print '</td>';
+				} else {
+					print '<td class="small tdoverflowmax150 classfortooltip" title="'.dol_string_onlythesehtmltags(dol_htmlentitiesbr($task_time->main_activity)).'">';
+					print dolGetFirstLineOfText($task_time->main_activity);
+					print '</td>';
+				}
+				if (!$i) {
+					$totalarray['nbfield']++;
+				}
+			} elseif ($action == 'editline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+				print '<input type="hidden" name="timespent_main_activity_line" value="' . dol_escape_htmltag($task_time->main_activity, 0, 1) . '">';
+			}
+
+			// Leave Information
+			if (!empty($arrayfields['t.leave_information']['checked'])) {
+				if ($action == 'editline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+					print '<td class="small">';
+					print '<textarea name="timespent_leave_information_line" width="95%" rows="' . ROWS_1 . '">' . dol_escape_htmltag($task_time->leave_information, 0, 1) . '</textarea>';
+					print '</td>';
+				} else {
+					print '<td class="small tdoverflowmax150 classfortooltip" title="'.dol_string_onlythesehtmltags(dol_htmlentitiesbr($task_time->leave_information)).'">';
+					print dolGetFirstLineOfText($task_time->leave_information);
+					print '</td>';
+				}
+				if (!$i) {
+					$totalarray['nbfield']++;
+				}
+			} elseif ($action == 'editline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+				print '<input type="hidden" name="timespent_leave_information_line" value="' . dol_escape_htmltag($task_time->leave_information, 0, 1) . '">';
+			}
+
+			// Over Time
+			if (!empty($arrayfields['t.over_time']['checked'])) {
+				if ($action == 'editline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+					print '<td class="small">';
+					print '<textarea name="timespent_over_time_line" width="95%" rows="' . ROWS_1 . '">' . dol_escape_htmltag($task_time->over_time, 0, 1) . '</textarea>';
+					print '</td>';
+				} else {
+					print '<td class="small tdoverflowmax150 classfortooltip" title="'.dol_string_onlythesehtmltags(dol_htmlentitiesbr($task_time->over_time)).'">';
+					print dolGetFirstLineOfText($task_time->over_time);
+					print '</td>';
+				}
+				if (!$i) {
+					$totalarray['nbfield']++;
+				}
+			} elseif ($action == 'editline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+				print '<input type="hidden" name="timespent_over_time_line" value="' . dol_escape_htmltag($task_time->over_time, 0, 1) . '">';
+			}
+
+			// Night Out
+			if (!empty($arrayfields['t.night_out']['checked'])) {
+				if ($action == 'editline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+					print '<td class="small">';
+					print '<textarea name="timespent_night_out_line" width="95%" rows="' . ROWS_1 . '">' . dol_escape_htmltag($task_time->night_out, 0, 1) . '</textarea>';
+					print '</td>';
+				} else {
+					print '<td class="small tdoverflowmax150 classfortooltip" title="'.dol_string_onlythesehtmltags(dol_htmlentitiesbr($task_time->night_out)).'">';
+					print dolGetFirstLineOfText($task_time->night_out);
+					print '</td>';
+				}
+				if (!$i) {
+					$totalarray['nbfield']++;
+				}
+			} elseif ($action == 'editline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+				print '<input type="hidden" name="timespent_night_out_line" value="' . dol_escape_htmltag($task_time->nnight_outote, 0, 1) . '">';
+			}
+
+			// Travel KM
+			if (!empty($arrayfields['t.travel_km']['checked'])) {
+				if ($action == 'editline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+					print '<td class="small">';
+					print '<textarea name="timespent_travel_km_line" width="95%" rows="' . ROWS_1 . '">' . dol_escape_htmltag($task_time->travel_km, 0, 1) . '</textarea>';
+					print '</td>';
+				} else {
+					print '<td class="small tdoverflowmax150 classfortooltip" title="'.dol_string_onlythesehtmltags(dol_htmlentitiesbr($task_time->travel_km)).'">';
+					print dolGetFirstLineOfText($task_time->travel_km);
+					print '</td>';
+				}
+				if (!$i) {
+					$totalarray['nbfield']++;
+				}
+			} elseif ($action == 'editline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+				print '<input type="hidden" name="timespent_travel_km_line" value="' . dol_escape_htmltag($task_time->travel_km, 0, 1) . '">';
+			}
+
+			// Comments
+			if (!empty($arrayfields['t.comments']['checked'])) {
+				if ($action == 'editline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+					print '<td class="small">';
+					print '<textarea name="timespent_comments_line" width="95%" rows="' . ROWS_1 . '">' . dol_escape_htmltag($task_time->comments, 0, 1) . '</textarea>';
+					print '</td>';
+				} else {
+					print '<td class="small tdoverflowmax150 classfortooltip" title="'.dol_string_onlythesehtmltags(dol_htmlentitiesbr($task_time->comments)).'">';
+					print dolGetFirstLineOfText($task_time->comments);
+					print '</td>';
+				}
+				if (!$i) {
+					$totalarray['nbfield']++;
+				}
+			} elseif ($action == 'editline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+				print '<input type="hidden" name="timespent_comments_line" value="' . dol_escape_htmltag($task_time->comments, 0, 1) . '">';
+			}
+
+			// OT Pay
+			if (!empty($arrayfields['t.ot_pay']['checked'])) {
+				if ($action == 'editline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+					print '<td class="small">';
+					print '<textarea name="timespent_ot_pay_line" width="95%" rows="' . ROWS_1 . '">' . dol_escape_htmltag($task_time->ot_pay, 0, 1) . '</textarea>';
+					print '</td>';
+				} else {
+					print '<td class="small tdoverflowmax150 classfortooltip" title="'.dol_string_onlythesehtmltags(dol_htmlentitiesbr($task_time->ot_pay)).'">';
+					print dolGetFirstLineOfText($task_time->ot_pay);
+					print '</td>';
+				}
+				if (!$i) {
+					$totalarray['nbfield']++;
+				}
+			} elseif ($action == 'editline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+				print '<input type="hidden" name="timespent_ot_pay_line" value="' . dol_escape_htmltag($task_time->ot_pay, 0, 1) . '">';
+			}
+
+			// KM Pay
+			if (!empty($arrayfields['t.km_pay']['checked'])) {
+				if ($action == 'editline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+					print '<td class="small">';
+					print '<textarea name="timespent_km_pay_line" width="95%" rows="' . ROWS_1 . '">' . dol_escape_htmltag($task_time->km_pay, 0, 1) . '</textarea>';
+					print '</td>';
+				} else {
+					print '<td class="small tdoverflowmax150 classfortooltip" title="'.dol_string_onlythesehtmltags(dol_htmlentitiesbr($task_time->km_pay)).'">';
+					print dolGetFirstLineOfText($task_time->km_pay);
+					print '</td>';
+				}
+				if (!$i) {
+					$totalarray['nbfield']++;
+				}
+			} elseif ($action == 'editline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+				print '<input type="hidden" name="timespent_km_pay_line" value="' . dol_escape_htmltag($task_time->km_pay, 0, 1) . '">';
+			}
+
+			// Overhead Work
+			if (!empty($arrayfields['t.overhead_work']['checked'])) {
+				if ($action == 'editline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+					print '<td class="small">';
+					print '<textarea name="timespent_overhead_work_line" width="95%" rows="' . ROWS_1 . '">' . dol_escape_htmltag($task_time->overhead_work, 0, 1) . '</textarea>';
+					print '</td>';
+				} else {
+					print '<td class="small tdoverflowmax150 classfortooltip" title="'.dol_string_onlythesehtmltags(dol_htmlentitiesbr($task_time->overhead_work)).'">';
+					print dolGetFirstLineOfText($task_time->overhead_work);
+					print '</td>';
+				}
+				if (!$i) {
+					$totalarray['nbfield']++;
+				}
+			} elseif ($action == 'editline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+				print '<input type="hidden" name="timespent_overhead_work_line" value="' . dol_escape_htmltag($task_time->overhead_work, 0, 1) . '">';
+			}
+
+			// Accommodation
+			if (!empty($arrayfields['t.accommodation']['checked'])) {
+				if ($action == 'editline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+					print '<td class="small">';
+					print '<textarea name="timespent_accommodation_line" width="95%" rows="' . ROWS_1 . '">' . dol_escape_htmltag($task_time->accommodation, 0, 1) . '</textarea>';
+					print '</td>';
+				} else {
+					print '<td class="small tdoverflowmax150 classfortooltip" title="'.dol_string_onlythesehtmltags(dol_htmlentitiesbr($task_time->accommodationnote)).'">';
+					print dolGetFirstLineOfText($task_time->accommodation);
+					print '</td>';
+				}
+				if (!$i) {
+					$totalarray['nbfield']++;
+				}
+			} elseif ($action == 'editline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+				print '<input type="hidden" name="timespent_accommodation_line" value="' . dol_escape_htmltag($task_time->accommodation, 0, 1) . '">';
+			}
+
+			// Local Night Out
+			if (!empty($arrayfields['t.local_night_out']['checked'])) {
+				if ($action == 'editline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+					print '<td class="small">';
+					print '<textarea name="timespent_local_night_out_line" width="95%" rows="' . ROWS_1 . '">' . dol_escape_htmltag($task_time->local_night_out, 0, 1) . '</textarea>';
+					print '</td>';
+				} else {
+					print '<td class="small tdoverflowmax150 classfortooltip" title="'.dol_string_onlythesehtmltags(dol_htmlentitiesbr($task_time->local_night_out)).'">';
+					print dolGetFirstLineOfText($task_time->local_night_out);
+					print '</td>';
+				}
+				if (!$i) {
+					$totalarray['nbfield']++;
+				}
+			} elseif ($action == 'editline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+				print '<input type="hidden" name="timespent_local_night_out_line" value="' . dol_escape_htmltag($task_time->local_night_out, 0, 1) . '">';
+			}
+
+			// Nital Night Out
+			if (!empty($arrayfields['t.nital_night_out']['checked'])) {
+				if ($action == 'editline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+					print '<td class="small">';
+					print '<textarea name="timespent_nital_night_out_line" width="95%" rows="' . ROWS_1 . '">' . dol_escape_htmltag($task_time->nital_night_out, 0, 1) . '</textarea>';
+					print '</td>';
+				} else {
+					print '<td class="small tdoverflowmax150 classfortooltip" title="'.dol_string_onlythesehtmltags(dol_htmlentitiesbr($task_time->nital_night_out)).'">';
+					print dolGetFirstLineOfText($task_time->nital_night_out);
+					print '</td>';
+				}
+				if (!$i) {
+					$totalarray['nbfield']++;
+				}
+			} elseif ($action == 'editline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+				print '<input type="hidden" name="timespent_nital_night_out_line" value="' . dol_escape_htmltag($task_time->nital_night_out, 0, 1) . '">';
+			}
+
+			// Night Out Allowance
+			if (!empty($arrayfields['t.night_out_allowance']['checked'])) {
+				if ($action == 'editline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+					print '<td class="small">';
+					print '<textarea name="timespent_night_out_allowance_line" width="95%" rows="' . ROWS_1 . '">' . dol_escape_htmltag($task_time->night_out_allowance, 0, 1) . '</textarea>';
+					print '</td>';
+				} else {
+					print '<td class="small tdoverflowmax150 classfortooltip" title="'.dol_string_onlythesehtmltags(dol_htmlentitiesbr($task_time->night_out_allowance)).'">';
+					print dolGetFirstLineOfText($task_time->night_out_allowance);
+					print '</td>';
+				}
+				if (!$i) {
+					$totalarray['nbfield']++;
+				}
+			} elseif ($action == 'editline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+				print '<input type="hidden" name="timespent_night_out_allowance_line" value="' . dol_escape_htmltag($task_time->night_out_allowance, 0, 1) . '">';
+			}
+
+			// Other
+			if (!empty($arrayfields['t.other']['checked'])) {
+				if ($action == 'editline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+					print '<td class="small">';
+					print '<textarea name="timespent_other_line" width="95%" rows="' . ROWS_1 . '">' . dol_escape_htmltag($task_time->other, 0, 1) . '</textarea>';
+					print '</td>';
+				} else {
+					print '<td class="small tdoverflowmax150 classfortooltip" title="'.dol_string_onlythesehtmltags(dol_htmlentitiesbr($task_time->other)).'">';
+					print dolGetFirstLineOfText($task_time->other);
+					print '</td>';
+				}
+				if (!$i) {
+					$totalarray['nbfield']++;
+				}
+			} elseif ($action == 'editline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+				print '<input type="hidden" name="timespent_other_line" value="' . dol_escape_htmltag($task_time->other, 0, 1) . '">';
+			}
+
+			// Other Comments
+			if (!empty($arrayfields['t.other_comments']['checked'])) {
+				if ($action == 'editline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+					print '<td class="small">';
+					print '<textarea name="timespent_other_comments_line" width="95%" rows="' . ROWS_1 . '">' . dol_escape_htmltag($task_time->other_comments, 0, 1) . '</textarea>';
+					print '</td>';
+				} else {
+					print '<td class="small tdoverflowmax150 classfortooltip" title="'.dol_string_onlythesehtmltags(dol_htmlentitiesbr($task_time->other_comments)).'">';
+					print dolGetFirstLineOfText($task_time->other_comments);
+					print '</td>';
+				}
+				if (!$i) {
+					$totalarray['nbfield']++;
+				}
+			} elseif ($action == 'editline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+				print '<input type="hidden" name="timespent_other_comments_line" value="' . dol_escape_htmltag($task_time->other_comments, 0, 1) . '">';
+			}
+
 			// Product
 			if (!empty($arrayfields['t.fk_product']['checked'])) {
 				print '<td class="nowraponall tdoverflowmax125">';
@@ -2568,7 +3132,7 @@ if (($id > 0 || !empty($ref)) || $projectidforalltimes > 0 || $allprojectforuser
 					}
 					print '</td>';
 				}
-
+				
 				// Note
 				if (!empty($arrayfields['t.note']['checked'])) {
 					print '<td class="tdoverflowmax300">';
@@ -2580,6 +3144,211 @@ if (($id > 0 || !empty($ref)) || $projectidforalltimes > 0 || $allprojectforuser
 					print '</td>';
 				} elseif ($action == 'splitline' && GETPOST('lineid', 'int') == $task_time->rowid) {
 					print '<input type="hidden" name="timespent_note_line" rows="' . ROWS_1 . '" value="' . dol_escape_htmltag($task_time->note, 0, 1) . '">';
+				}
+
+					// Value spent
+					if (!empty($arrayfields['value']['checked'])) {
+						print '<td class="right">';
+						print '<span class="amount">';
+						$value = price2num($task_time->thm * $task_time->element_duration / 3600, 'MT', 1);
+						print price($value, 1, $langs, 1, -1, -1, $conf->currency);
+						print '</span>';
+						print '</td>';
+					}
+
+					// Main Activity
+					if (!empty($arrayfields['t.main_activity']['checked'])) {
+						print '<td class="tdoverflowmax300">';
+						if ($action == 'splitline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+							print '<textarea name="timespent_leave_information_line" width="95%" rows="' . ROWS_1 . '">' . dol_escape_htmltag($task_time->main_activity, 0, 1) . '</textarea>';
+						} else {
+							print dol_nl2br($task_time->main_activity);
+						}
+						print '</td>';
+					} elseif ($action == 'splitline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+						print '<input type="hidden" name="timespent_leave_information_line" rows="' . ROWS_1 . '" value="' . dol_escape_htmltag($task_time->main_activity, 0, 1) . '">';
+					}
+
+					// Leave Information
+				if (!empty($arrayfields['t.leave_information']['checked'])) {
+					print '<td class="tdoverflowmax300">';
+					if ($action == 'splitline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+						print '<textarea name="timespent_note_line" width="95%" rows="' . ROWS_1 . '">' . dol_escape_htmltag($task_time->leave_information, 0, 1) . '</textarea>';
+					} else {
+						print dol_nl2br($task_time->leave_information);
+					}
+					print '</td>';
+				} elseif ($action == 'splitline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+					print '<input type="hidden" name="timespent_note_line" rows="' . ROWS_1 . '" value="' . dol_escape_htmltag($task_time->leave_information, 0, 1) . '">';
+				}
+
+				// Over Time
+				if (!empty($arrayfields['t.over_time']['checked'])) {
+					print '<td class="tdoverflowmax300">';
+					if ($action == 'splitline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+						print '<textarea name="timespent_over_time_line" width="95%" rows="' . ROWS_1 . '">' . dol_escape_htmltag($task_time->over_time, 0, 1) . '</textarea>';
+					} else {
+						print dol_nl2br($task_time->over_time);
+					}
+					print '</td>';
+				} elseif ($action == 'splitline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+					print '<input type="hidden" name="timespent_over_time_line" rows="' . ROWS_1 . '" value="' . dol_escape_htmltag($task_time->over_time, 0, 1) . '">';
+				}
+
+					// Night Out
+					if (!empty($arrayfields['t.night_out']['checked'])) {
+						print '<td class="tdoverflowmax300">';
+						if ($action == 'splitline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+							print '<textarea name="timespent_night_out_line" width="95%" rows="' . ROWS_1 . '">' . dol_escape_htmltag($task_time->night_out, 0, 1) . '</textarea>';
+						} else {
+							print dol_nl2br($task_time->night_out);
+						}
+						print '</td>';
+					} elseif ($action == 'splitline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+						print '<input type="hidden" name="timespent_night_out_line" rows="' . ROWS_1 . '" value="' . dol_escape_htmltag($task_time->night_out, 0, 1) . '">';
+					}
+
+						// Travel KM
+				if (!empty($arrayfields['t.travel_km']['checked'])) {
+					print '<td class="tdoverflowmax300">';
+					if ($action == 'splitline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+						print '<textarea name="timespent_travel_km_line" width="95%" rows="' . ROWS_1 . '">' . dol_escape_htmltag($task_time->travel_km, 0, 1) . '</textarea>';
+					} else {
+						print dol_nl2br($task_time->travel_km);
+					}
+					print '</td>';
+				} elseif ($action == 'splitline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+					print '<input type="hidden" name="timespent_travel_km_line" rows="' . ROWS_1 . '" value="' . dol_escape_htmltag($task_time->notravel_kmte, 0, 1) . '">';
+				}
+
+					// Comments
+					if (!empty($arrayfields['t.comments']['checked'])) {
+						print '<td class="tdoverflowmax300">';
+						if ($action == 'splitline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+							print '<textarea name="timespent_comments_line" width="95%" rows="' . ROWS_1 . '">' . dol_escape_htmltag($task_time->comments, 0, 1) . '</textarea>';
+						} else {
+							print dol_nl2br($task_time->comments);
+						}
+						print '</td>';
+					} elseif ($action == 'splitline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+						print '<input type="hidden" name="timespent_comments_line" rows="' . ROWS_1 . '" value="' . dol_escape_htmltag($task_time->comments, 0, 1) . '">';
+					}
+
+						// OT Pay
+				if (!empty($arrayfields['t.ot_pay']['checked'])) {
+					print '<td class="tdoverflowmax300">';
+					if ($action == 'splitline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+						print '<textarea name="timespent_ot_pay_line" width="95%" rows="' . ROWS_1 . '">' . dol_escape_htmltag($task_time->ot_pay, 0, 1) . '</textarea>';
+					} else {
+						print dol_nl2br($task_time->ot_pay);
+					}
+					print '</td>';
+				} elseif ($action == 'splitline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+					print '<input type="hidden" name="timespent_ot_pay_line" rows="' . ROWS_1 . '" value="' . dol_escape_htmltag($task_time->ot_pay, 0, 1) . '">';
+				}
+
+					// KM Pay
+					if (!empty($arrayfields['t.km_pay']['checked'])) {
+						print '<td class="tdoverflowmax300">';
+						if ($action == 'splitline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+							print '<textarea name="timespent_km_pay_line" width="95%" rows="' . ROWS_1 . '">' . dol_escape_htmltag($task_time->km_pay, 0, 1) . '</textarea>';
+						} else {
+							print dol_nl2br($task_time->km_pay);
+						}
+						print '</td>';
+					} elseif ($action == 'splitline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+						print '<input type="hidden" name="timespent_km_pay_line" rows="' . ROWS_1 . '" value="' . dol_escape_htmltag($task_time->km_pay, 0, 1) . '">';
+					}
+
+						// Overhead Work
+				if (!empty($arrayfields['t.overhead_work']['checked'])) {
+					print '<td class="tdoverflowmax300">';
+					if ($action == 'splitline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+						print '<textarea name="timespent_overhead_work_line" width="95%" rows="' . ROWS_1 . '">' . dol_escape_htmltag($task_time->overhead_work, 0, 1) . '</textarea>';
+					} else {
+						print dol_nl2br($task_time->overhead_work);
+					}
+					print '</td>';
+				} elseif ($action == 'splitline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+					print '<input type="hidden" name="timespent_overhead_work_line" rows="' . ROWS_1 . '" value="' . dol_escape_htmltag($task_time->overhead_work, 0, 1) . '">';
+				}
+
+					// Accommodation
+					if (!empty($arrayfields['t.accommodation']['checked'])) {
+						print '<td class="tdoverflowmax300">';
+						if ($action == 'splitline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+							print '<textarea name="timespent_accommodation_line" width="95%" rows="' . ROWS_1 . '">' . dol_escape_htmltag($task_time->accommodation, 0, 1) . '</textarea>';
+						} else {
+							print dol_nl2br($task_time->accommodation);
+						}
+						print '</td>';
+					} elseif ($action == 'splitline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+						print '<input type="hidden" name="timespent_accommodation_line" rows="' . ROWS_1 . '" value="' . dol_escape_htmltag($task_time->accommodation, 0, 1) . '">';
+					}
+
+						// Local Night Out
+				if (!empty($arrayfields['t.local_night_out']['checked'])) {
+					print '<td class="tdoverflowmax300">';
+					if ($action == 'splitline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+						print '<textarea name="timespent_local_night_out_line" width="95%" rows="' . ROWS_1 . '">' . dol_escape_htmltag($task_time->local_night_out, 0, 1) . '</textarea>';
+					} else {
+						print dol_nl2br($task_time->local_night_out);
+					}
+					print '</td>';
+				} elseif ($action == 'splitline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+					print '<input type="hidden" name="timespent_local_night_out_line" rows="' . ROWS_1 . '" value="' . dol_escape_htmltag($task_time->local_night_out, 0, 1) . '">';
+				}
+
+					// Nital Night Out
+					if (!empty($arrayfields['t.nital_night_out']['checked'])) {
+						print '<td class="tdoverflowmax300">';
+						if ($action == 'splitline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+							print '<textarea name="timespent_nital_night_out_line" width="95%" rows="' . ROWS_1 . '">' . dol_escape_htmltag($task_time->nital_night_out, 0, 1) . '</textarea>';
+						} else {
+							print dol_nl2br($task_time->nonital_night_outte);
+						}
+						print '</td>';
+					} elseif ($action == 'splitline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+						print '<input type="hidden" name="timespent_nital_night_out_line" rows="' . ROWS_1 . '" value="' . dol_escape_htmltag($task_time->nital_night_out, 0, 1) . '">';
+					}
+
+						// Night Out Allowance
+				if (!empty($arrayfields['t.night_out_allowance']['checked'])) {
+					print '<td class="tdoverflowmax300">';
+					if ($action == 'splitline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+						print '<textarea name="timespent_night_out_allowance_line" width="95%" rows="' . ROWS_1 . '">' . dol_escape_htmltag($task_time->night_out_allowance, 0, 1) . '</textarea>';
+					} else {
+						print dol_nl2br($task_time->night_out_allowance);
+					}
+					print '</td>';
+				} elseif ($action == 'splitline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+					print '<input type="hidden" name="timespent_night_out_allowance_line" rows="' . ROWS_1 . '" value="' . dol_escape_htmltag($task_time->night_out_allowance, 0, 1) . '">';
+				}
+
+					// Other
+					if (!empty($arrayfields['t.other']['checked'])) {
+						print '<td class="tdoverflowmax300">';
+						if ($action == 'splitline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+							print '<textarea name="timespent_other_line" width="95%" rows="' . ROWS_1 . '">' . dol_escape_htmltag($task_time->other, 0, 1) . '</textarea>';
+						} else {
+							print dol_nl2br($task_time->other);
+						}
+						print '</td>';
+					} elseif ($action == 'splitline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+						print '<input type="hidden" name="timespent_other_line" rows="' . ROWS_1 . '" value="' . dol_escape_htmltag($task_time->other, 0, 1) . '">';
+					}
+
+						// Other Comments
+				if (!empty($arrayfields['t.other_comments']['checked'])) {
+					print '<td class="tdoverflowmax300">';
+					if ($action == 'splitline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+						print '<textarea name="timespent_other_comments_line" width="95%" rows="' . ROWS_1 . '">' . dol_escape_htmltag($task_time->other_comments, 0, 1) . '</textarea>';
+					} else {
+						print dol_nl2br($task_time->other_comments);
+					}
+					print '</td>';
+				} elseif ($action == 'splitline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+					print '<input type="hidden" name="timespent_other_comments_line" rows="' . ROWS_1 . '" value="' . dol_escape_htmltag($task_time->other_comments, 0, 1) . '">';
 				}
 
 				// Time spent
@@ -2600,15 +3369,7 @@ if (($id > 0 || !empty($ref)) || $projectidforalltimes > 0 || $allprojectforuser
 					print '</td>';
 				}
 
-				// Value spent
-				if (!empty($arrayfields['value']['checked'])) {
-					print '<td class="right">';
-					print '<span class="amount">';
-					$value = price2num($task_time->thm * $task_time->element_duration / 3600, 'MT', 1);
-					print price($value, 1, $langs, 1, -1, -1, $conf->currency);
-					print '</span>';
-					print '</td>';
-				}
+			
 
 				// Value billed
 				if (!empty($arrayfields['valuebilled']['checked'])) {
@@ -2724,7 +3485,7 @@ if (($id > 0 || !empty($ref)) || $projectidforalltimes > 0 || $allprojectforuser
 					}
 					print '</td>';
 				}
-
+				
 				// Note
 				if (!empty($arrayfields['t.note']['checked'])) {
 					print '<td class="small tdoverflowmax300"">';
@@ -2738,17 +3499,214 @@ if (($id > 0 || !empty($ref)) || $projectidforalltimes > 0 || $allprojectforuser
 					print '<input type="hidden" name="timespent_note_line_2" value="' . dol_escape_htmltag($task_time->note, 0, 1) . '">';
 				}
 
-				// Time spent
-				if (!empty($arrayfields['t.element_duration']['checked'])) {
-					print '<td class="right">';
+					// Time spent
+					if (!empty($arrayfields['t.element_duration']['checked'])) {
+						print '<td class="right">';
+						if ($action == 'splitline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+							print '<input type="hidden" name="old_duration_2" value="0">';
+							print $form->select_duration('new_duration_2', 0, 0, 'text');
+						} else {
+							print convertSecondToTime($task_time->element_duration, 'allhourmin');
+						}
+						print '</td>';
+					}
+
+				// Main Activity
+				if (!empty($arrayfields['t.main_activity']['checked'])) {
+					print '<td class="small tdoverflowmax300"">';
 					if ($action == 'splitline' && GETPOST('lineid', 'int') == $task_time->rowid) {
-						print '<input type="hidden" name="old_duration_2" value="0">';
-						print $form->select_duration('new_duration_2', 0, 0, 'text');
+						print '<textarea name="timespent_main_activity_line_2" width="95%" rows="' . ROWS_1 . '">' . dol_escape_htmltag($task_time->main_activity, 0, 1) . '</textarea>';
 					} else {
-						print convertSecondToTime($task_time->element_duration, 'allhourmin');
+						print dol_nl2br($task_time->main_activity);
 					}
 					print '</td>';
+				} elseif ($action == 'splitline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+					print '<input type="hidden" name="timespent_main_activity_line_2" value="' . dol_escape_htmltag($task_time->main_activity, 0, 1) . '">';
 				}
+				
+				// Leave Information
+				if (!empty($arrayfields['t.leave_information']['checked'])) {
+					print '<td class="small tdoverflowmax300"">';
+					if ($action == 'splitline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+						print '<textarea name="timespent_leave_information_line_2" width="95%" rows="' . ROWS_1 . '">' . dol_escape_htmltag($task_time->leave_information, 0, 1) . '</textarea>';
+					} else {
+						print dol_nl2br($task_time->leave_information);
+					}
+					print '</td>';
+				} elseif ($action == 'splitline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+					print '<input type="hidden" name="timespent_leave_information_line_2" value="' . dol_escape_htmltag($task_time->leave_information, 0, 1) . '">';
+				}
+
+				// Over Time
+				if (!empty($arrayfields['t.over_time']['checked'])) {
+					print '<td class="small tdoverflowmax300"">';
+					if ($action == 'splitline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+						print '<textarea name="timespent_over_time_line_2" width="95%" rows="' . ROWS_1 . '">' . dol_escape_htmltag($task_time->over_time, 0, 1) . '</textarea>';
+					} else {
+						print dol_nl2br($task_time->over_time);
+					}
+					print '</td>';
+				} elseif ($action == 'splitline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+					print '<input type="hidden" name="timespent_over_time_line_2" value="' . dol_escape_htmltag($task_time->over_time, 0, 1) . '">';
+				}
+
+				// Night Out
+				if (!empty($arrayfields['t.night_out']['checked'])) {
+					print '<td class="small tdoverflowmax300"">';
+					if ($action == 'splitline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+						print '<textarea name="timespent_night_out_line_2" width="95%" rows="' . ROWS_1 . '">' . dol_escape_htmltag($task_time->night_out, 0, 1) . '</textarea>';
+					} else {
+						print dol_nl2br($task_time->night_out);
+					}
+					print '</td>';
+				} elseif ($action == 'splitline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+					print '<input type="hidden" name="timespent_night_out_line_2" value="' . dol_escape_htmltag($task_time->night_out, 0, 1) . '">';
+				}
+
+				// Travel KM
+				if (!empty($arrayfields['t.travel_km']['checked'])) {
+					print '<td class="small tdoverflowmax300"">';
+					if ($action == 'splitline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+						print '<textarea name="timespent_travel_km_line_2" width="95%" rows="' . ROWS_1 . '">' . dol_escape_htmltag($task_time->travel_km, 0, 1) . '</textarea>';
+					} else {
+						print dol_nl2br($task_time->travel_km);
+					}
+					print '</td>';
+				} elseif ($action == 'splitline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+					print '<input type="hidden" name="timespent_travel_km_line_2" value="' . dol_escape_htmltag($task_time->travel_km, 0, 1) . '">';
+				}
+
+				// Comments
+				if (!empty($arrayfields['t.comments']['checked'])) {
+					print '<td class="small tdoverflowmax300"">';
+					if ($action == 'splitline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+						print '<textarea name="timespent_comments_line_2" width="95%" rows="' . ROWS_1 . '">' . dol_escape_htmltag($task_time->comments, 0, 1) . '</textarea>';
+					} else {
+						print dol_nl2br($task_time->comments);
+					}
+					print '</td>';
+				} elseif ($action == 'splitline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+					print '<input type="hidden" name="timespent_comments_line_2" value="' . dol_escape_htmltag($task_time->comments, 0, 1) . '">';
+				}
+
+				// OT Pay
+				if (!empty($arrayfields['t.ot_pay']['checked'])) {
+					print '<td class="small tdoverflowmax300"">';
+					if ($action == 'splitline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+						print '<textarea name="timespent_ot_pay_line_2" width="95%" rows="' . ROWS_1 . '">' . dol_escape_htmltag($task_time->ot_pay, 0, 1) . '</textarea>';
+					} else {
+						print dol_nl2br($task_time->ot_pay);
+					}
+					print '</td>';
+				} elseif ($action == 'splitline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+					print '<input type="hidden" name="timespent_ot_pay_line_2" value="' . dol_escape_htmltag($task_time->ot_pay, 0, 1) . '">';
+				}
+
+				// KM Pay
+				if (!empty($arrayfields['t.km_pay']['checked'])) {
+					print '<td class="small tdoverflowmax300"">';
+					if ($action == 'splitline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+						print '<textarea name="timespent_km_pay_line_2" width="95%" rows="' . ROWS_1 . '">' . dol_escape_htmltag($task_time->km_pay, 0, 1) . '</textarea>';
+					} else {
+						print dol_nl2br($task_time->km_pay);
+					}
+					print '</td>';
+				} elseif ($action == 'splitline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+					print '<input type="hidden" name="timespent_km_pay_line_2" value="' . dol_escape_htmltag($task_time->km_pay, 0, 1) . '">';
+				}
+
+				// Overhead Work
+				if (!empty($arrayfields['t.overhead_work']['checked'])) {
+					print '<td class="small tdoverflowmax300"">';
+					if ($action == 'splitline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+						print '<textarea name="timespent_overhead_work_line_2" width="95%" rows="' . ROWS_1 . '">' . dol_escape_htmltag($task_time->overhead_work, 0, 1) . '</textarea>';
+					} else {
+						print dol_nl2br($task_time->overhead_work);
+					}
+					print '</td>';
+				} elseif ($action == 'splitline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+					print '<input type="hidden" name="timespent_overhead_work_line_2" value="' . dol_escape_htmltag($task_time->overhead_work, 0, 1) . '">';
+				}
+
+				// Accommodation
+				if (!empty($arrayfields['t.accommodation']['checked'])) {
+					print '<td class="small tdoverflowmax300"">';
+					if ($action == 'splitline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+						print '<textarea name="timespent_accommodation_line_2" width="95%" rows="' . ROWS_1 . '">' . dol_escape_htmltag($task_time->accommodation, 0, 1) . '</textarea>';
+					} else {
+						print dol_nl2br($task_time->accommodation);
+					}
+					print '</td>';
+				} elseif ($action == 'splitline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+					print '<input type="hidden" name="timespent_accommodation_line_2" value="' . dol_escape_htmltag($task_time->accommodation, 0, 1) . '">';
+				}
+
+				// Local Night Out
+				if (!empty($arrayfields['t.local_night_out']['checked'])) {
+					print '<td class="small tdoverflowmax300"">';
+					if ($action == 'splitline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+						print '<textarea name="timespent_local_night_out_line_2" width="95%" rows="' . ROWS_1 . '">' . dol_escape_htmltag($task_time->local_night_out, 0, 1) . '</textarea>';
+					} else {
+						print dol_nl2br($task_time->local_night_out);
+					}
+					print '</td>';
+				} elseif ($action == 'splitline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+					print '<input type="hidden" name="timespent_local_night_out_line_2" value="' . dol_escape_htmltag($task_time->local_night_out, 0, 1) . '">';
+				}
+
+				// Nital Night Out
+				if (!empty($arrayfields['t.nital_night_out']['checked'])) {
+					print '<td class="small tdoverflowmax300"">';
+					if ($action == 'splitline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+						print '<textarea name="timespent_nital_night_out_line_2" width="95%" rows="' . ROWS_1 . '">' . dol_escape_htmltag($task_time->nital_night_out, 0, 1) . '</textarea>';
+					} else {
+						print dol_nl2br($task_time->nital_night_out);
+					}
+					print '</td>';
+				} elseif ($action == 'splitline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+					print '<input type="hidden" name="timespent_nital_night_out_line_2" value="' . dol_escape_htmltag($task_time->nital_night_out, 0, 1) . '">';
+				}
+
+				// Night Out Allowance
+				if (!empty($arrayfields['t.night_out_allowance']['checked'])) {
+					print '<td class="small tdoverflowmax300"">';
+					if ($action == 'splitline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+						print '<textarea name="timespent_night_out_allowance_line_2" width="95%" rows="' . ROWS_1 . '">' . dol_escape_htmltag($task_time->night_out_allowance, 0, 1) . '</textarea>';
+					} else {
+						print dol_nl2br($task_time->night_out_allowance);
+					}
+					print '</td>';
+				} elseif ($action == 'splitline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+					print '<input type="hidden" name="timespent_night_out_allowance_line_2" value="' . dol_escape_htmltag($task_time->night_out_allowance, 0, 1) . '">';
+				}
+
+				// Other
+				if (!empty($arrayfields['t.other']['checked'])) {
+					print '<td class="small tdoverflowmax300"">';
+					if ($action == 'splitline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+						print '<textarea name="timespent_other_line_2" width="95%" rows="' . ROWS_1 . '">' . dol_escape_htmltag($task_time->other, 0, 1) . '</textarea>';
+					} else {
+						print dol_nl2br($task_time->other);
+					}
+					print '</td>';
+				} elseif ($action == 'splitline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+					print '<input type="hidden" name="timespent_other_line_2" value="' . dol_escape_htmltag($task_time->other, 0, 1) . '">';
+				}
+
+				// Other Comments
+				if (!empty($arrayfields['t.other_comments']['checked'])) {
+					print '<td class="small tdoverflowmax300"">';
+					if ($action == 'splitline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+						print '<textarea name="timespent_other_comments_line_2" width="95%" rows="' . ROWS_1 . '">' . dol_escape_htmltag($task_time->other_comments, 0, 1) . '</textarea>';
+					} else {
+						print dol_nl2br($task_time->other_comments);
+					}
+					print '</td>';
+				} elseif ($action == 'splitline' && GETPOST('lineid', 'int') == $task_time->rowid) {
+					print '<input type="hidden" name="timespent_other_comments_line_2" value="' . dol_escape_htmltag($task_time->other_comments, 0, 1) . '">';
+				}
+
+			
 
 				// Product
 				if (!empty($arrayfields['t.fk_product']['checked'])) {
