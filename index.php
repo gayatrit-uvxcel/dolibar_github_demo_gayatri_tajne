@@ -418,20 +418,51 @@ if ($projectid > 0) {
         }
     }
 
-    print '<table class="noborder" style="margin-top: 20px;">' . "\n";
-    print '<tr><td>' . $langs->trans('No.') . '</td><td colspan="2">';
+    print '<table class="noborder" style="margin-top: 20px;text-align: center;">' . "\n";
+    print '<thead>';
+    print '<tr><th>' . $langs->trans('No.') . '</th><th colspan="2">';
     print $langs->trans('QTY.');
-    print '</td>';
-    print '<td colspan="2">';
+    print '</th>';
+    print '<th colspan="2">';
     print $langs->trans('Description.');
-    print '</td>';
-    print '<td colspan="2">';
+    print '</th>';
+    print '<th colspan="2">';
     print $langs->trans('Unit Price.');
+    print '</th>';
+    print '<th colspan="2">';
+    print $langs->trans('Total Price.');
+    print '</th></tr>';
+    print '</thead>';
+
+    print '<tbody>';
+
+    print '<tr><td>' . '1' . '</td><th colspan="2">';
+    print '1';
     print '</td>';
     print '<td colspan="2">';
-    print $langs->trans('Total Price.');
+    print 'Electrical';
+    print '</td>';
+    print '<td colspan="2">';
+    print $sumOfElectrical;
+    print '</td>';
+    print '<td colspan="2">';
+    print $sumOfElectrical;
     print '</td></tr>';
 
+    print '<tr><td>' . '2' . '</td><th colspan="2">';
+    print '1';
+    print '</td>';
+    print '<td colspan="2">';
+    print 'Equipment';
+    print '</td>';
+    print '<td colspan="2">';
+    print $sumOfEquipment;
+    print '</td>';
+    print '<td colspan="2">';
+    print $sumOfEquipment;
+    print '</td></tr>';
+
+    print '</tbody>';
     print '</table>' . "\n";
 }
 
