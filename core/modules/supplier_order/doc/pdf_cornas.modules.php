@@ -574,7 +574,7 @@ class pdf_cornas extends ModelePDFSuppliersOrders
                         $pageposafter = $pdf->getPage();
                         if ($pageposafter > $pageposbefore) { // There is a pagebreak
                             $pdf->rollbackTransaction(true);
-                            $pdf->setPageOrientation('', 1, $heightforfooter);
+                            $pdf->setPageOrientation('', 1, 30);
                             $this->printColDescContent($pdf, $curY, 'desc', $object, $i, $outputlangs, $hideref, $hidedesc, 1);
 
                             $pageposafter = $pdf->getPage();
