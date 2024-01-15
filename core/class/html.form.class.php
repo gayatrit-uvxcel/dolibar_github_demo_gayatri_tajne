@@ -1221,13 +1221,13 @@ class Form
             if (0 == $selected || ($selected == -1 && getDolGlobalString('MAIN_FREE_PRODUCT_CHECKED_BY_DEFAULT') == 'electrical')) {
                 print ' selected';
             }
-            print '>' . $langs->trans("Electrical");
+            print '>' . $langs->trans("Electrical Control Panel");
  
             print '<option value="Equipment"';
             if (1 == $selected || ($selected == -1 && getDolGlobalString('MAIN_FREE_PRODUCT_CHECKED_BY_DEFAULT') == 'equipment')) {
                 print ' selected';
             }
-            print '>' . $langs->trans("Equipment");
+            print '>' . $langs->trans("Siemens PLC Equipment");
  
             print '</select>';
             print ajax_combobox('select_' . $htmlname);

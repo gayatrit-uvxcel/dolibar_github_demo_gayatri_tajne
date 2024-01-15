@@ -440,7 +440,7 @@ if ($projectid > 0) {
     print '1';
     print '</td>';
     print '<td colspan="2">';
-    print 'Electrical';
+    print 'Electrical Control Panel';
     print '</td>';
     print '<td colspan="2">';
     print $sumOfElectrical;
@@ -453,7 +453,7 @@ if ($projectid > 0) {
     print '1';
     print '</td>';
     print '<td colspan="2">';
-    print 'Equipment';
+    print 'Siemens PLC Equipment';
     print '</td>';
     print '<td colspan="2">';
     print $sumOfEquipment;
