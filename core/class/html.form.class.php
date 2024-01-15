@@ -1197,6 +1197,55 @@ class Form
 		}
 	}
 
+	public function select_type_of_category($selected = '', $htmlname = 'category', $showempty = 0, $hidetext = 0, $forceall = 0)
+    {
+        // phpcs:enable
+        global $langs, $conf;
+ 
+        // If product & services are enabled or both disabled.
+        if ($forceall == 1 || (empty($forceall) && isModEnabled("electrical") && isModEnabled("equipment"))
+            || (empty($forceall) && !isModEnabled('electrical') && !isModEnabled('equipment'))) {
+            if (empty($hidetext)) {
+                print $langs->trans("Category") . ': ';
+            }
+            print '<select class="flat" id="select_' . $htmlname . '" name="' . $htmlname . '">';
+            if ($showempty) {
+                print '<option value="-1"';
+                if ($selected == -1) {
+                    print ' selected';
+                }
+                print '>&nbsp;</option>';
+            }
+ 
+            print '<option value="Electrical"';
+            if (0 == $selected || ($selected == -1 && getDolGlobalString('MAIN_FREE_PRODUCT_CHECKED_BY_DEFAULT') == 'electrical')) {
+                print ' selected';
+            }
+            print '>' . $langs->trans("Electrical");
+ 
+            print '<option value="Equipment"';
+            if (1 == $selected || ($selected == -1 && getDolGlobalString('MAIN_FREE_PRODUCT_CHECKED_BY_DEFAULT') == 'equipment')) {
+                print ' selected';
+            }
+            print '>' . $langs->trans("Equipment");
+ 
+            print '</select>';
+            print ajax_combobox('select_' . $htmlname);
+            //if ($user->admin) print info_admin($langs->trans("YouCanChangeValuesForThisListFromDictionarySetup"),1);
+        }
+        if ((empty($forceall) && !isModEnabled('electrical') && isModEnabled("equipment")) || $forceall == 3) {
+            print $langs->trans("electrical");
+            print '<input type="hidden" name="' . $htmlname . '" value="1">';
+        }
+        if ((empty($forceall) && isModEnabled("electrical") && !isModEnabled('equipment')) || $forceall == 2) {
+            print $langs->trans("equipment");
+            print '<input type="hidden" name="' . $htmlname . '" value="0">';
+        }
+        if ($forceall < 0) {    // This should happened only for contracts when both predefined product and service are disabled.
+            print '<input type="hidden" name="' . $htmlname . '" value="1">'; // By default we set on service for contract. If CONTRACT_SUPPORT_PRODUCTS is set, forceall should be 1 not -1
+        }
+    }
+
 	// phpcs:disable PEAR.NamingConventions.ValidFunctionName.ScopeNotCamelCaps
 
 	/**

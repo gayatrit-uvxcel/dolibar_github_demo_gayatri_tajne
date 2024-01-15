@@ -182,6 +182,16 @@ if ($nolinesbefore) {
 	<td class="nobottom linecoldescription minwidth400imp">
 		<?php
 		$freelines = false;
+		if (empty($conf->global->MAIN_DISABLE_CATEGORY)) {
+
+			$forceall = 1;
+			echo '<label for="category">';
+			echo '<span class="textradioforitem">' . $langs->trans("Category :") . '</span>';
+			echo '</label>';
+			$form->select_type_of_category(GETPOSTISSET("category") ? GETPOST("category") : -1, 'category', 1, 1, $forceall);
+			echo '</span>';
+		}
+
 		if (empty($conf->global->MAIN_DISABLE_FREE_LINES)) {
 			$freelines = true;
 			$forceall = 1; // We always force all type for free lines (module product or service means we use predefined product or service)
@@ -386,8 +396,8 @@ if ($nolinesbefore) {
 		if ($object->element == 'supplier_proposal' || $object->element == 'order_supplier' || $object->element == 'invoice_supplier' || $object->element == 'invoice_supplier_rec') {	// We must have same test in printObjectLines
 			$coldisplay++;
 			?>
-	<!-- <td class="nobottom linecolrefsupplier"><input id="fourn_ref" name="fourn_ref" class="flat minwidth50 maxwidth100 maxwidth125onsmartphone" value="<?php echo (GETPOSTISSET("fourn_ref") ? GETPOST("fourn_ref", 'alpha', 2) : ''); ?>"></td> -->
-<?php }
+			<!-- <td class="nobottom linecolrefsupplier"><input id="fourn_ref" name="fourn_ref" class="flat minwidth50 maxwidth100 maxwidth125onsmartphone" value="<?php echo (GETPOSTISSET("fourn_ref") ? GETPOST("fourn_ref", 'alpha', 2) : ''); ?>"></td> -->
+		<?php }
 		print '<td class="nobottom linecolvat right">';
 		$coldisplay++;
 		if ($seller->tva_assuj == "0") {
@@ -395,90 +405,91 @@ if ($nolinesbefore) {
 		} else {
 			echo $form->load_tva('tva_tx', (GETPOSTISSET("tva_tx") ? GETPOST("tva_tx", 'alpha', 2) : -1), $seller, $buyer, 0, 0, '', false, 1);
 		}
-?>
-</td>
-
-<td class="nobottom linecoluht right"><?php $coldisplay++; ?>
-	<input type="text" size="5" name="price_ht" id="price_ht" class="flat right" value="<?php echo (GETPOSTISSET("price_ht") ? GETPOST("price_ht", 'alpha', 2) : ''); ?>">
-</td>
-
-<?php
-if (isModEnabled("multicurrency") && $this->multicurrency_code != $conf->currency) {
-	$coldisplay++;
-?>
-	<td class="nobottom linecoluht_currency right">
-		<input type="text" size="5" name="multicurrency_price_ht" id="multicurrency_price_ht" class="flat right" value="<?php echo (GETPOSTISSET("multicurrency_price_ht") ? GETPOST("multicurrency_price_ht", 'alpha', 2) : ''); ?>">
+		?>
 	</td>
-<?php
-}
-if (!empty($inputalsopricewithtax) && !getDolGlobalInt('MAIN_NO_INPUT_PRICE_WITH_TAX')) {
-	$coldisplay++;
-?>
-	<td class="nobottom linecoluttc right">
-		<input type="text" size="5" name="price_ttc" id="price_ttc" class="flat right" value="<?php echo (GETPOSTISSET("price_ttc") ? GETPOST("price_ttc", 'alpha', 2) : ''); ?>">
+
+
+	<td class="nobottom linecoluht right"><?php $coldisplay++; ?>
+		<input type="text" size="5" name="price_ht" id="price_ht" class="flat right" value="<?php echo (GETPOSTISSET("price_ht") ? GETPOST("price_ht", 'alpha', 2) : ''); ?>">
 	</td>
-<?php
-}
-$coldisplay++;
-?>
-<td class="nobottom linecolqty right">
-	<?php $default_qty = (empty($conf->global->MAIN_OBJECTLINE_CREATE_EMPTY_QTY_BY_DEFAULT) ? 1 : ''); ?>
-	<input type="text" name="qty" id="qty" class="flat width40 right" value="<?php echo (GETPOSTISSET("qty") ? GETPOST("qty", 'alpha', 2) : $default_qty); ?>">
-</td>
-<?php
-if (getDolGlobalInt('PRODUCT_USE_UNITS')) {
-	$coldisplay++;
-	print '<td class="nobottom linecoluseunit left">';
-	print $form->selectUnits(empty($line->fk_unit) ? $conf->global->PRODUCT_USE_UNITS : $line->fk_unit, "units");
-	print '</td>';
-}
-$remise_percent = $buyer->remise_percent;
-if ($object->element == 'supplier_proposal' || $object->element == 'order_supplier' || $object->element == 'invoice_supplier') {
-	$remise_percent = $seller->remise_supplier_percent;
-}
-$coldisplay++;
-?>
 
-<!-- unit input -->
-<td class="nobottom linecoluttc right">
-    <input type="text" size="5" name="unit" id="unit" class="flat right" value="<?php echo (GETPOSTISSET("unit") ? GETPOST("unit") : ''); ?>">
-</td>
-
-<?php
-if (isset($this->situation_cycle_ref) && $this->situation_cycle_ref) {
-	$coldisplay++;
-	print '<td class="nobottom nowrap right"><input class="falt right" type="text" size="1" value="" name="progress"><span class="opacitymedium hideonsmartphone">%</span></td>';
-	$coldisplay++;
-	print '<td></td>';
-}
-if (!empty($usemargins)) {
-	if (!empty($user->rights->margins->creer)) {
+	<?php
+	if (isModEnabled("multicurrency") && $this->multicurrency_code != $conf->currency) {
 		$coldisplay++;
-?>
-		<td class="nobottom margininfos linecolmargin right">
-			<!-- For predef product -->
-			<?php if (isModEnabled("product") || isModEnabled("service")) { ?>
-				<select id="fournprice_predef" name="fournprice_predef" class="flat minwidth75imp maxwidth150" style="display: none;"></select>
-			<?php } ?>
-			<!-- For free product -->
-			<input type="text" id="buying_price" name="buying_price" class="flat maxwidth75 right" value="<?php echo (GETPOSTISSET("buying_price") ? GETPOST("buying_price", 'alpha', 2) : ''); ?>">
+	?>
+		<td class="nobottom linecoluht_currency right">
+			<input type="text" size="5" name="multicurrency_price_ht" id="multicurrency_price_ht" class="flat right" value="<?php echo (GETPOSTISSET("multicurrency_price_ht") ? GETPOST("multicurrency_price_ht", 'alpha', 2) : ''); ?>">
 		</td>
-<?php
-		if (!empty($conf->global->DISPLAY_MARGIN_RATES)) {
-			echo '<td class="nobottom nowraponall margininfos right"><input class="flat right width40" type="text" id="np_marginRate" name="np_marginRate" value="' . (GETPOSTISSET("np_marginRate") ? GETPOST("np_marginRate", 'alpha', 2) : '') . '"><span class="np_marginRate opacitymedium hideonsmartphone">%</span></td>';
+	<?php
+	}
+	if (!empty($inputalsopricewithtax) && !getDolGlobalInt('MAIN_NO_INPUT_PRICE_WITH_TAX')) {
+		$coldisplay++;
+	?>
+		<td class="nobottom linecoluttc right">
+			<input type="text" size="5" name="price_ttc" id="price_ttc" class="flat right" value="<?php echo (GETPOSTISSET("price_ttc") ? GETPOST("price_ttc", 'alpha', 2) : ''); ?>">
+		</td>
+	<?php
+	}
+	$coldisplay++;
+	?>
+	<td class="nobottom linecolqty right">
+		<?php $default_qty = (empty($conf->global->MAIN_OBJECTLINE_CREATE_EMPTY_QTY_BY_DEFAULT) ? 1 : ''); ?>
+		<input type="text" name="qty" id="qty" class="flat width40 right" value="<?php echo (GETPOSTISSET("qty") ? GETPOST("qty", 'alpha', 2) : $default_qty); ?>">
+	</td>
+	<?php
+	if (getDolGlobalInt('PRODUCT_USE_UNITS')) {
+		$coldisplay++;
+		print '<td class="nobottom linecoluseunit left">';
+		print $form->selectUnits(empty($line->fk_unit) ? $conf->global->PRODUCT_USE_UNITS : $line->fk_unit, "units");
+		print '</td>';
+	}
+	$remise_percent = $buyer->remise_percent;
+	if ($object->element == 'supplier_proposal' || $object->element == 'order_supplier' || $object->element == 'invoice_supplier') {
+		$remise_percent = $seller->remise_supplier_percent;
+	}
+	$coldisplay++;
+	?>
+
+	<!-- unit input -->
+	<td class="nobottom linecoluttc right">
+		<input type="text" size="5" name="unit" id="unit" class="flat right" value="<?php echo (GETPOSTISSET("unit") ? GETPOST("unit") : ''); ?>">
+	</td>
+
+	<?php
+	if (isset($this->situation_cycle_ref) && $this->situation_cycle_ref) {
+		$coldisplay++;
+		print '<td class="nobottom nowrap right"><input class="falt right" type="text" size="1" value="" name="progress"><span class="opacitymedium hideonsmartphone">%</span></td>';
+		$coldisplay++;
+		print '<td></td>';
+	}
+	if (!empty($usemargins)) {
+		if (!empty($user->rights->margins->creer)) {
 			$coldisplay++;
-		}
-		if (!empty($conf->global->DISPLAY_MARK_RATES)) {
-			echo '<td class="nobottom nowraponall margininfos right"><input class="flat right width40" type="text" id="np_markRate" name="np_markRate" value="' . (GETPOSTISSET("np_markRate") ? GETPOST("np_markRate", 'alpha', 2) : '') . '"><span class="np_markRate opacitymedium hideonsmartphone">%</span></td>';
-			$coldisplay++;
+	?>
+			<td class="nobottom margininfos linecolmargin right">
+				<!-- For predef product -->
+				<?php if (isModEnabled("product") || isModEnabled("service")) { ?>
+					<select id="fournprice_predef" name="fournprice_predef" class="flat minwidth75imp maxwidth150" style="display: none;"></select>
+				<?php } ?>
+				<!-- For free product -->
+				<input type="text" id="buying_price" name="buying_price" class="flat maxwidth75 right" value="<?php echo (GETPOSTISSET("buying_price") ? GETPOST("buying_price", 'alpha', 2) : ''); ?>">
+			</td>
+	<?php
+			if (!empty($conf->global->DISPLAY_MARGIN_RATES)) {
+				echo '<td class="nobottom nowraponall margininfos right"><input class="flat right width40" type="text" id="np_marginRate" name="np_marginRate" value="' . (GETPOSTISSET("np_marginRate") ? GETPOST("np_marginRate", 'alpha', 2) : '') . '"><span class="np_marginRate opacitymedium hideonsmartphone">%</span></td>';
+				$coldisplay++;
+			}
+			if (!empty($conf->global->DISPLAY_MARK_RATES)) {
+				echo '<td class="nobottom nowraponall margininfos right"><input class="flat right width40" type="text" id="np_markRate" name="np_markRate" value="' . (GETPOSTISSET("np_markRate") ? GETPOST("np_markRate", 'alpha', 2) : '') . '"><span class="np_markRate opacitymedium hideonsmartphone">%</span></td>';
+				$coldisplay++;
+			}
 		}
 	}
-}
-$coldisplay += $colspan;
-?>
-<td class="nobottom linecoledit center valignmiddle" colspan="<?php echo $colspan; ?>">
-	<input type="submit" class="button reposition" value="<?php echo $langs->trans('Add'); ?>" name="addline" id="addline">
-</td>
+	$coldisplay += $colspan;
+	?>
+	<td class="nobottom linecoledit center valignmiddle" colspan="<?php echo $colspan; ?>">
+		<input type="submit" class="button reposition" value="<?php echo $langs->trans('Add'); ?>" name="addline" id="addline">
+	</td>
 </tr>
 
 <?php

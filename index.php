@@ -239,7 +239,7 @@ if ($socid > 0) {
         }
     }
 
-// project
+    // project
     if (isModEnabled('project')) {
         $langs->load('projects');
         print '<tr><td class="fieldrequired">' . $langs->trans('Project:') . '</td><td colspan="2">';
@@ -338,7 +338,7 @@ if ($projectid > 0) {
         $sql_llx_commande_fournisseur = "SELECT * FROM " . MAIN_DB_PREFIX . "commande_fournisseur WHERE fk_projet = $projectid";
         $res_llx_commande_fournisseur = $db->query($sql_llx_commande_fournisseur);
 
-        if ($res_llx_facture) {
+        if ($res_llx_commande_fournisseur) {
             while ($row = $db->fetch_object($res_llx_commande_fournisseur)) {
                 $object->po_no = $row->po_no;
                 $object->quote_no = $row->quote_no;
@@ -394,6 +394,29 @@ if ($projectid > 0) {
         print '</td></tr>';
     }
     print '</table>' . "\n";
+
+
+    $sql_llx_propaldet_eq = "SELECT SUM(multicurrency_subprice) As sumOfEquipment FROM " . MAIN_DB_PREFIX . "propaldet WHERE category = 'Equipment' AND fk_socid = $socid AND fk_projectid = $projectid";
+   
+    $res_llx_propaldet_eq = $db->query($sql_llx_propaldet_eq);
+    
+    if ($res_llx_propaldet_eq) {
+        while ($row = $db->fetch_object($res_llx_propaldet_eq)) {
+            $sumOfEquipment = number_format($row->sumOfEquipment, 2);
+            print '<script>console.log("sumOfEquipment: ' . $sumOfEquipment . '")</script>';
+        }
+    }
+    
+
+    $sql_llx_propaldet_ele = "SELECT SUM(multicurrency_subprice) As sumOfElectrical FROM " . MAIN_DB_PREFIX . "propaldet WHERE category = 'Electrical' AND fk_socid = $socid AND fk_projectid = $projectid";
+    $res_llx_propaldet_ele = $db->query($sql_llx_propaldet_ele);
+
+    if ($res_llx_propaldet_ele) {
+        while ($row = $db->fetch_object($res_llx_propaldet_ele)) {
+            $sumOfElectrical = number_format($row->sumOfElectrical, 2);
+            print '<script>console.log("sumOfElectrical: ' . $sumOfElectrical . '")</script>';
+        }
+    }
 
     print '<table class="noborder" style="margin-top: 20px;">' . "\n";
     print '<tr><td>' . $langs->trans('No.') . '</td><td colspan="2">';

@@ -251,13 +251,13 @@ class Propal extends CommonObject
 
     public $extraparams = array();
 
-    public $isLinesAvailable = 0;
-
     /**
      * @var PropaleLigne[]
      */
     public $lines = array();
     public $line;
+    public $isLinesAvailable = 0;
+
 
     public $labelStatus = array();
     public $labelStatusShort = array();
@@ -573,11 +573,12 @@ class Propal extends CommonObject
      *        @return        int                             >0 if OK, <0 if KO
      *        @see           add_product()
      */
-    public function addline($desc, $pu_ht, $qty, $txtva, $txlocaltax1 = 0.0, $txlocaltax2 = 0.0, $fk_product = 0, $remise_percent = 0.0, $price_base_type = 'HT', $pu_ttc = 0.0, $info_bits = 0, $type = 0, $rang = -1, $special_code = 0, $fk_parent_line = 0, $fk_fournprice = 0, $pa_ht = 0, $label = '', $date_start = '', $date_end = '', $array_options = 0, $fk_unit = null, $unit = null, $origin = '', $origin_id = 0, $pu_ht_devise = 0, $fk_remise_except = 0, $noupdateafterinsertline = 0)
+    public function addline($desc, $pu_ht, $qty, $txtva, $txlocaltax1 = 0.0, $txlocaltax2 = 0.0, $fk_product = 0, $remise_percent = 0.0, $price_base_type = 'HT', $pu_ttc = 0.0, $info_bits = 0, $type = 0, $category = null, $rang = -1, $special_code = 0, $fk_parent_line = 0, $fk_fournprice = 0, $pa_ht = 0, $label = '', $date_start = '', $date_end = '', $array_options = 0, $fk_unit = null, $unit = null,$fk_projectid= null, $fk_socid=null, $origin = '', $origin_id = 0, $pu_ht_devise = 0, $fk_remise_except = 0, $noupdateafterinsertline = 0)
     {
+
         global $mysoc, $conf, $langs;
 
-        dol_syslog(get_class($this) . "::addline propalid=$this->id, desc=$desc, pu_ht=$pu_ht, qty=$qty, txtva=$txtva, fk_product=$fk_product, remise_except=$remise_percent, price_base_type=$price_base_type, pu_ttc=$pu_ttc, info_bits=$info_bits, type=$type, fk_remise_except=" . $fk_remise_except);
+        dol_syslog(get_class($this) . "::addline propalid=$this->id, desc=$desc, pu_ht=$pu_ht, qty=$qty, txtva=$txtva, fk_product=$fk_product, remise_except=$remise_percent, price_base_type=$price_base_type, pu_ttc=$pu_ttc, info_bits=$info_bits, type=$type, category=$category,fk_remise_except=" . $fk_remise_except);
 
         if ($this->statut == self::STATUS_DRAFT) {
             include_once DOL_DOCUMENT_ROOT . '/core/lib/price.lib.php';
@@ -618,6 +619,9 @@ class Propal extends CommonObject
 
             // Check parameters
             if ($type < 0) {
+                return -1;
+            }
+            if ($category < 0) {
                 return -1;
             }
 
@@ -710,6 +714,7 @@ class Propal extends CommonObject
             $this->line->localtax2_type = empty($localtaxes_type[2]) ? '' : $localtaxes_type[2];
             $this->line->fk_product = $fk_product;
             $this->line->product_type = $type;
+            $this->line->category = $category;
             $this->line->fk_remise_except = $fk_remise_except;
             $this->line->remise_percent = $remise_percent;
             $this->line->subprice = $pu_ht;
@@ -724,6 +729,9 @@ class Propal extends CommonObject
             $this->line->fk_parent_line = $fk_parent_line;
             $this->line->fk_unit = $fk_unit;
             $this->line->unit = $unit;
+
+            $this->line->fk_socid = $fk_socid;
+            $this->line->fk_projectid = $fk_projectid;
 
             $this->line->date_start = $date_start;
             $this->line->date_end = $date_end;
@@ -820,12 +828,12 @@ class Propal extends CommonObject
      * @param       integer $rang   line rank
      *  @return     int                             0 if OK, <0 if KO
      */
-    public function updateline($rowid, $pu, $qty, $remise_percent, $txtva, $txlocaltax1 = 0.0, $txlocaltax2 = 0.0, $desc = '', $price_base_type = 'HT', $info_bits = 0, $special_code = 0, $fk_parent_line = 0, $skip_update_total = 0, $fk_fournprice = 0, $pa_ht = 0, $label = '', $type = 0, $date_start = '', $date_end = '', $array_options = 0, $fk_unit = null, $unit = null, $pu_ht_devise = 0, $notrigger = 0, $rang = 0)
+    public function updateline($rowid, $pu, $qty, $remise_percent, $txtva, $txlocaltax1 = 0.0, $txlocaltax2 = 0.0, $desc = '', $price_base_type = 'HT', $info_bits = 0, $special_code = 0, $fk_parent_line = 0, $skip_update_total = 0, $fk_fournprice = 0, $pa_ht = 0, $label = '', $type = 0, $category = 0, $date_start = '', $date_end = '', $array_options = 0, $fk_unit = null, $unit = null, $pu_ht_devise = 0, $notrigger = 0, $rang = 0)
     {
         global $mysoc, $langs;
 
         dol_syslog(get_class($this) . "::updateLine rowid=$rowid, pu=$pu, qty=$qty, remise_percent=$remise_percent,
-        txtva=$txtva, desc=$desc, price_base_type=$price_base_type, info_bits=$info_bits, special_code=$special_code, fk_parent_line=$fk_parent_line, pa_ht=$pa_ht, type=$type, date_start=$date_start, date_end=$date_end");
+        txtva=$txtva, desc=$desc, price_base_type=$price_base_type, info_bits=$info_bits, special_code=$special_code, fk_parent_line=$fk_parent_line, pa_ht=$pa_ht, type=$type, category = $category, date_start=$date_start, date_end=$date_end");
         include_once DOL_DOCUMENT_ROOT . '/core/lib/price.lib.php';
 
         // Clean parameters
@@ -847,6 +855,9 @@ class Propal extends CommonObject
         }
         if (empty($type)) {
             $type = 0;
+        }
+        if (empty($category)) {
+            $category = 0;
         }
 
         if ($date_start && $date_end && $date_start > $date_end) {
@@ -921,6 +932,7 @@ class Propal extends CommonObject
             $this->line->desc = $desc;
             $this->line->qty = $qty;
             $this->line->product_type = $type;
+            $this->line->category = $category;
             $this->line->vat_src_code = $vat_src_code;
             $this->line->tva_tx = $txtva;
             $this->line->localtax1_tx = $txlocaltax1;
@@ -1185,7 +1197,7 @@ class Propal extends CommonObject
         $sql .= ", " . setEntity($this);
         $sql .= ", " . (int) $this->fk_multicurrency;
         $sql .= ", '" . $this->db->escape($this->multicurrency_code) . "'";
-        $sql .= ", " . (double) $this->multicurrency_tx;
+        $sql .= ", " . (float) $this->multicurrency_tx;
         $sql .= ", " . ($this->contact ? "'" . $this->db->escape($this->contact) . "'" : "null");
         $sql .= ", " . ($this->cell ? "'" . $this->db->escape($this->cell) . "'" : "null");
         $sql .= ", " . ($this->email ? "'" . $this->db->escape($this->email) . "'" : "null");
@@ -1304,6 +1316,8 @@ class Propal extends CommonObject
                             $line->array_options,
                             $line->fk_unit,
                             $line->unit,
+                            $line->fk_projectid,
+                            $line->fk_socid,
                             $origintype,
                             $originid,
                             0,
@@ -4088,6 +4102,7 @@ class PropaleLigne extends CommonObjectLine
     public $product_type = Product::TYPE_PRODUCT;
 
     public $qty;
+    public $category;
 
     public $tva_tx;
     public $vat_src_code;
@@ -4300,7 +4315,6 @@ class PropaleLigne extends CommonObjectLine
     public function insert($notrigger = 0)
     {
         global $conf, $user;
-
         $error = 0;
 
         dol_syslog(get_class($this) . "::insert rang=" . $this->rang);
@@ -4384,21 +4398,22 @@ class PropaleLigne extends CommonObjectLine
 
         // Insert line into database
         $sqlPropal = 'INSERT INTO ' . MAIN_DB_PREFIX . 'propaldet';
-        $sqlPropal .= ' (fk_propal, fk_parent_line, label, description, fk_product, product_type,';
+        $sqlPropal .= ' (fk_propal, fk_parent_line, label, description, fk_product, product_type,category,';
         $sqlPropal .= ' fk_remise_except, qty, vat_src_code, tva_tx, localtax1_tx, localtax2_tx, localtax1_type, localtax2_type,';
         $sqlPropal .= ' subprice, remise_percent, ';
         $sqlPropal .= ' info_bits, ';
         $sqlPropal .= ' total_ht, total_tva, total_localtax1, total_localtax2, total_ttc, fk_product_fournisseur_price, buy_price_ht, special_code, rang,';
         $sqlPropal .= ' fk_unit,';
         $sqlPropal .= ' date_start, date_end';
-        $sqlPropal .= ', fk_multicurrency, multicurrency_code, multicurrency_subprice, multicurrency_total_ht, multicurrency_total_tva, multicurrency_total_ttc,unit)';
+        $sqlPropal .= ', fk_multicurrency, multicurrency_code, multicurrency_subprice, multicurrency_total_ht, multicurrency_total_tva, multicurrency_total_ttc,fk_projectid,fk_socid,unit)';
         $sqlPropal .= " VALUES (" . $this->fk_propal . ",";
         $sqlPropal .= " " . ($this->fk_parent_line > 0 ? "'" . $this->db->escape($this->fk_parent_line) . "'" : "null") . ",";
         $sqlPropal .= " " . (!empty($this->label) ? "'" . $this->db->escape($this->label) . "'" : "null") . ",";
         $sqlPropal .= " '" . $this->db->escape($this->desc) . "',";
         $sqlPropal .= " " . ($this->fk_product ? "'" . $this->db->escape($this->fk_product) . "'" : "null") . ",";
         $sqlPropal .= " '" . $this->db->escape($this->product_type) . "',";
-        $sqlPropal .= " " . ($this->fk_remise_except ? "'" . $this->db->escape($this->fk_remise_except) . "'" : "null") . ",";
+        $sqlPropal .= " '" . $this->db->escape(GETPOSTISSET("category") ? GETPOST("category")  : 'null') . "'";
+        $sqlPropal .= ", " . ($this->fk_remise_except ? "'" . $this->db->escape($this->fk_remise_except) . "'" : "null") . ",";
         $sqlPropal .= " " . price2num($this->qty, 'MS') . ",";
         $sqlPropal .= " " . (empty($this->vat_src_code) ? "''" : "'" . $this->db->escape($this->vat_src_code) . "'") . ",";
         $sqlPropal .= " " . price2num($this->tva_tx) . ",";
@@ -4427,25 +4442,28 @@ class PropaleLigne extends CommonObjectLine
         $sqlPropal .= ", " . price2num($this->multicurrency_total_ht, 'CT');
         $sqlPropal .= ", " . price2num($this->multicurrency_total_tva, 'CT');
         $sqlPropal .= ", " . price2num($this->multicurrency_total_ttc, 'CT');
+        $sqlPropal .= ", '" . $this->db->escape(GETPOSTISSET("fk_projectid") ? GETPOST("fk_projectid")  : 'null') . "'";
+        $sqlPropal .= ", '" . $this->db->escape(GETPOSTISSET("fk_socid") ? GETPOST("fk_socid")  : 'null') . "'";
         $sqlPropal .= ", '" . $this->db->escape(GETPOSTISSET("unit") ? GETPOST("unit") : '') . "')";
 
         // Insert line into database
         $sqlFacture = 'INSERT INTO ' . MAIN_DB_PREFIX . 'facturedet';
-        $sqlFacture .= ' (fk_facture, fk_parent_line, label, description, fk_product, product_type,';
+        $sqlFacture .= ' (fk_facture, fk_parent_line, label, description, fk_product, product_type, category,';
         $sqlFacture .= ' fk_remise_except, qty, vat_src_code, tva_tx, localtax1_tx, localtax2_tx, localtax1_type, localtax2_type,';
         $sqlFacture .= ' subprice, remise_percent, ';
         $sqlFacture .= ' info_bits, ';
         $sqlFacture .= ' total_ht, total_tva, total_localtax1, total_localtax2, total_ttc, fk_product_fournisseur_price, buy_price_ht, special_code, rang,';
         $sqlFacture .= ' fk_unit,';
         $sqlFacture .= ' date_start, date_end';
-        $sqlFacture .= ', fk_multicurrency, multicurrency_code, multicurrency_subprice, multicurrency_total_ht, multicurrency_total_tva, multicurrency_total_ttc,unit)';
+        $sqlFacture .= ', fk_multicurrency, multicurrency_code, multicurrency_subprice, multicurrency_total_ht, multicurrency_total_tva, multicurrency_total_ttc,fk_projectid,fk_socid,unit)';
         $sqlFacture .= " VALUES (" . $this->fk_propal . ",";
         $sqlFacture .= " " . ($this->fk_parent_line > 0 ? "'" . $this->db->escape($this->fk_parent_line) . "'" : "null") . ",";
         $sqlFacture .= " " . (!empty($this->label) ? "'" . $this->db->escape($this->label) . "'" : "null") . ",";
         $sqlFacture .= " '" . $this->db->escape($this->desc) . "',";
         $sqlFacture .= " " . ($this->fk_product ? "'" . $this->db->escape($this->fk_product) . "'" : "null") . ",";
         $sqlFacture .= " '" . $this->db->escape($this->product_type) . "',";
-        $sqlFacture .= " " . ($this->fk_remise_except ? "'" . $this->db->escape($this->fk_remise_except) . "'" : "null") . ",";
+        $sqlFacture .= " '" . $this->db->escape(GETPOSTISSET("category") ? GETPOST("category")  : 'null') . "'";
+        $sqlFacture .= ", " . ($this->fk_remise_except ? "'" . $this->db->escape($this->fk_remise_except) . "'" : "null") . ",";
         $sqlFacture .= " " . price2num($this->qty, 'MS') . ",";
         $sqlFacture .= " " . (empty($this->vat_src_code) ? "''" : "'" . $this->db->escape($this->vat_src_code) . "'") . ",";
         $sqlFacture .= " " . price2num($this->tva_tx) . ",";
@@ -4474,6 +4492,8 @@ class PropaleLigne extends CommonObjectLine
         $sqlFacture .= ", " . price2num($this->multicurrency_total_ht, 'CT');
         $sqlFacture .= ", " . price2num($this->multicurrency_total_tva, 'CT');
         $sqlFacture .= ", " . price2num($this->multicurrency_total_ttc, 'CT');
+        $sqlFacture .= ", '" . $this->db->escape(GETPOSTISSET("fk_projectid") ? GETPOST("fk_projectid")  : 'null') . "'";
+        $sqlFacture .= ", '" . $this->db->escape(GETPOSTISSET("fk_socid") ? GETPOST("fk_socid")  : 'null') . "'";
         $sqlFacture .= ", '" . $this->db->escape(GETPOSTISSET("unit") ? GETPOST("unit") : '') . "')";
 
         dol_syslog(get_class($this) . '::insert', LOG_DEBUG);
@@ -4649,6 +4669,7 @@ class PropaleLigne extends CommonObjectLine
         $sqlPropal .= " description='" . $this->db->escape($this->desc) . "'";
         $sqlPropal .= ", label=" . (!empty($this->label) ? "'" . $this->db->escape($this->label) . "'" : "null");
         $sqlPropal .= ", product_type=" . $this->product_type;
+        $sqlPropal .= ", category=" . $this->category;
         $sqlPropal .= ", vat_src_code = '" . (empty($this->vat_src_code) ? '' : $this->vat_src_code) . "'";
         $sqlPropal .= ", tva_tx='" . price2num($this->tva_tx) . "'";
         $sqlPropal .= ", localtax1_tx=" . price2num($this->localtax1_tx);
@@ -4693,7 +4714,7 @@ class PropaleLigne extends CommonObjectLine
         $sqlFacture = "UPDATE " . MAIN_DB_PREFIX . "facturedet SET";
         $sqlFacture .= " description='" . $this->db->escape($this->desc) . "'";
         $sqlFacture .= ", label=" . (!empty($this->label) ? "'" . $this->db->escape($this->label) . "'" : "null");
-        $sqlFacture .= ", product_type=" . $this->product_type;
+        $sqlFacture .= ", category=" . $this->category;
         $sqlFacture .= ", vat_src_code = '" . (empty($this->vat_src_code) ? '' : $this->vat_src_code) . "'";
         $sqlFacture .= ", tva_tx='" . price2num($this->tva_tx) . "'";
         $sqlFacture .= ", localtax1_tx=" . price2num($this->localtax1_tx);
