@@ -915,7 +915,6 @@ if (empty($reshook)) {
         }
     }
 
-    // print '<script>console.log("category at top: ' . $category . '")</script>';
     include DOL_DOCUMENT_ROOT . '/core/actions_printing.inc.php';
 
     // Actions to send emails
@@ -1713,7 +1712,6 @@ if (empty($reshook)) {
             $action = 'edit_extras';
         }
     }
-    print '<script>console.log(`category' . $category . '`)</script>';
     if (!empty($conf->global->MAIN_DISABLE_CONTACTS_TAB) && $usercancreate) {
         if ($action == 'addcontact') {
             if ($object->id > 0) {
@@ -2019,6 +2017,20 @@ if ($action == 'create') {
         });
         </script>';
 
+        print ' <script>
+        $(document).ready(function() {
+          $("#man_hours").change(function() {
+            if ($(this).is(":checked")) {
+              $("#man_hours_fields").css("display", "");
+              $("#man_hours_fields_label").css("display", "");
+            } else {
+              $("#man_hours_fields").css("display", "none");
+              $("#man_hours_fields_label").css("display", "none");
+            }
+          });
+        });
+      </script>';
+
         if ($projectid > 0) {
 
             $sql_llx_societe = "SELECT * FROM " . MAIN_DB_PREFIX . "societe WHERE rowid = $socid";
@@ -2048,6 +2060,21 @@ if ($action == 'create') {
             } else {
                 echo "Error executing llx_projet query: " . $db->lasterror();
             }
+
+            print '<tr><td>' . $langs->trans('Man Hours:') . '</td><td colspan="2">';
+            print '<input type="checkbox" id="man_hours" name="man_hours" required />';
+            print '</td></tr>';
+
+            print '<tr id="man_hours_fields_label" style="display: none"><td></td><td colspan="2">';
+            print '<div id="man_hours_fields" style="display: none">';
+            print '<table style="width: 100%"><tbody>';
+
+            print '<tr><td>' . $langs->trans('Contact Person:') . '</td><td colspan="2">';
+            print '<input type="text" id="contact" name="contact" value="' . $object->contact . '" readonly />';
+            print '</td></tr>';
+
+            print '</table></tbody>';
+            print '</div></td></tr>';
 
             //modified by supriya
             print '<tr><td>' . $langs->trans('Contact Person:') . '</td><td colspan="2">';

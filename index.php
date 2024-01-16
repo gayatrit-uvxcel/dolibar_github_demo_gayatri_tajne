@@ -395,26 +395,14 @@ if ($projectid > 0) {
     }
     print '</table>' . "\n";
 
+    $categoryArray = [];
+    $sql_llx_propaldet_categories = "SELECT DISTINCT category FROM " . MAIN_DB_PREFIX . "propaldet WHERE category IS NOT NULL";
 
-    $sql_llx_propaldet_eq = "SELECT SUM(multicurrency_subprice) As sumOfEquipment FROM " . MAIN_DB_PREFIX . "propaldet WHERE category = 'Equipment' AND fk_socid = $socid AND fk_projectid = $projectid";
-   
-    $res_llx_propaldet_eq = $db->query($sql_llx_propaldet_eq);
-    
-    if ($res_llx_propaldet_eq) {
-        while ($row = $db->fetch_object($res_llx_propaldet_eq)) {
-            $sumOfEquipment = number_format($row->sumOfEquipment, 2);
-            print '<script>console.log("sumOfEquipment: ' . $sumOfEquipment . '")</script>';
-        }
-    }
-    
+    $res_llx_propaldet_categories = $db->query($sql_llx_propaldet_categories);
 
-    $sql_llx_propaldet_ele = "SELECT SUM(multicurrency_subprice) As sumOfElectrical FROM " . MAIN_DB_PREFIX . "propaldet WHERE category = 'Electrical' AND fk_socid = $socid AND fk_projectid = $projectid";
-    $res_llx_propaldet_ele = $db->query($sql_llx_propaldet_ele);
-
-    if ($res_llx_propaldet_ele) {
-        while ($row = $db->fetch_object($res_llx_propaldet_ele)) {
-            $sumOfElectrical = number_format($row->sumOfElectrical, 2);
-            print '<script>console.log("sumOfElectrical: ' . $sumOfElectrical . '")</script>';
+    if ($res_llx_propaldet_categories) {
+        while ($row = $db->fetch_object($res_llx_propaldet_categories)) {
+            $categoryArray[] = $row->category;
         }
     }
 
@@ -436,34 +424,40 @@ if ($projectid > 0) {
 
     print '<tbody>';
 
-    print '<tr><td>' . '1' . '</td><th colspan="2">';
-    print '1';
-    print '</td>';
-    print '<td colspan="2">';
-    print 'Electrical Control Panel';
-    print '</td>';
-    print '<td colspan="2">';
-    print $sumOfElectrical;
-    print '</td>';
-    print '<td colspan="2">';
-    print $sumOfElectrical;
-    print '</td></tr>';
+    if (isset($categoryArray) && is_array($categoryArray) && !empty($categoryArray)) {
+        $index = 0;
 
-    print '<tr><td>' . '2' . '</td><th colspan="2">';
-    print '1';
-    print '</td>';
-    print '<td colspan="2">';
-    print 'Siemens PLC Equipment';
-    print '</td>';
-    print '<td colspan="2">';
-    print $sumOfEquipment;
-    print '</td>';
-    print '<td colspan="2">';
-    print $sumOfEquipment;
-    print '</td></tr>';
+        foreach ($categoryArray as $category) {
+            $sql_llx_propaldet_eq = "SELECT SUM(multicurrency_subprice) As sumOfEquipment FROM " . MAIN_DB_PREFIX . "propaldet WHERE category = '$category' AND fk_socid = $socid AND fk_projectid = $projectid";
+
+            $res_llx_propaldet_eq = $db->query($sql_llx_propaldet_eq);
+
+            if ($res_llx_propaldet_eq) {
+                while ($row = $db->fetch_object($res_llx_propaldet_eq)) {
+                    $sumOfEquipment = number_format($row->sumOfEquipment, 2);
+                }
+            }
+
+            $index++;
+
+            print '<tr><td>' . $index . '</td><td colspan="2">';
+            print '1';
+            print '</td>';
+            print '<td colspan="2">';
+            print $category;
+            print '</td>';
+            print '<td colspan="2">';
+            print $sumOfEquipment;
+            print '</td>';
+            print '<td colspan="2">';
+            print $sumOfEquipment;
+            print '</td></tr>';
+        }
+    }
 
     print '</tbody>';
     print '</table>' . "\n";
+
 }
 
 print "</form>\n";
