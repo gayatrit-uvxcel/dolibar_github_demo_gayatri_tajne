@@ -1261,7 +1261,26 @@ class Form
         if (empty($hidetext)) {
             print $langs->trans("Category") . ': ';
         }
-        print '<select class="flat" id="select_' . $htmlname . '" name="' . $htmlname . '">';
+
+        print '<script>
+        function onCategoryChange(e){
+            var otherOption = document.getElementById("other_option");
+	        otherOption.value =  "other_option";
+            var otherCategoryDiv = document.querySelector(".other_category_input_wrapper");
+            if (e.value === "other_option") {
+                otherCategoryDiv.style.display = "flex";
+            } else {
+                let otherCategoryInput = document.getElementById("other_category")
+                let saveCategory = document.getElementById("save_category")
+                otherCategoryInput.disabled = false;
+                otherCategoryInput.value = "";
+                saveCategory.value = "ADD";
+                otherCategoryDiv.style.display = "none";
+            }
+        }
+        </script>';
+
+        print '<select onchange="onCategoryChange(this)" class="flat" id="select_' . $htmlname . '" name="' . $htmlname . '">';
         if ($showempty) {
             print '<option value="-1"';
             if ($selected == -1) {
@@ -1280,8 +1299,10 @@ class Form
                 print '>' . $langs->trans($category) . '</option>';
             }
         }
-		print '</select>';
-	 	print ajax_combobox('select_' . $htmlname);
+        print '<option id="other_option" value="other_option"';
+        print '>Other</option>';
+        print '</select>';
+        print ajax_combobox('select_' . $htmlname);
     }
 
     // phpcs:disable PEAR.NamingConventions.ValidFunctionName.ScopeNotCamelCaps
