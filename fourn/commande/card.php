@@ -1965,7 +1965,11 @@ if ($action == 'create') {
             print '<td class="titlefieldcreate">' . $langs->trans('Terms and Conditions:') . '</td>';
             print '<td class="maxwidthonsmartphone">';
             // $selected = (GETPOSTISSET('tc_content') ? GETPOST('tc_content') : $object->tc_content);
-            print $form->multiselectarray('multi_tc_content', $options, $selected, 0, 0, 'form-control', 1, '300px', '', '', 'Select Multiple Terms and Conditions', 1);
+            print $form->multiselectarrayForFVACRM('multi_tc_content', $options, $selected, 0, 0, 'form-control', 1, '300px', '', '', 'Select Multiple Terms and Conditions', 1);
+
+            print '<input type="text" id="customTAC" placeholder="Add more terms & condition">';
+            // print '<button type="button" onclick="addCustomOption(\'multi_tc_content\', \'customTAC\')" class="button"> Add </button>';
+            print '<input type="button" class="button button-add small" onclick="addCustomOption(\'multi_tc_content\', \'customTAC\')"  value="Add">';
 
             print '</td>';
             print '</tr>';
@@ -1984,10 +1988,32 @@ if ($action == 'create') {
             print '<tr>';
             print '<td class="titlefieldcreate">' . $langs->trans('Notes:') . '</td>';
             print '<td class="maxwidthonsmartphone">';
-            print $form->multiselectarray('notes_content', $options, $selected, 0, 0, 'form-control', 1, '300px', '', '', 'Select Multiple Notes', 1);
+            print $form->multiselectarrayForFVACRM('notes_content', $options, $selected, 0, 0, 'form-control', 1, '300px', '', '', 'Select Multiple Notes', 1);
+
+             // Display the input field for adding custom notes
+             print '<input type="text" id="customNotes" placeholder="Add more notes">';
+            //  print '<button type="button" onclick="addCustomOption(\'notes_content\', \'customNotes\')" class="button"> Add </button>';
+            print '<input type="button" class="button button-add small" onclick="addCustomOption(\'notes_content\', \'customNotes\')"  value="Add">';
 
             print '</td>';
             print '</tr>';
+
+            print '<script>
+            function addCustomOption(selectId, inputId) {
+                 var select = document.getElementById(selectId);
+                 var input = document.getElementById(inputId);
+                 var optionValue = input.value.trim();
+
+                if (optionValue !== "" && !Array.from(select.options).some(option => option.value === optionValue)) {
+                   var newOption = document.createElement("option");
+                   newOption.value = optionValue;
+                   newOption.text = optionValue;
+                   newOption.selected = true;
+                   select.add(newOption);
+                   input.value = ""; // Clear the input after adding the option
+                }
+            }
+            </script>';
         }
     }
 

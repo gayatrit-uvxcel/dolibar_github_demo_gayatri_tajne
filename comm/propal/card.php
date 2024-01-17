@@ -915,6 +915,7 @@ if (empty($reshook)) {
         }
     }
 
+    // print '<script>console.log("category at top: ' . $category . '")</script>';
     include DOL_DOCUMENT_ROOT . '/core/actions_printing.inc.php';
 
     // Actions to send emails
@@ -1712,6 +1713,7 @@ if (empty($reshook)) {
             $action = 'edit_extras';
         }
     }
+    print '<script>console.log(`category' . $category . '`)</script>';
     if (!empty($conf->global->MAIN_DISABLE_CONTACTS_TAB) && $usercancreate) {
         if ($action == 'addcontact') {
             if ($object->id > 0) {
@@ -2017,20 +2019,6 @@ if ($action == 'create') {
         });
         </script>';
 
-        print ' <script>
-        $(document).ready(function() {
-          $("#man_hours").change(function() {
-            if ($(this).is(":checked")) {
-              $("#man_hours_fields").css("display", "");
-              $("#man_hours_fields_label").css("display", "");
-            } else {
-              $("#man_hours_fields").css("display", "none");
-              $("#man_hours_fields_label").css("display", "none");
-            }
-          });
-        });
-      </script>';
-
         if ($projectid > 0) {
 
             $sql_llx_societe = "SELECT * FROM " . MAIN_DB_PREFIX . "societe WHERE rowid = $socid";
@@ -2060,21 +2048,6 @@ if ($action == 'create') {
             } else {
                 echo "Error executing llx_projet query: " . $db->lasterror();
             }
-
-            print '<tr><td>' . $langs->trans('Man Hours:') . '</td><td colspan="2">';
-            print '<input type="checkbox" id="man_hours" name="man_hours" required />';
-            print '</td></tr>';
-
-            print '<tr id="man_hours_fields_label" style="display: none"><td></td><td colspan="2">';
-            print '<div id="man_hours_fields" style="display: none">';
-            print '<table style="width: 100%"><tbody>';
-
-            print '<tr><td>' . $langs->trans('Contact Person:') . '</td><td colspan="2">';
-            print '<input type="text" id="contact" name="contact" value="' . $object->contact . '" readonly />';
-            print '</td></tr>';
-
-            print '</table></tbody>';
-            print '</div></td></tr>';
 
             //modified by supriya
             print '<tr><td>' . $langs->trans('Contact Person:') . '</td><td colspan="2">';
@@ -2123,12 +2096,51 @@ if ($action == 'create') {
                 echo "Error executing llx_projet query: " . $db->lasterror();
             }
 
+            // print '<tr>';
+            // print '<td class="titlefieldcreate">' . $langs->trans('Terms and Conditions:') . '</td>';
+            // print '<td class="maxwidthonsmartphone">';
+            // // $selected = (GETPOSTISSET('tc_content') ? GETPOST('tc_content') : $object->tc_content);
+            // print $form->multiselectarrayForFVACRM('multi_tc_content', $options, $selected, 0, 0, 'form-control', 1, '300px', '', '', 'Select Multiple Terms and Conditions', 1);
+
+            // print '<br/><input type="text" name="new_term" value="' . $object->new_term . '" style="display:none;" />';
+
+            // print '<script>console.log("$object->new_term: ' . $object->new_term . '")</script>';
+            // print '<script>
+            // jQuery(document).ready(function () {
+            //     jQuery("#multi_tc_content").change(function () {
+            //         var selectedOptions = jQuery(this).val();
+            //         console.log(selectedOptions);
+
+            //         // Check if "Other" is in the selected options array
+            //         for (var i = 0; i < selectedOptions.length; i++) {
+            //             if (selectedOptions[i] === "Other") {
+            //                 jQuery("input[name=\'new_term\']").show();
+            //                 console.log("Value is Other");
+            //             }else{
+            //                 jQuery("input[name=\'new_term\']").hide();
+            //             }
+            //         }
+            //     });
+            // });
+            // </script>';
+            // print '</td>';
+            // print '</tr>';
+
             print '<tr>';
             print '<td class="titlefieldcreate">' . $langs->trans('Terms and Conditions:') . '</td>';
             print '<td class="maxwidthonsmartphone">';
-            // $selected = (GETPOSTISSET('tc_content') ? GETPOST('tc_content') : $object->tc_content);
-            print $form->multiselectarray('multi_tc_content', $options, $selected, 0, 0, 'form-control', 1, '300px', '', '', 'Select Multiple Terms and Conditions', 1);
 
+            // Get the existing selected values
+            // $selected = (GETPOSTISSET('multi_tc_content') ? GETPOST('multi_tc_content') : $object->multi_tc_content);
+
+            // Display the existing multi-select dropdown
+            print $form->multiselectarrayForFVACRM('multi_tc_content', $options, $selected, 0, 0, 'form-control', 1, '300px', '', '', 'Select Multiple Terms and Conditions', 1);
+
+            // Display the input field for adding custom values
+            print '<input type="text" id="customTAC" placeholder="Add more terms & condition">';
+            // print '<button type="button" onclick="addCustomOption(\'multi_tc_content\', \'customTAC\')" class="button"> Add </button>';
+            print '<input type="button" class="button button-add small" onclick="addCustomOption(\'multi_tc_content\', \'customTAC\')"  value="Add">';
+            
             print '</td>';
             print '</tr>';
 
@@ -2146,10 +2158,31 @@ if ($action == 'create') {
             print '<tr>';
             print '<td class="titlefieldcreate">' . $langs->trans('Notes:') . '</td>';
             print '<td class="maxwidthonsmartphone">';
-            print $form->multiselectarray('notes_content', $options, $selected, 0, 0, 'form-control', 1, '300px', '', '', 'Select Multiple Notes', 1);
+            print $form->multiselectarrayForFVACRM('notes_content', $options, $selected, 0, 0, 'form-control', 1, '300px', '', '', 'Select Multiple Notes', 1);
 
+            // Display the input field for adding custom notes
+            print '<input type="text" id="customNotes" placeholder="Add more notes">';
+            // print '<button type="button" onclick="addCustomOption(\'notes_content\', \'customNotes\')" class="button"> Add </button>';
+            print '<input type="button" class="button button-add small" onclick="addCustomOption(\'notes_content\', \'customNotes\')"  value="Add">';
             print '</td>';
             print '</tr>';
+
+            print '<script>
+            function addCustomOption(selectId, inputId) {
+                 var select = document.getElementById(selectId);
+                 var input = document.getElementById(inputId);
+                 var optionValue = input.value.trim();
+
+                if (optionValue !== "" && !Array.from(select.options).some(option => option.value === optionValue)) {
+                   var newOption = document.createElement("option");
+                   newOption.value = optionValue;
+                   newOption.text = optionValue;
+                   newOption.selected = true;
+                   select.add(newOption);
+                   input.value = ""; // Clear the input after adding the option
+                }
+            }
+            </script>';
         }
     }
 

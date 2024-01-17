@@ -3804,10 +3804,10 @@ if ($action == 'create') {
     }
 
     // Payment term
-    // print '<tr><td class="nowrap fieldrequired">'.$langs->trans('PaymentConditionsShort').'</td><td colspan="2">';
-    // print img_picto('', 'payment', 'class="pictofixedwidth"');
-    // print $form->getSelectConditionsPaiements((GETPOSTISSET('cond_reglement_id') && GETPOST('cond_reglement_id', 'int') != 0) ? GETPOST('cond_reglement_id', 'int') : $cond_reglement_id, 'cond_reglement_id', -1, 1, 0, 'maxwidth500 widthcentpercentminusx');
-    // print '</td></tr>';
+    print '<tr><td class="nowrap fieldrequired">'.$langs->trans('PaymentConditionsShort').'</td><td colspan="2">';
+    print img_picto('', 'payment', 'class="pictofixedwidth"');
+    print $form->getSelectConditionsPaiements((GETPOSTISSET('cond_reglement_id') && GETPOST('cond_reglement_id', 'int') != 0) ? GETPOST('cond_reglement_id', 'int') : $cond_reglement_id, 'cond_reglement_id', -1, 1, 0, 'maxwidth500 widthcentpercentminusx');
+    print '</td></tr>';
 
     if (!empty($conf->global->INVOICE_USE_RETAINED_WARRANTY)) {
         $rwStyle = 'display:none;';
@@ -4771,15 +4771,15 @@ if ($action == 'create') {
     }
 
     // Payment term
-    // print '<tr><td>';
-    // print '<table class="nobordernopadding centpercent"><tr><td>';
-    // print $langs->trans('PaymentConditionsShort');
-    // print '</td>';
-    // if ($object->type != Facture::TYPE_CREDIT_NOTE && $action != 'editconditions' && $usercancreate) {
-    //     print '<td class="right"><a class="editfielda" href="' . $_SERVER["PHP_SELF"] . '?action=editconditions&token=' . newToken() . '&facid=' . $object->id . '">' . img_edit($langs->trans('SetConditions'), 1) . '</a></td>';
-    // }
-    // print '</tr></table>';
-    // print '</td><td>';
+    print '<tr><td>';
+    print '<table class="nobordernopadding centpercent"><tr><td>';
+    print $langs->trans('PaymentConditionsShort');
+    print '</td>';
+    if ($object->type != Facture::TYPE_CREDIT_NOTE && $action != 'editconditions' && $usercancreate) {
+        print '<td class="right"><a class="editfielda" href="' . $_SERVER["PHP_SELF"] . '?action=editconditions&token=' . newToken() . '&facid=' . $object->id . '">' . img_edit($langs->trans('SetConditions'), 1) . '</a></td>';
+    }
+    print '</tr></table>';
+    print '</td><td>';
     if ($object->type != Facture::TYPE_CREDIT_NOTE) {
         if ($action == 'editconditions') {
             $form->form_conditions_reglement($_SERVER['PHP_SELF'] . '?facid=' . $object->id, $object->cond_reglement_id, 'cond_reglement_id');
@@ -5603,9 +5603,10 @@ if ($action == 'create') {
     if (isModEnabled('margin')) {
         $formmargin->displayMarginInfos($object);
     }
+    print '</div>';
+    print '</div>';
 
-    print '</div>';
-    print '</div>';
+    
 
     print '<div class="clearboth"></div><br><br>';
 
