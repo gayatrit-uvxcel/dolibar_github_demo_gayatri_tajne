@@ -216,7 +216,7 @@ echo '<div class="other_category_input_wrapper" style="display: none; align-item
 echo '<label for="other_category">';
 echo 'Other Category: ';
 echo '</label>';
-echo '<input type="text" id="other_category" name="other_category" required /><input type="button" id="save_category" class="button button-add small" onclick="saveOtherCategory(this)" value="ADD">';
+echo '<input type="text" id="other_category" name="other_category" /><input type="button" id="save_category" class="button button-add small" onclick="saveOtherCategory(this)" value="ADD">';
 echo '</div>';
 
 if (empty($conf->global->MAIN_DISABLE_FREE_LINES)) {
