@@ -396,7 +396,7 @@ if ($projectid > 0) {
     print '</table>' . "\n";
 
     $categoryArray = [];
-    $sql_llx_propaldet_categories = "SELECT DISTINCT category FROM " . MAIN_DB_PREFIX . "propaldet WHERE category IS NOT NULL";
+    $sql_llx_propaldet_categories = "SELECT DISTINCT category FROM " . MAIN_DB_PREFIX . "propaldet WHERE category IS NOT NULL AND fk_projectid=$projectid";
 
     $res_llx_propaldet_categories = $db->query($sql_llx_propaldet_categories);
 
@@ -406,25 +406,24 @@ if ($projectid > 0) {
         }
     }
 
-    print '<table class="noborder" style="margin-top: 20px;text-align: center;">' . "\n";
-    print '<thead>';
-    print '<tr><th>' . $langs->trans('No.') . '</th><th colspan="2">';
-    print $langs->trans('QTY.');
-    print '</th>';
-    print '<th colspan="2">';
-    print $langs->trans('Description.');
-    print '</th>';
-    print '<th colspan="2">';
-    print $langs->trans('Unit Price.');
-    print '</th>';
-    print '<th colspan="2">';
-    print $langs->trans('Total Price.');
-    print '</th></tr>';
-    print '</thead>';
-
-    print '<tbody>';
-
     if (isset($categoryArray) && is_array($categoryArray) && !empty($categoryArray)) {
+        print '<table class="noborder" style="margin-top: 20px;text-align: center;">' . "\n";
+        print '<thead>';
+        print '<tr><th>' . $langs->trans('No.') . '</th><th colspan="2">';
+        print $langs->trans('QTY.');
+        print '</th>';
+        print '<th colspan="2">';
+        print $langs->trans('Description.');
+        print '</th>';
+        print '<th colspan="2">';
+        print $langs->trans('Unit Price.');
+        print '</th>';
+        print '<th colspan="2">';
+        print $langs->trans('Total Price.');
+        print '</th></tr>';
+        print '</thead>';
+    
+        print '<tbody>';
         $index = 0;
 
         foreach ($categoryArray as $category) {
