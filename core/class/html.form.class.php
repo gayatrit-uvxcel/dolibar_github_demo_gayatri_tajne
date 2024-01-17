@@ -1267,10 +1267,10 @@ class Form
             var otherOption = document.getElementById("other_option");
 	        otherOption.value =  "other_option";
             var otherCategoryDiv = document.querySelector(".other_category_input_wrapper");
+            let otherCategoryInput = document.getElementById("other_category")
             if (e.value === "other_option") {
                 otherCategoryDiv.style.display = "flex";
             } else {
-                let otherCategoryInput = document.getElementById("other_category")
                 let saveCategory = document.getElementById("save_category")
                 otherCategoryInput.disabled = false;
                 otherCategoryInput.value = "";
@@ -1292,7 +1292,7 @@ class Form
         if (isset($categoryArray) && is_array($categoryArray) && !empty($categoryArray)) {
             foreach ($categoryArray as $category) {
                 $value = $category;
-                print '<option value="' . $value . '"';
+                print '<option class="category_option" value="' . $value . '"';
                 if (($selected === $value) || ($selected == -1 && getDolGlobalString('MAIN_FREE_PRODUCT_CHECKED_BY_DEFAULT') == $value)) {
                     print ' selected';
                 }

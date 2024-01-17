@@ -915,7 +915,6 @@ if (empty($reshook)) {
         }
     }
 
-    // print '<script>console.log("category at top: ' . $category . '")</script>';
     include DOL_DOCUMENT_ROOT . '/core/actions_printing.inc.php';
 
     // Actions to send emails
@@ -1713,7 +1712,7 @@ if (empty($reshook)) {
             $action = 'edit_extras';
         }
     }
-    print '<script>console.log(`category' . $category . '`)</script>';
+
     if (!empty($conf->global->MAIN_DISABLE_CONTACTS_TAB) && $usercancreate) {
         if ($action == 'addcontact') {
             if ($object->id > 0) {
@@ -2096,36 +2095,6 @@ if ($action == 'create') {
                 echo "Error executing llx_projet query: " . $db->lasterror();
             }
 
-            // print '<tr>';
-            // print '<td class="titlefieldcreate">' . $langs->trans('Terms and Conditions:') . '</td>';
-            // print '<td class="maxwidthonsmartphone">';
-            // // $selected = (GETPOSTISSET('tc_content') ? GETPOST('tc_content') : $object->tc_content);
-            // print $form->multiselectarrayForFVACRM('multi_tc_content', $options, $selected, 0, 0, 'form-control', 1, '300px', '', '', 'Select Multiple Terms and Conditions', 1);
-
-            // print '<br/><input type="text" name="new_term" value="' . $object->new_term . '" style="display:none;" />';
-
-            // print '<script>console.log("$object->new_term: ' . $object->new_term . '")</script>';
-            // print '<script>
-            // jQuery(document).ready(function () {
-            //     jQuery("#multi_tc_content").change(function () {
-            //         var selectedOptions = jQuery(this).val();
-            //         console.log(selectedOptions);
-
-            //         // Check if "Other" is in the selected options array
-            //         for (var i = 0; i < selectedOptions.length; i++) {
-            //             if (selectedOptions[i] === "Other") {
-            //                 jQuery("input[name=\'new_term\']").show();
-            //                 console.log("Value is Other");
-            //             }else{
-            //                 jQuery("input[name=\'new_term\']").hide();
-            //             }
-            //         }
-            //     });
-            // });
-            // </script>';
-            // print '</td>';
-            // print '</tr>';
-
             print '<tr>';
             print '<td class="titlefieldcreate">' . $langs->trans('Terms and Conditions:') . '</td>';
             print '<td class="maxwidthonsmartphone">';
@@ -2134,11 +2103,10 @@ if ($action == 'create') {
             // $selected = (GETPOSTISSET('multi_tc_content') ? GETPOST('multi_tc_content') : $object->multi_tc_content);
 
             // Display the existing multi-select dropdown
-            print $form->multiselectarrayForFVACRM('multi_tc_content', $options, $selected, 0, 0, 'form-control', 1, '300px', '', '', 'Select Multiple Terms and Conditions', 1);
+            print $form->multiselectarray('multi_tc_content', $options, $selected, 0, 0, 'form-control', 1, '300px', '', '', 'Select Multiple Terms and Conditions', 1);
 
             // Display the input field for adding custom values
             print '<input type="text" id="customTAC" placeholder="Add more terms & condition">';
-            // print '<button type="button" onclick="addCustomOption(\'multi_tc_content\', \'customTAC\')" class="button"> Add </button>';
             print '<input type="button" class="button button-add small" onclick="addCustomOption(\'multi_tc_content\', \'customTAC\')"  value="Add">';
             
             print '</td>';
@@ -2158,11 +2126,10 @@ if ($action == 'create') {
             print '<tr>';
             print '<td class="titlefieldcreate">' . $langs->trans('Notes:') . '</td>';
             print '<td class="maxwidthonsmartphone">';
-            print $form->multiselectarrayForFVACRM('notes_content', $options, $selected, 0, 0, 'form-control', 1, '300px', '', '', 'Select Multiple Notes', 1);
+            print $form->multiselectarray('notes_content', $options, $selected, 0, 0, 'form-control', 1, '300px', '', '', 'Select Multiple Notes', 1);
 
             // Display the input field for adding custom notes
             print '<input type="text" id="customNotes" placeholder="Add more notes">';
-            // print '<button type="button" onclick="addCustomOption(\'notes_content\', \'customNotes\')" class="button"> Add </button>';
             print '<input type="button" class="button button-add small" onclick="addCustomOption(\'notes_content\', \'customNotes\')"  value="Add">';
             print '</td>';
             print '</tr>';

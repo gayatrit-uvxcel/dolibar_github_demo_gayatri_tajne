@@ -1965,7 +1965,7 @@ if ($action == 'create') {
             print '<td class="titlefieldcreate">' . $langs->trans('Terms and Conditions:') . '</td>';
             print '<td class="maxwidthonsmartphone">';
             // $selected = (GETPOSTISSET('tc_content') ? GETPOST('tc_content') : $object->tc_content);
-            print $form->multiselectarrayForFVACRM('multi_tc_content', $options, $selected, 0, 0, 'form-control', 1, '300px', '', '', 'Select Multiple Terms and Conditions', 1);
+            print $form->multiselectarray('multi_tc_content', $options, $selected, 0, 0, 'form-control', 1, '300px', '', '', 'Select Multiple Terms and Conditions', 1);
 
             print '<input type="text" id="customTAC" placeholder="Add more terms & condition">';
             // print '<button type="button" onclick="addCustomOption(\'multi_tc_content\', \'customTAC\')" class="button"> Add </button>';
@@ -1988,7 +1988,7 @@ if ($action == 'create') {
             print '<tr>';
             print '<td class="titlefieldcreate">' . $langs->trans('Notes:') . '</td>';
             print '<td class="maxwidthonsmartphone">';
-            print $form->multiselectarrayForFVACRM('notes_content', $options, $selected, 0, 0, 'form-control', 1, '300px', '', '', 'Select Multiple Notes', 1);
+            print $form->multiselectarray('notes_content', $options, $selected, 0, 0, 'form-control', 1, '300px', '', '', 'Select Multiple Notes', 1);
 
              // Display the input field for adding custom notes
              print '<input type="text" id="customNotes" placeholder="Add more notes">';

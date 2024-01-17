@@ -196,14 +196,22 @@ if (empty($conf->global->MAIN_DISABLE_CATEGORY)) {
 echo '<script>function saveOtherCategory(e) {
 	var otherCategoryInput = document.getElementById("other_category");
 	var otherCategoryValue = otherCategoryInput.value.trim();
-	if(e.value === "ADD"){
+	let arrayOfCategories = [];
+	let categoryOptions = document.querySelectorAll(".category_option");
+	categoryOptions.forEach((i) => {
+		arrayOfCategories.push(i.value.toLowerCase());
+	});
+	if(arrayOfCategories.includes(otherCategoryValue.toLowerCase())){
+		alert("Category already exists");
+		otherCategoryInput.value = "";
+	} else if(e.value === "ADD"){
 		if (otherCategoryValue !== "") {
 		  var otherOption = document.getElementById("other_option");
 		  otherOption.value =  otherCategoryValue;
 		  otherCategoryInput.disabled = true;
 		  e.value = "CHANGE";
 		} else {
-		  alert("Please enter the category");
+		  alert("Please input valid category");
 		}
 	} else if(e.value === "CHANGE"){
 		otherCategoryInput.disabled = false;
