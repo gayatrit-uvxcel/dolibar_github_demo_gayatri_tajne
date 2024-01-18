@@ -52,6 +52,9 @@ if (!empty($conf->global->MAIN_VIEW_LINE_NUMBER)) {
 	print '<th class="linecolnum center">&nbsp;</th>';
 }
 
+// Category
+print '<th class="linecolcategory">' . $langs->trans('Product Category') . '</th>';
+
 // Description
 print '<th class="linecoldescription">' . $langs->trans('Description') . '</th>';
 

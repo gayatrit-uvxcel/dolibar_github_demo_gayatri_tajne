@@ -82,9 +82,19 @@ if (!empty($conf->global->INVOICE_POSITIVE_CREDIT_NOTE_SCREEN) && in_array($obje
 
 
 $coldisplay = 0;
+
+$sql_llx_propaldet = "SELECT * FROM " . MAIN_DB_PREFIX . "propaldet WHERE rowid = $line->rowid";
+$res_llx_propaldet = $this->db->query($sql_llx_propaldet);
+
+if ($res_llx_propaldet) {
+    while ($row = $this->db->fetch_object($res_llx_propaldet)) {
+        $line->category = $row->category;
+    }
+}
 ?>
 <!-- BEGIN PHP TEMPLATE objectline_view.tpl.php -->
 <tr  id="row-<?php print $line->id?>" class="drag drop oddeven" <?php print $domData; ?> >
+<td class="linecolcategory"><?php echo $line->category ?></td>
 <?php if (!empty($conf->global->MAIN_VIEW_LINE_NUMBER)) { ?>
 	<td class="linecolnum center"><span class="opacitymedium"><?php $coldisplay++; ?><?php print ($i + 1); ?></span></td>
 <?php } ?>

@@ -299,7 +299,7 @@ if ($projectid > 0) {
         echo "Error executing llx_projet query: " . $db->lasterror();
     }
 
-    $sql_llx_facture = "SELECT * FROM " . MAIN_DB_PREFIX . "facture WHERE fk_projet = $projectid and fk_statut = 1";
+    $sql_llx_facture = "SELECT * FROM " . MAIN_DB_PREFIX . "facture WHERE fk_projet = $projectid";
     $res_llx_facture = $db->query($sql_llx_facture);
 
     if ($res_llx_facture) {
