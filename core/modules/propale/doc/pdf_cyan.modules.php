@@ -222,6 +222,17 @@ class pdf_cyan extends ModelePDFPropales
 
         $nblines = count($object->lines);
 
+        for ($i = 0; $i < $nblines; $i++) {
+            $productId = $object->lines[$i]->rowid;
+            $sql_llx_propaldet = "SELECT * FROM " . MAIN_DB_PREFIX . "propaldet WHERE rowid = $productId";
+            $res_llx_propaldet = $this->db->query($sql_llx_propaldet);
+            if ($res_llx_propaldet) {
+                while ($row = $this->db->fetch_object($res_llx_propaldet)) {
+                    $object->lines[$i]->category = $row->category;
+                }
+            }
+        }
+
         $hidetop = 0;
         if (!empty($conf->global->MAIN_PDF_DISABLE_COL_HEAD_TITLE)) {
             $hidetop = $conf->global->MAIN_PDF_DISABLE_COL_HEAD_TITLE;
@@ -576,6 +587,9 @@ class pdf_cyan extends ModelePDFPropales
 
                 $nexY = $tab_top + $this->tabTitleHeight;
 
+                usort($object->lines, function ($a, $b) {
+                    return strcmp($a->category, $b->category);
+                });
                 // Loop on each lines
                 $pageposbeforeprintlines = $pdf->getPage();
                 $pagenb = $pageposbeforeprintlines;
@@ -904,7 +918,7 @@ class pdf_cyan extends ModelePDFPropales
                     if ($object->isLinesAvailable !== 1) {
                         $this->_tableau($pdf, $tab_top_newpage, $this->page_hauteur - $tab_top_newpage - $heightforinfotot - $heightforfreetext - $heightforsignature - $heightforfooter, 0, $outputlangs, 1, 0, $object->multicurrency_code, $outputlangsbis);
                         $bottomlasttab = $this->page_hauteur - $heightforinfotot - $heightforfreetext - $heightforsignature - $heightforfooter + 1;
-                    }else{
+                    } else {
                         $bottomlasttab = 50;
                     }
                 }
@@ -973,7 +987,6 @@ class pdf_cyan extends ModelePDFPropales
                     $posy = $this->displayRegards($pdf, $object, false);
                 }
 
-
                 $this->_pagefoot($pdf, $object, $outputlangs);
                 if (method_exists($pdf, 'AliasNbPages')) {
                     $pdf->AliasNbPages();
@@ -988,8 +1001,6 @@ class pdf_cyan extends ModelePDFPropales
                 //     $posy = 15;
                 // }
                 // $this->_pagehead($pdf, $object, 1, $outputlangs, $outputlangsbis, $pagenb);
-
-
 
                 // Display the Regards content
                 // $posy = $this->displayRegards($pdf, $object, $posy, $outputlangs);
@@ -1985,7 +1996,6 @@ class pdf_cyan extends ModelePDFPropales
                 $termsContent .= "\n" . str_repeat(' ', 9) . ($index + 1) . ". " . $condition . ".";
             }
         }
-
 
         // Explode the terms content into an array of lines
         $termsLines = explode("\n", $termsContent);
