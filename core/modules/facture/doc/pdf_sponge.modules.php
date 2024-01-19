@@ -262,6 +262,17 @@ class pdf_sponge extends ModelePDFFactures
 
         $nblines = count($object->lines);
 
+        for ($i = 0; $i < $nblines; $i++) {
+            $productId = $object->lines[$i]->rowid;
+            $sql_llx_facturedet = "SELECT * FROM " . MAIN_DB_PREFIX . "facturedet WHERE rowid = $productId";
+            $res_llx_facturedet = $this->db->query($sql_llx_facturedet);
+            if ($res_llx_facturedet) {
+                while ($row = $this->db->fetch_object($res_llx_facturedet)) {
+                    $object->lines[$i]->category = $row->category;
+                }
+            }
+        }
+
         $hidetop = 0;
         if (!empty($conf->global->MAIN_PDF_DISABLE_COL_HEAD_TITLE)) {
             $hidetop = $conf->global->MAIN_PDF_DISABLE_COL_HEAD_TITLE;
@@ -704,14 +715,32 @@ class pdf_sponge extends ModelePDFFactures
 
                 $nexY = $this->tab_top + $this->tabTitleHeight;
 
+                usort($object->lines, function ($a, $b) {
+                    return strcmp($a->category, $b->category);
+                });
+
+                $modifiedArray = array();
+                $currentCategory = null;
+
+                foreach ($object->lines as $item) {
+                    if ($item->category !== $currentCategory) {
+                        $modifiedArray[] = ["desc" => '<b>' . $item->category . '</b>', "subprice" => null, "unit" => null, "qty" => null];
+                    }
+                    $modifiedArray[] = $item;
+                    $currentCategory = $item->category;
+                }
+
+                $object->lines = $modifiedArray;
+                $nblines = count($modifiedArray);
+
                 // Loop on each lines
                 $pageposbeforeprintlines = $pdf->getPage();
                 $pagenb = $pageposbeforeprintlines;
                 for ($i = 0; $i < $nblines; $i++) {
+                    $line = $object->lines[$i];
                     $curY = $nexY;
                     $pdf->SetFont('', '', $default_font_size - 1); // Into loop to work with multipage
                     $pdf->SetTextColor(0, 0, 0);
-
                     // Define size of image if we need it
                     $imglinesize = array();
                     if (!empty($realpatharray[$i])) {
@@ -754,46 +783,53 @@ class pdf_sponge extends ModelePDFFactures
                     }
 
                     // Description of product line
-                    if ($this->getColumnStatus('desc')) {
-                        $pdf->startTransaction();
+                    // if ($this->getColumnStatus('desc')) {
+                    //     $pdf->startTransaction();
 
-                        $this->printColDescContent($pdf, $curY, 'desc', $object, $i, $outputlangs, $hideref, $hidedesc);
-                        $pageposafter = $pdf->getPage();
+                    //     $this->printColDescContent($pdf, $curY, 'desc', $object, $i, $outputlangs, $hideref, $hidedesc);
+                    //     $pageposafter = $pdf->getPage();
 
-                        if ($pageposafter > $pageposbefore) { // There is a pagebreak
-                            $pdf->rollbackTransaction(true);
-                            $pageposafter = $pageposbefore;
-                            $pdf->setPageOrientation('', 1, $this->heightforfooter); // The only function to edit the bottom margin of current page to set it.
+                    //     if ($pageposafter > $pageposbefore) { // There is a pagebreak
+                    //         $pdf->rollbackTransaction(true);
+                    //         $pageposafter = $pageposbefore;
+                    //         $pdf->setPageOrientation('', 1, $this->heightforfooter); // The only function to edit the bottom margin of current page to set it.
 
-                            $this->printColDescContent($pdf, $curY, 'desc', $object, $i, $outputlangs, $hideref, $hidedesc);
+                    //         $this->printColDescContent($pdf, $curY, 'desc', $object, $i, $outputlangs, $hideref, $hidedesc);
 
-                            $pageposafter = $pdf->getPage();
-                            $posyafter = $pdf->GetY();
-                            //var_dump($posyafter); var_dump(($this->page_hauteur - ($this->heightforfooter+$this->heightforfreetext+$this->heightforinfotot))); exit;
-                            if ($posyafter > ($this->page_hauteur - $page_bottom_margin)) { // There is no space left for total+free text
-                                if ($i == ($nblines - 1)) { // No more lines, and no space left to show total, so we create a new page
-                                    $object->isLinesAvailable = 1;
-                                    $pdf->AddPage('', '', true);
-                                    if (!empty($tplidx)) {
-                                        $pdf->useTemplate($tplidx);
-                                    }
-                                    $pdf->setPage($pageposafter + 1);
-                                }
-                            } else {
-                                // We found a page break
-                                // Allows data in the first page if description is long enough to break in multiples pages
-                                if (!empty($conf->global->MAIN_PDF_DATA_ON_FIRST_PAGE)) {
-                                    $showpricebeforepagebreak = 1;
-                                } else {
-                                    $showpricebeforepagebreak = 0;
-                                }
-                            }
-                        } else // No pagebreak
-                        {
-                            $pdf->commitTransaction();
-                        }
-                        $posYAfterDescription = $pdf->GetY();
+                    //         $pageposafter = $pdf->getPage();
+                    //         $posyafter = $pdf->GetY();
+                    //         //var_dump($posyafter); var_dump(($this->page_hauteur - ($this->heightforfooter+$this->heightforfreetext+$this->heightforinfotot))); exit;
+                    //         if ($posyafter > ($this->page_hauteur - $page_bottom_margin)) { // There is no space left for total+free text
+                    //             if ($i == ($nblines - 1)) { // No more lines, and no space left to show total, so we create a new page
+                    //                 $object->isLinesAvailable = 1;
+                    //                 $pdf->AddPage('', '', true);
+                    //                 if (!empty($tplidx)) {
+                    //                     $pdf->useTemplate($tplidx);
+                    //                 }
+                    //                 $pdf->setPage($pageposafter + 1);
+                    //             }
+                    //         } else {
+                    //             // We found a page break
+                    //             // Allows data in the first page if description is long enough to break in multiples pages
+                    //             if (!empty($conf->global->MAIN_PDF_DATA_ON_FIRST_PAGE)) {
+                    //                 $showpricebeforepagebreak = 1;
+                    //             } else {
+                    //                 $showpricebeforepagebreak = 0;
+                    //             }
+                    //         }
+                    //     } else // No pagebreak
+                    //     {
+                    //         $pdf->commitTransaction();
+                    //     }
+                    //     $posYAfterDescription = $pdf->GetY();
+                    // }
+
+                    if (isset($line->desc)) {
+                        $this->printStdColumnContent($pdf, $curY, 'desc', $line->desc);
+                    } else {
+                        $this->printStdColumnContent($pdf, $curY, 'desc', $line['desc']);
                     }
+                    $nexY = max($pdf->GetY(), $nexY);
 
                     $nexY = max($pdf->GetY(), $posYAfterImage, $posYAfterDescription);
 
@@ -818,18 +854,33 @@ class pdf_sponge extends ModelePDFFactures
                     // }
 
                     // Unit price before discount
-                    if ($this->getColumnStatus('subprice')) {
-                        $up_excl_tax = pdf_getlineupexcltax($object, $i, $outputlangs, $hidedetails);
-                        $this->printStdColumnContent($pdf, $curY, 'subprice', $up_excl_tax);
-                        $nexY = max($pdf->GetY(), $nexY);
+                    // if ($this->getColumnStatus('subprice')) {
+                    //     $up_excl_tax = pdf_getlineupexcltax($object, $i, $outputlangs, $hidedetails);
+                    //     $this->printStdColumnContent($pdf, $curY, 'subprice', $up_excl_tax);
+                    //     $nexY = max($pdf->GetY(), $nexY);
+                    // }
+
+                    if (isset($line->subprice)) {
+                        $this->printStdColumnContent($pdf, $curY, 'subprice', number_format($line->subprice, 2));
                     }
+
+                    $nexY = max($pdf->GetY(), $nexY);
+
                     // Quantity
                     // Enough for 6 chars
-                    if ($this->getColumnStatus('qty')) {
-                        $qty = pdf_getlineqty($object, $i, $outputlangs, $hidedetails);
-                        $this->printStdColumnContent($pdf, $curY, 'qty', $qty);
-                        $nexY = max($pdf->GetY(), $nexY);
+                    // if ($this->getColumnStatus('qty')) {
+                    //     $qty = pdf_getlineqty($object, $i, $outputlangs, $hidedetails);
+                    //     $this->printStdColumnContent($pdf, $curY, 'qty', $qty);
+                    //     $nexY = max($pdf->GetY(), $nexY);
+                    // }
+
+                    if (isset($line->qty)) {
+                        $this->printStdColumnContent($pdf, $curY, 'qty', $line->qty);
+                    } else {
+                        $this->printStdColumnContent($pdf, $curY, 'qty', $line['qty']);
                     }
+                    $nexY = max($pdf->GetY(), $nexY);
+
                     // Situation progress
                     if ($this->getColumnStatus('progress')) {
                         $progress = pdf_getlineprogress($object, $i, $outputlangs, $hidedetails);
@@ -837,11 +888,17 @@ class pdf_sponge extends ModelePDFFactures
                         $nexY = max($pdf->GetY(), $nexY);
                     }
                     // Unit
-                    if ($this->getColumnStatus('unit')) {
-                        $unit = pdf_getlineunit($object, $i, $outputlangs, $hidedetails, $hookmanager);
-                        $this->printStdColumnContent($pdf, $curY, 'unit', $unit);
-                        $nexY = max($pdf->GetY(), $nexY);
+                    // if ($this->getColumnStatus('unit')) {
+                    //     $unit = pdf_getlineunit($object, $i, $outputlangs, $hidedetails, $hookmanager);
+                    //     $this->printStdColumnContent($pdf, $curY, 'unit', $unit);
+                    //     $nexY = max($pdf->GetY(), $nexY);
+                    // }
+
+                    if (isset($line->unit)) {
+                        $this->printStdColumnContent($pdf, $curY, 'unit', $line->unit);
                     }
+                    $nexY = max($pdf->GetY(), $nexY);
+
                     // Discount on line
                     if ($this->getColumnStatus('discount') && $object->lines[$i]->remise_percent) {
                         $remise_percent = pdf_getlineremisepercent($object, $i, $outputlangs, $hidedetails);
@@ -888,20 +945,20 @@ class pdf_sponge extends ModelePDFFactures
                         $sign = -1;
                     }
                     // Collecte des totaux par valeur de tva dans $this->tva["taux"]=total_tva
-                    $prev_progress = $object->lines[$i]->get_prev_progress($object->id);
-                    if ($prev_progress > 0 && !empty($object->lines[$i]->situation_percent)) { // Compute progress from previous situation
-                        if (isModEnabled("multicurrency") && $object->multicurrency_tx != 1) {
-                            $tvaligne = $sign * $object->lines[$i]->multicurrency_total_tva * ($object->lines[$i]->situation_percent - $prev_progress) / $object->lines[$i]->situation_percent;
-                        } else {
-                            $tvaligne = $sign * $object->lines[$i]->total_tva * ($object->lines[$i]->situation_percent - $prev_progress) / $object->lines[$i]->situation_percent;
-                        }
-                    } else {
-                        if (isModEnabled("multicurrency") && $object->multicurrency_tx != 1) {
-                            $tvaligne = $sign * $object->lines[$i]->multicurrency_total_tva;
-                        } else {
-                            $tvaligne = $sign * $object->lines[$i]->total_tva;
-                        }
-                    }
+                    // $prev_progress = $object->lines[$i]->get_prev_progress($object->id);
+                    // if ($prev_progress > 0 && !empty($object->lines[$i]->situation_percent)) { // Compute progress from previous situation
+                    //     if (isModEnabled("multicurrency") && $object->multicurrency_tx != 1) {
+                    //         $tvaligne = $sign * $object->lines[$i]->multicurrency_total_tva * ($object->lines[$i]->situation_percent - $prev_progress) / $object->lines[$i]->situation_percent;
+                    //     } else {
+                    //         $tvaligne = $sign * $object->lines[$i]->total_tva * ($object->lines[$i]->situation_percent - $prev_progress) / $object->lines[$i]->situation_percent;
+                    //     }
+                    // } else {
+                    //     if (isModEnabled("multicurrency") && $object->multicurrency_tx != 1) {
+                    //         $tvaligne = $sign * $object->lines[$i]->multicurrency_total_tva;
+                    //     } else {
+                    //         $tvaligne = $sign * $object->lines[$i]->total_tva;
+                    //     }
+                    // }
 
                     $localtax1ligne = $object->lines[$i]->total_localtax1;
                     $localtax2ligne = $object->lines[$i]->total_localtax2;
@@ -1024,7 +1081,7 @@ class pdf_sponge extends ModelePDFFactures
                     if ($object->isLinesAvailable !== 1) {
                         $this->_tableau($pdf, $this->tab_top_newpage, $this->page_hauteur - $this->tab_top_newpage - $this->heightforinfotot - $this->heightforfreetext - $this->heightforfooter - $heightforqrinvoice, 0, $outputlangs, 1, 0, $object->multicurrency_code, $outputlangsbis);
                         $bottomlasttab = $this->page_hauteur - $this->heightforinfotot - $this->heightforfreetext - $this->heightforfooter - $heightforqrinvoice + 1;
-                    }else{
+                    } else {
                         $bottomlasttab = 50;
                     }
                 }
@@ -1608,7 +1665,7 @@ class pdf_sponge extends ModelePDFFactures
             if ($posy > $this->page_hauteur - 4 - $this->heightforfooter) {
                 $pdf->addPage();
                 if (!getDolGlobalInt('MAIN_PDF_DONOTREPEAT_HEAD')) {
-                    $this->_pagehead($pdf, $object, 0, $outputlangs, $outputlangsbis,);
+                    $this->_pagehead($pdf, $object, 0, $outputlangs, $outputlangsbis, );
                     $pdf->setY($this->tab_top_newpage);
                 } else {
                     $pdf->setY($this->marge_haute);
