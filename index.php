@@ -416,10 +416,10 @@ if ($projectid > 0) {
         print $langs->trans('Description.');
         print '</th>';
         print '<th colspan="2">';
-        print $langs->trans('Unit Price.');
+        print $langs->trans('Unit Price(R).');
         print '</th>';
         print '<th colspan="2">';
-        print $langs->trans('Total Price.');
+        print $langs->trans('Total Price(R).');
         print '</th></tr>';
         print '</thead>';
     
