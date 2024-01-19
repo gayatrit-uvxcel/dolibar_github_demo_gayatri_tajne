@@ -422,18 +422,28 @@ if ($projectid > 0) {
         print $langs->trans('Total Price(R).');
         print '</th></tr>';
         print '</thead>';
-    
+
         print '<tbody>';
         $index = 0;
 
         foreach ($categoryArray as $category) {
-            $sql_llx_propaldet_eq = "SELECT SUM(multicurrency_subprice) As sumOfEquipment FROM " . MAIN_DB_PREFIX . "propaldet WHERE category = '$category' AND fk_socid = $socid AND fk_projectid = $projectid";
+            $sql_llx_propaldet_unit = "SELECT SUM(subprice) As sumOfUnitPrice FROM " . MAIN_DB_PREFIX . "propaldet WHERE category = '$category' AND fk_socid = $socid AND fk_projectid = $projectid";
 
-            $res_llx_propaldet_eq = $db->query($sql_llx_propaldet_eq);
+            $res_llx_propaldet_unit = $db->query($sql_llx_propaldet_unit);
 
-            if ($res_llx_propaldet_eq) {
-                while ($row = $db->fetch_object($res_llx_propaldet_eq)) {
-                    $sumOfEquipment = number_format($row->sumOfEquipment, 2);
+            if ($res_llx_propaldet_unit) {
+                while ($row = $db->fetch_object($res_llx_propaldet_unit)) {
+                    $sumOfUnitPrice = number_format($row->sumOfUnitPrice, 2);
+                }
+            }
+
+            $sql_llx_propaldet_total = "SELECT SUM(total_ht) As sumOfTotalPrice FROM " . MAIN_DB_PREFIX . "propaldet WHERE category = '$category' AND fk_socid = $socid AND fk_projectid = $projectid";
+
+            $res_llx_propaldet_total = $db->query($sql_llx_propaldet_total);
+
+            if ($res_llx_propaldet_total) {
+                while ($row = $db->fetch_object($res_llx_propaldet_total)) {
+                    $sumOfTotalPrice = number_format($row->sumOfTotalPrice, 2);
                 }
             }
 
@@ -446,10 +456,10 @@ if ($projectid > 0) {
             print $category;
             print '</td>';
             print '<td colspan="2">';
-            print $sumOfEquipment;
+            print $sumOfUnitPrice;
             print '</td>';
             print '<td colspan="2">';
-            print $sumOfEquipment;
+            print $sumOfTotalPrice;
             print '</td></tr>';
         }
     }
