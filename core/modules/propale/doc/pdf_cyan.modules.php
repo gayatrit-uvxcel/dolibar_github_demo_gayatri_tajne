@@ -1848,6 +1848,10 @@ class pdf_cyan extends ModelePDFPropales
         $pdf->Cell(0, 5, 'South Africa: +27 83 268 8819', 0, 1, 'R');
         $pdf->Cell(0, 5, 'Website: www.firstvisionautomation.com', 0, 0, 'L');
         $pdf->Cell(0, 5, 'Email: atulr@firstvisionautomation.com', 0, 1, 'R');
+        $pdf->SetLineWidth(0.2);
+        $separatorY = $pdf->GetY() + 2;
+        $pdf->Line($this->marge_gauche, $separatorY, $this->page_largeur - $this->marge_droite, $separatorY);
+        $pdf->SetLineWidth(0.2);
         $invoice_obj = new stdClass();
         $sql_llx_facture = "SELECT * FROM " . MAIN_DB_PREFIX . "propal WHERE rowid = $object->id";
         $res_llx_facture = $this->db->query($sql_llx_facture);

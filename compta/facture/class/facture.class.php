@@ -2210,9 +2210,11 @@ class Facture extends CommonInvoice
         $sql .= ', f.fk_incoterms, f.location_incoterms';
         $sql .= ', f.module_source, f.pos_source';
         $sql .= ", i.libelle as label_incoterms";
+        $sql .= ", d.tva_tx";
         $sql .= ", f.retained_warranty as retained_warranty, f.retained_warranty_date_limit as retained_warranty_date_limit, f.retained_warranty_fk_cond_reglement as retained_warranty_fk_cond_reglement";
         $sql .= ' FROM ' . MAIN_DB_PREFIX . 'facture as f';
         $sql .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'c_payment_term as c ON f.fk_cond_reglement = c.rowid';
+        $sql .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'facturedet as d ON f.fk_soc = d.rowid';
         $sql .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'c_paiement as p ON f.fk_mode_reglement = p.id';
         $sql .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'c_incoterms as i ON f.fk_incoterms = i.rowid';
 
@@ -2316,7 +2318,7 @@ class Facture extends CommonInvoice
                 $this->multicurrency_total_ht = $obj->multicurrency_total_ht;
                 $this->multicurrency_total_tva = $obj->multicurrency_total_tva;
                 $this->multicurrency_total_ttc = $obj->multicurrency_total_ttc;
-
+                $this->tva_tx = $obj->tva_tx;
                 if (($this->type == self::TYPE_SITUATION || ($this->type == self::TYPE_CREDIT_NOTE && $this->situation_cycle_ref > 0)) && $fetch_situation) {
                     $this->fetchPreviousNextSituationInvoice();
                 }

@@ -1322,6 +1322,10 @@ class pdf_cornas extends ModelePDFSuppliersOrders
         $pdf->Cell(0, 5, 'South Africa: +27 83 268 8819', 0, 1, 'R');
         $pdf->Cell(0, 5, 'Website: www.firstvisionautomation.com', 0, 0, 'L');
         $pdf->Cell(0, 5, 'Email: atulr@firstvisionautomation.com', 0, 1, 'R');
+        $pdf->SetLineWidth(0.2);
+        $separatorY = $pdf->GetY() + 2;
+        $pdf->Line($this->marge_gauche, $separatorY, $this->page_largeur - $this->marge_droite, $separatorY);
+        $pdf->SetLineWidth(0.2);
 
         $po_obj = new stdClass();
         $sql_llx_commande_fournisseur = "SELECT * FROM " . MAIN_DB_PREFIX . "commande_fournisseur WHERE rowid = $object->id";
