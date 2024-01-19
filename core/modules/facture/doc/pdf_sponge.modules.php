@@ -719,6 +719,7 @@ class pdf_sponge extends ModelePDFFactures
                     return strcmp($a->category, $b->category);
                 });
 
+                $testObj = $object->lines;
                 $modifiedArray = array();
                 $currentCategory = null;
 
@@ -947,7 +948,7 @@ class pdf_sponge extends ModelePDFFactures
                         $sign = -1;
                     }
                     // Collecte des totaux par valeur de tva dans $this->tva["taux"]=total_tva
-                    // $prev_progress = $object->lines[$i]->get_prev_progress($object->id);
+                    // $prev_progress = $testObj[$i]->get_prev_progress($object->id);
                     // if ($prev_progress > 0 && !empty($object->lines[$i]->situation_percent)) { // Compute progress from previous situation
                     //     if (isModEnabled("multicurrency") && $object->multicurrency_tx != 1) {
                     //         $tvaligne = $sign * $object->lines[$i]->multicurrency_total_tva * ($object->lines[$i]->situation_percent - $prev_progress) / $object->lines[$i]->situation_percent;
@@ -961,6 +962,12 @@ class pdf_sponge extends ModelePDFFactures
                     //         $tvaligne = $sign * $object->lines[$i]->total_tva;
                     //     }
                     // }
+
+                    if (isModEnabled("multicurrency") && $object->multicurrency_tx != 1) {
+                        $tvaligne = $sign * $object->lines[$i]->multicurrency_total_tva;
+                    } else {
+                        $tvaligne = $sign * $object->lines[$i]->total_tva;
+                    }
 
                     $localtax1ligne = $object->lines[$i]->total_localtax1;
                     $localtax2ligne = $object->lines[$i]->total_localtax2;
