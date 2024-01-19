@@ -611,7 +611,6 @@ class pdf_cyan extends ModelePDFPropales
 
                 for ($i = 0; $i < $nblines; $i++) {
                     $line = $object->lines[$i];
-                    // print '<script>console.log("desc: '. $object->lines[$i]->desc .'")</script>';
                     $curY = $nexY;
                     $pdf->SetFont('', '', $default_font_size - 1); // Into loop to work with multipage
                     $pdf->SetTextColor(0, 0, 0);
