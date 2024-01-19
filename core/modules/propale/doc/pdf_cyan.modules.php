@@ -1,4 +1,4 @@
-<?php
+b<?php
 /* Copyright (C) 2004-2014 Laurent Destailleur  <eldy@users.sourceforge.net>
  * Copyright (C) 2005-2012 Regis Houssin        <regis.houssin@inodbox.com>
  * Copyright (C) 2008      Raphael Bertrand     <raphael.bertrand@resultic.fr>
@@ -590,14 +590,31 @@ class pdf_cyan extends ModelePDFPropales
                 usort($object->lines, function ($a, $b) {
                     return strcmp($a->category, $b->category);
                 });
+
+                $modifiedArray = array();
+                $currentCategory = null;
+
+                foreach ($object->lines as $item) {
+                    if ($item->category !== $currentCategory) {
+                        $modifiedArray[] = ["desc" => '<b>' . $item->category . '</b>', "subprice" => null, "unit" => null, "qty" => null];
+                    }
+                    $modifiedArray[] = $item;
+                    $currentCategory = $item->category;
+                }
+
+                $object->lines = $modifiedArray;
+                $nblines = count($modifiedArray);
+
                 // Loop on each lines
                 $pageposbeforeprintlines = $pdf->getPage();
                 $pagenb = $pageposbeforeprintlines;
+
                 for ($i = 0; $i < $nblines; $i++) {
+                    $line = $object->lines[$i];
+                    // print '<script>console.log("desc: '. $object->lines[$i]->desc .'")</script>';
                     $curY = $nexY;
                     $pdf->SetFont('', '', $default_font_size - 1); // Into loop to work with multipage
                     $pdf->SetTextColor(0, 0, 0);
-
                     // Define size of image if we need it
                     $imglinesize = array();
                     if (!empty($realpatharray[$i])) {
@@ -639,46 +656,53 @@ class pdf_cyan extends ModelePDFPropales
                     }
 
                     // Description of product line
-                    if ($this->getColumnStatus('desc')) {
-                        $pdf->startTransaction();
+                    // if ($this->getColumnStatus('desc')) {
+                    //     $pdf->startTransaction();
 
-                        $this->printColDescContent($pdf, $curY, 'desc', $object, $i, $outputlangs, $hideref, $hidedesc);
-                        $pageposafter = $pdf->getPage();
+                    //     $this->printColDescContent($pdf, $curY, 'desc', $object, $i, $outputlangs, $hideref, $hidedesc);
+                    //     $pageposafter = $pdf->getPage();
 
-                        if ($pageposafter > $pageposbefore) { // There is a pagebreak
-                            $pdf->rollbackTransaction(true);
+                    //     if ($pageposafter > $pageposbefore) { // There is a pagebreak
+                    //         $pdf->rollbackTransaction(true);
 
-                            $pdf->setPageOrientation('', 1, $heightforfooter); // The only function to edit the bottom margin of current page to set it.
+                    //         $pdf->setPageOrientation('', 1, $heightforfooter); // The only function to edit the bottom margin of current page to set it.
 
-                            $this->printColDescContent($pdf, $curY, 'desc', $object, $i, $outputlangs, $hideref, $hidedesc);
+                    //         $this->printColDescContent($pdf, $curY, 'desc', $object, $i, $outputlangs, $hideref, $hidedesc);
 
-                            $pageposafter = $pdf->getPage();
-                            $posyafter = $pdf->GetY();
-                            //var_dump($posyafter); var_dump(($this->page_hauteur - ($heightforfooter+$heightforfreetext+$heightforinfotot))); exit;
-                            if ($posyafter > ($this->page_hauteur - ($heightforfooter + $heightforfreetext + $heightforsignature + $heightforinfotot))) { // There is no space left for total+free text
-                                if ($i == ($nblines - 1)) { // No more lines, and no space left to show total, so we create a new page
-                                    $object->isLinesAvailable = 1;
-                                    $pdf->AddPage('', '', true);
-                                    if (!empty($tplidx)) {
-                                        $pdf->useTemplate($tplidx);
-                                    }
-                                    $pdf->setPage($pageposafter + 1);
-                                }
-                            } else {
-                                // We found a page break
-                                // Allows data in the first page if description is long enough to break in multiples pages
-                                if (!empty($conf->global->MAIN_PDF_DATA_ON_FIRST_PAGE)) {
-                                    $showpricebeforepagebreak = 1;
-                                } else {
-                                    $showpricebeforepagebreak = 0;
-                                }
-                            }
-                        } else // No pagebreak
-                        {
-                            $pdf->commitTransaction();
-                        }
-                        $posYAfterDescription = $pdf->GetY();
+                    //         $pageposafter = $pdf->getPage();
+                    //         $posyafter = $pdf->GetY();
+                    //         //var_dump($posyafter); var_dump(($this->page_hauteur - ($heightforfooter+$heightforfreetext+$heightforinfotot))); exit;
+                    //         if ($posyafter > ($this->page_hauteur - ($heightforfooter + $heightforfreetext + $heightforsignature + $heightforinfotot))) { // There is no space left for total+free text
+                    //             if ($i == ($nblines - 1)) { // No more lines, and no space left to show total, so we create a new page
+                    //                 $object->isLinesAvailable = 1;
+                    //                 $pdf->AddPage('', '', true);
+                    //                 if (!empty($tplidx)) {
+                    //                     $pdf->useTemplate($tplidx);
+                    //                 }
+                    //                 $pdf->setPage($pageposafter + 1);
+                    //             }
+                    //         } else {
+                    //             // We found a page break
+                    //             // Allows data in the first page if description is long enough to break in multiples pages
+                    //             if (!empty($conf->global->MAIN_PDF_DATA_ON_FIRST_PAGE)) {
+                    //                 $showpricebeforepagebreak = 1;
+                    //             } else {
+                    //                 $showpricebeforepagebreak = 0;
+                    //             }
+                    //         }
+                    //     } else // No pagebreak
+                    //     {
+                    //         $pdf->commitTransaction();
+                    //     }
+                    //     $posYAfterDescription = $pdf->GetY();
+                    // }
+
+                    if (isset($line->desc)) {
+                        $this->printStdColumnContent($pdf, $curY, 'desc', $line->desc);
+                    } else {
+                        $this->printStdColumnContent($pdf, $curY, 'desc', $line['desc']);
                     }
+                    $nexY = max($pdf->GetY(), $nexY);
 
                     $nexY = $pdf->GetY();
                     $pageposafter = $pdf->getPage();
@@ -703,26 +727,44 @@ class pdf_cyan extends ModelePDFPropales
                     }
 
                     // Unit price before discount
-                    if ($this->getColumnStatus('subprice')) {
-                        $up_excl_tax = pdf_getlineupexcltax($object, $i, $outputlangs, $hidedetails);
-                        $this->printStdColumnContent($pdf, $curY, 'subprice', $up_excl_tax);
-                        $nexY = max($pdf->GetY(), $nexY);
+                    // if ($this->getColumnStatus('subprice')) {
+                    //     $up_excl_tax = pdf_getlineupexcltax($object, $i, $outputlangs, $hidedetails);
+                    //     $this->printStdColumnContent($pdf, $curY, 'subprice', $up_excl_tax);
+                    //     $nexY = max($pdf->GetY(), $nexY);
+                    // }
+
+                    if (isset($line->subprice)) {
+                        $this->printStdColumnContent($pdf, $curY, 'subprice', number_format($line->subprice, 2));
                     }
+
+                    $nexY = max($pdf->GetY(), $nexY);
 
                     // Quantity
                     // Enough for 6 chars
-                    if ($this->getColumnStatus('qty')) {
-                        $qty = pdf_getlineqty($object, $i, $outputlangs, $hidedetails);
-                        $this->printStdColumnContent($pdf, $curY, 'qty', $qty);
-                        $nexY = max($pdf->GetY(), $nexY);
+                    // if ($this->getColumnStatus('qty')) {
+                    //     $qty = pdf_getlineqty($object, $i, $outputlangs, $hidedetails);
+                    //     $this->printStdColumnContent($pdf, $curY, 'qty', $qty);
+                    //     $nexY = max($pdf->GetY(), $nexY);
+                    // }
+
+                    if (isset($line->qty)) {
+                        $this->printStdColumnContent($pdf, $curY, 'qty', $line->qty);
+                    } else {
+                        $this->printStdColumnContent($pdf, $curY, 'qty', $line['qty']);
                     }
+                    $nexY = max($pdf->GetY(), $nexY);
 
                     // Unit
-                    if ($this->getColumnStatus('unit')) {
-                        $unit = pdf_getlineunit($object, $i, $outputlangs, $hidedetails, $hookmanager);
-                        $this->printStdColumnContent($pdf, $curY, 'unit', $unit);
-                        $nexY = max($pdf->GetY(), $nexY);
+                    // if ($this->getColumnStatus('unit')) {
+                    //     $unit = pdf_getlineunit($object, $i, $outputlangs, $hidedetails, $hookmanager);
+                    //     $this->printStdColumnContent($pdf, $curY, 'unit', $unit);
+                    //     $nexY = max($pdf->GetY(), $nexY);
+                    // }
+
+                    if (isset($line->unit)) {
+                        $this->printStdColumnContent($pdf, $curY, 'unit', $line->unit);
                     }
+                    $nexY = max($pdf->GetY(), $nexY);
 
                     // Discount on line
                     if ($this->getColumnStatus('discount') && $object->lines[$i]->remise_percent) {
@@ -734,7 +776,9 @@ class pdf_cyan extends ModelePDFPropales
                     // Total excl tax line (HT)
                     if ($this->getColumnStatus('totalexcltax')) {
                         $total_excl_tax = pdf_getlinetotalexcltax($object, $i, $outputlangs, $hidedetails);
-                        $this->printStdColumnContent($pdf, $curY, 'totalexcltax', $total_excl_tax);
+                        if ($total_excl_tax !== "0.00") {
+                            $this->printStdColumnContent($pdf, $curY, 'totalexcltax', $total_excl_tax);
+                        }
                         $nexY = max($pdf->GetY(), $nexY);
                     }
 
