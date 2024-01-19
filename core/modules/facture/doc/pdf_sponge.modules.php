@@ -909,7 +909,9 @@ class pdf_sponge extends ModelePDFFactures
                     // Total excl tax line (HT)
                     if ($this->getColumnStatus('totalexcltax')) {
                         $total_excl_tax = pdf_getlinetotalexcltax($object, $i, $outputlangs, $hidedetails);
-                        $this->printStdColumnContent($pdf, $curY, 'totalexcltax', $total_excl_tax);
+                        if ($total_excl_tax !== "0.00") {
+                            $this->printStdColumnContent($pdf, $curY, 'totalexcltax', $total_excl_tax);
+                        }
                         $nexY = max($pdf->GetY(), $nexY);
                     }
 
