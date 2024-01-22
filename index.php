@@ -407,24 +407,14 @@ if ($projectid > 0) {
     }
 
     if (isset($categoryArray) && is_array($categoryArray) && !empty($categoryArray)) {
-        print '<table class="noborder" style="margin-top: 20px;text-align: center;">' . "\n";
+        print '<table class="noborder" style="margin-top: 20px; text-align: center;">' . "\n";
         print '<thead>';
-        print '<tr><th>' . $langs->trans('No.') . '</th><th colspan="2">';
-        print $langs->trans('QTY.');
-        print '</th>';
-        print '<th colspan="2">';
-        print $langs->trans('Description.');
-        print '</th>';
-        print '<th colspan="2">';
-        print $langs->trans('Unit Price(R).');
-        print '</th>';
-        print '<th colspan="2">';
-        print $langs->trans('Total Price(R).');
-        print '</th></tr>';
+        print '<tr><th>No.</th> <th colspan="2">QTY</th> <th colspan="2">Description</th> <th colspan="2">Unit Price(R)</th> <th colspan="2">Total Price(R)</th></tr>';
         print '</thead>';
-
         print '<tbody>';
+
         $index = 0;
+        $subTotalExclTax = 0;
 
         foreach ($categoryArray as $category) {
             $sql_llx_propaldet_unit = "SELECT SUM(subprice) As sumOfUnitPrice FROM " . MAIN_DB_PREFIX . "propaldet WHERE category = '$category' AND fk_socid = $socid AND fk_projectid = $projectid";
@@ -444,24 +434,22 @@ if ($projectid > 0) {
             if ($res_llx_propaldet_total) {
                 while ($row = $db->fetch_object($res_llx_propaldet_total)) {
                     $sumOfTotalPrice = number_format($row->sumOfTotalPrice, 2);
+                    $totalInFloat = (float) str_replace(',', '', $sumOfTotalPrice);
+                    $subTotalExclTax += $totalInFloat;
                 }
             }
 
             $index++;
 
-            print '<tr><td>' . $index . '</td><td colspan="2">';
-            print '1';
-            print '</td>';
-            print '<td colspan="2">';
-            print $category;
-            print '</td>';
-            print '<td colspan="2">';
-            print $sumOfUnitPrice;
-            print '</td>';
-            print '<td colspan="2">';
-            print $sumOfTotalPrice;
-            print '</td></tr>';
+            print '<tr>';
+            print '<td>' . $index . '</td><td colspan="2">1</td> <td colspan="2">' . $category . '</td> <td colspan="2">' . $sumOfUnitPrice . '</td> <td colspan="2">' . $sumOfTotalPrice . '</td>';
+            print '</tr>';
         }
+        print '<tr>';
+        print '<td></td><td colspan="2"></td> <td colspan="2"></td>';
+        print '<td colspan="2"><b>Sub Total (excl. VAT)</b></td>';
+        print '<td colspan="2"><b>' . number_format($subTotalExclTax, 2) . '</b></td>';
+        print '</tr>';
     }
 
     print '</tbody>';
