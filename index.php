@@ -415,6 +415,7 @@ if ($projectid > 0) {
 
         $index = 0;
         $subTotalExclTax = 0;
+        $vatPercentage = 15;
 
         foreach ($categoryArray as $category) {
             $sql_llx_propaldet_unit = "SELECT SUM(subprice) As sumOfUnitPrice FROM " . MAIN_DB_PREFIX . "propaldet WHERE category = '$category' AND fk_socid = $socid AND fk_projectid = $projectid";
@@ -445,6 +446,10 @@ if ($projectid > 0) {
             print '<td>' . $index . '</td><td colspan="2">1</td> <td colspan="2">' . $category . '</td> <td colspan="2">' . $sumOfUnitPrice . '</td> <td colspan="2">' . $sumOfTotalPrice . '</td>';
             print '</tr>';
         }
+
+        $vatPrice = ($subTotalExclTax * $vatPercentage) / 100;
+        $totalPriceInclTax = $subTotalExclTax - $vatPrice;
+
         print '<tr>';
         print '<td></td><td colspan="2"></td> <td colspan="2"></td>';
         print '<td colspan="2"><b>Sub Total (excl. VAT)</b></td>';
@@ -454,13 +459,13 @@ if ($projectid > 0) {
         print '<tr>';
         print '<td></td><td colspan="2"></td> <td colspan="2"></td>';
         print '<td colspan="2">VAT @15%</td>';
-        print '<td colspan="2"></td>';
+        print '<td colspan="2">' . number_format($vatPrice, 2) . '</td>';
         print '</tr>';
 
         print '<tr>';
         print '<td></td><td colspan="2"></td> <td colspan="2"></td>';
         print '<td colspan="2"><b>Total Price (incl. VAT)</b></td>';
-        print '<td colspan="2"></td>';
+        print '<td colspan="2"><b>' . number_format($totalPriceInclTax, 2) . '</b></td>';
         print '</tr>';
     }
 
