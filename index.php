@@ -450,6 +450,18 @@ if ($projectid > 0) {
         print '<td colspan="2"><b>Sub Total (excl. VAT)</b></td>';
         print '<td colspan="2"><b>' . number_format($subTotalExclTax, 2) . '</b></td>';
         print '</tr>';
+
+        print '<tr>';
+        print '<td></td><td colspan="2"></td> <td colspan="2"></td>';
+        print '<td colspan="2">VAT @15%</td>';
+        print '<td colspan="2"></td>';
+        print '</tr>';
+
+        print '<tr>';
+        print '<td></td><td colspan="2"></td> <td colspan="2"></td>';
+        print '<td colspan="2"><b>Total Price (incl. VAT)</b></td>';
+        print '<td colspan="2"></td>';
+        print '</tr>';
     }
 
     print '</tbody>';
