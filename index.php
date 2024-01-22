@@ -448,7 +448,7 @@ if ($projectid > 0) {
         }
 
         $vatPrice = ($subTotalExclTax * $vatPercentage) / 100;
-        $totalPriceInclTax = $subTotalExclTax - $vatPrice;
+        $totalPriceInclTax = $subTotalExclTax + $vatPrice;
 
         print '<tr>';
         print '<td></td><td colspan="2"></td> <td colspan="2"></td>';
