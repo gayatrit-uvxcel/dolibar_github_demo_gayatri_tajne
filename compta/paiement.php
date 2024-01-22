@@ -558,9 +558,11 @@ if ($action == 'create' || $action == 'confirm_paiement' || $action == 'add_paie
 		 * List of unpaid invoices
 		 */
 
-		$sql = 'SELECT f.rowid as facid, f.ref, f.total_ttc, f.multicurrency_code, f.multicurrency_total_ttc, f.type,';
-		$sql .= ' f.datef as df, f.fk_soc as socid, f.date_lim_reglement as dlr';
+		$sql = 'SELECT f.rowid as facid, f.ref, f.total_ttc,f.total_ht,f.total_tva, f.multicurrency_code, f.multicurrency_total_ttc, f.type,';
+		$sql .= ' f.datef as df, f.fk_soc as socid, f.date_lim_reglement as dlr, p.code as cond_reglement_code,d.tva_tx';
 		$sql .= ' FROM '.MAIN_DB_PREFIX.'facture as f';
+		$sql .= ' LEFT JOIN '.MAIN_DB_PREFIX.'c_payment_term as p ON f.fk_cond_reglement = p.rowid'; 
+		$sql .= ' LEFT JOIN '.MAIN_DB_PREFIX.'facturedet as d ON f.rowid = d.fk_facture';
 		$sql .= ' WHERE f.entity IN ('.getEntity('facture').')';
 		$sql .= ' AND (f.fk_soc = '.((int) $facture->socid);
 		// Can pay invoices of all child of parent company
@@ -703,7 +705,7 @@ if ($action == 'create' || $action == 'confirm_paiement' || $action == 'add_paie
 							print price($sign * $objp->multicurrency_total_ttc);
 						}
 						print '</td>';
-
+					
 						// Multicurrency Price
 						print '<td class="right">';
 						if ($objp->multicurrency_code && $objp->multicurrency_code != $conf->currency) {
@@ -792,12 +794,18 @@ if ($action == 'create' || $action == 'confirm_paiement' || $action == 'add_paie
 					// Add remind amount
 					$namef = 'amount_'.$objp->facid;
 					$nameRemain = 'remain_'.$objp->facid;
+					print '<script>console.log("$objp->total_tva: ' . $objp->total_tva . '")</script>';
+					print '<script>console.log("$objp->tva_tx: ' . $objp->tva_tx . '")</script>';
 
+					$invoiceSchedule_total_ht = ($objp->total_ht * $objp->cond_reglement_code) / 100;
+					$invoiceSchedule_vat = ( $invoiceSchedule_total_ht * $objp->tva_tx ) / 100;
+					$invoiceSchedule_payment = $invoiceSchedule_total_ht + $invoiceSchedule_vat;
 					if ($action != 'add_paiement') {
 						if (!empty($conf->use_javascript_ajax)) {
 							print img_picto("Auto fill", 'rightarrow', "class='AutoFillAmout' data-rowname='".$namef."' data-value='".($sign * $remaintopay)."'");
 						}
-						print '<input type="text" class="maxwidth75 amount" id="'.$namef.'" name="'.$namef.'" value="'.dol_escape_htmltag(GETPOST($namef)).'">';
+						print '<input type="text" class="maxwidth75 amount" id="'.$namef.'" name="'.$namef.'" value="'. price($invoiceSchedule_payment,'', $langs, 0, -1, -1) .'">';
+
 						print '<input type="hidden" class="remain" name="'.$nameRemain.'" value="'.$remaintopay.'">';
 					} else {
 						print '<input type="text" class="maxwidth75" name="'.$namef.'_disabled" value="'.dol_escape_htmltag(GETPOST($namef)).'" disabled>';
@@ -847,7 +855,7 @@ if ($action == 'create' || $action == 'confirm_paiement' || $action == 'add_paie
 					}
 					print '</b></td>';
 					print '<td class="right"><b>'.price($sign * price2num($total_ttc - $totalrecu - $totalrecucreditnote - $totalrecudeposits, 'MT')).'</b></td>';
-					print '<td class="right" id="result" style="font-weight: bold;"></td>'; // Autofilled
+					print '<td class="right" id="result" style="font-weight: bold;">'.price($invoiceSchedule_payment,'', $langs, 0, -1, -1).'</td>'; // Autofilled
 					print '<td align="center">&nbsp;</td>';
 					print "</tr>\n";
 				}

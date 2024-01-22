@@ -1248,8 +1248,7 @@ class Form
     {
         global $langs, $conf;
         $categoryArray = [];
-        $sql_llx_propaldet_categories = "SELECT DISTINCT category FROM " . MAIN_DB_PREFIX . "propaldet WHERE category IS NOT NULL";
-
+        $sql_llx_propaldet_categories = "SELECT DISTINCT category_name AS category FROM " . MAIN_DB_PREFIX . "default_product_categories WHERE category_name IS NOT NULL";
         $res_llx_propaldet_categories = $this->db->query($sql_llx_propaldet_categories);
 
         if ($res_llx_propaldet_categories) {

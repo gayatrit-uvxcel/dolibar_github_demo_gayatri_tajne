@@ -5604,7 +5604,8 @@ if ($action == 'create') {
     // for displaying invoice scheduling
     print '<table class="border tableforfield centpercent">';
     print '<tr class="center liste_titre">';
-    print '<td class="center amountcard nowrap liste_titre"  colspan="2">' . $langs->trans('Invoice Schedule') . '</td>';
+    // print '<td class="center amountcard nowrap liste_titre"  colspan="2">' . $langs->trans('Invoice Schedule') . '</td>';
+    print '<td class="center amountcard nowrap liste_titre"  colspan="2">' . 'Invoice Schedule ' .$object->cond_reglement_code .'%'. '</td>';
     print '</tr>';
     print '<tr class="">';
     // Amount HT with invoice schedule
@@ -5729,7 +5730,7 @@ if ($action == 'create') {
     print "</div>";
     print '</div>';
 
-    print '<div>';
+    print '<div style="display: none">';
     print '<table id="tablelines" class="noborder noshadow" width="100%">';
     // Form to add new line
     if ($object->statut == 0 && $usercancreate && $action != 'valid' && $action != 'editline') {

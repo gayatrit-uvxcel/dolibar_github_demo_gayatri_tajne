@@ -4311,6 +4311,11 @@ class PropaleLigne extends CommonObjectLine
      *    @param        int        $notrigger        1=Does not execute triggers, 0= execute triggers
      *    @return        int                        <0 if KO, >0 if OK
      */
+
+    public function insert_new()
+    {
+
+    }
     public function insert($notrigger = 0)
     {
         global $conf, $user;
@@ -4495,10 +4500,14 @@ class PropaleLigne extends CommonObjectLine
         $sqlFacture .= ", '" . $this->db->escape(GETPOSTISSET("fk_socid") ? GETPOST("fk_socid") : 'null') . "'";
         $sqlFacture .= ", '" . $this->db->escape(GETPOSTISSET("unit") ? GETPOST("unit") : '') . "')";
 
-        dol_syslog(get_class($this) . '::insert', LOG_DEBUG);
+        $categoryValue = $this->db->escape(GETPOSTISSET("category") ? GETPOST("category") : 'null');
+        echo "hello " . $categoryValue;
+        $sqlCategories = "INSERT INTO llx_default_product_categories (category_name) VALUES ('$categoryValue')";
         $sqlPropalRes = $this->db->query($sqlPropal);
         $sqlFactureRes = $this->db->query($sqlFacture);
-        if ($sqlPropalRes && $sqlFactureRes) {
+        $sqlCategoriesRes = $this->db->query($sqlCategories);
+
+        if ($sqlFactureRes && $sqlPropalRes && $sqlCategoriesRes) {
             $this->rowid = $this->db->last_insert_id(MAIN_DB_PREFIX . 'propaldet');
 
             if (!$error) {

@@ -458,7 +458,7 @@ if ($projectid > 0) {
 
         print '<tr>';
         print '<td></td><td colspan="2"></td> <td colspan="2"></td>';
-        print '<td colspan="2">VAT @15%</td>';
+        print '<td colspan="2">VAT @' . $vatPercentage . '%</td>';
         print '<td colspan="2">' . number_format($vatPrice, 2) . '</td>';
         print '</tr>';
 
