@@ -3143,28 +3143,38 @@ if ($action == 'create') {
         $object->printObjectLines($action, $mysoc, $object->thirdparty, $lineid, 1);
     }
 
-    // Form to add new line
-    if ($object->statut == Propal::STATUS_DRAFT && $usercancreate && $action != 'selectlines') {
-        if ($action != 'editline') {
-            $parameters = array();
-            $reshook = $hookmanager->executeHooks('formAddObjectLine', $parameters, $object, $action); // Note that $action and $object may have been modified by hook
-            if ($reshook < 0) {
-                setEventMessages($hookmanager->error, $hookmanager->errors, 'errors');
-            }
-
-            if (empty($reshook)) {
-                $object->formAddObjectLine(1, $mysoc, $soc);
-            }
-        } else {
-            $parameters = array();
-            $reshook = $hookmanager->executeHooks('formEditObjectLine', $parameters, $object, $action); // Note that $action and $object may have been modified by hook
-        }
-    }
-
     if (!empty($object->lines) || ($object->statut == Propal::STATUS_DRAFT && $usercancreate && $action != 'selectlines' && $action != 'editline')) {
         print '</table>';
     }
     print '</div>';
+
+
+
+    print '<div>';
+    print '<table id="tablelines" class="noborder noshadow" width="100%">';
+
+        // Form to add new line
+        if ($object->statut == Propal::STATUS_DRAFT && $usercancreate && $action != 'selectlines') {
+            if ($action != 'editline') {
+                $parameters = array();
+                $reshook = $hookmanager->executeHooks('formAddObjectLine', $parameters, $object, $action); // Note that $action and $object may have been modified by hook
+                if ($reshook < 0) {
+                    setEventMessages($hookmanager->error, $hookmanager->errors, 'errors');
+                }
+    
+                if (empty($reshook)) {
+                    $object->formAddObjectLine(1, $mysoc, $soc);
+                }
+            } else {
+                $parameters = array();
+                $reshook = $hookmanager->executeHooks('formEditObjectLine', $parameters, $object, $action); // Note that $action and $object may have been modified by hook
+            }
+        }
+    
+
+    print "</table>\n";
+    print "</div>";
+
 
     print "</form>\n";
 

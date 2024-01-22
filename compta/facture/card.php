@@ -4783,7 +4783,7 @@ if ($action == 'create') {
     if ($object->type != Facture::TYPE_CREDIT_NOTE) {
         if ($action == 'editconditions') {
             $form->form_conditions_reglement($_SERVER['PHP_SELF'] . '?facid=' . $object->id, $object->cond_reglement_id, 'cond_reglement_id');
-          
+
         } else {
             $form->form_conditions_reglement($_SERVER['PHP_SELF'] . '?facid=' . $object->id, $object->cond_reglement_id, 'none');
         }
@@ -4791,7 +4791,6 @@ if ($action == 'create') {
         print '&nbsp;';
     }
     print '</td></tr>';
-   
 
     // Date payment term
     print '<tr><td>';
@@ -5039,7 +5038,7 @@ if ($action == 'create') {
     if (!empty($conf->global->INVOICE_POSITIVE_CREDIT_NOTE_SCREEN) && $object->type == $object::TYPE_CREDIT_NOTE) {
         $sign = -1; // We invert sign for output
     }
-    print '<script>console.log("$object->cond_reglement_id: ' .  $object->cond_reglement_code . '")</script>';
+    print '<script>console.log("$object->cond_reglement_id: ' . $object->cond_reglement_code . '")</script>';
     print '<tr>';
     // Amount HT
     print '<td class="titlefieldmiddle">' . $langs->trans('AmountHT') . '</td>';
@@ -5060,7 +5059,6 @@ if ($action == 'create') {
     }
     print '</tr>';
 
-    
     // Amount Local Taxes
     if (($mysoc->localtax1_assuj == "1" && $mysoc->useLocalTax(1)) || $object->total_localtax1 != 0) {
         print '<tr>';
@@ -5082,7 +5080,6 @@ if ($action == 'create') {
         }
     }
 
-    
     // Add the revenu stamp
     if ($selleruserevenustamp) {
         print '<tr><td class="titlefieldmiddle">';
@@ -5146,10 +5143,7 @@ if ($action == 'create') {
     }
     print '</tr>';
 
-
     print '</table>';
-
-    
 
     $nbrows = 8;
     $nbcols = 3;
@@ -5625,14 +5619,14 @@ if ($action == 'create') {
     // Amount TTC with invoice schedule
     print '<td>' . 'VAT @15%' . '</td>';
     $multicurrency_total_tva = ($scheduleAmountHT * $object->tva_tx) / 100;
-    print '<td class="nowrap amountcard right">' . price($multicurrency_total_tva,'', $langs, 0, -1, -1, $object->multicurrency_code) . '</td>';
+    print '<td class="nowrap amountcard right">' . price($multicurrency_total_tva, '', $langs, 0, -1, -1, $object->multicurrency_code) . '</td>';
     print '</tr>';
-    
+
     print '<tr>';
     // Amount TTC with invoice schedule
     print '<td>' . 'Total Price (incl. VAT)' . '</td>';
     $amountHTIncludingVat = $scheduleAmountHT + $multicurrency_total_tva;
-    print '<td class="nowrap amountcard right">' . price($amountHTIncludingVat,'', $langs, 0, -1, -1, $object->multicurrency_code) . '</td>';
+    print '<td class="nowrap amountcard right">' . price($amountHTIncludingVat, '', $langs, 0, -1, -1, $object->multicurrency_code) . '</td>';
     print '</tr>';
 
     print '</table>';
@@ -5643,8 +5637,6 @@ if ($action == 'create') {
     }
     print '</div>';
     print '</div>';
-
-
 
     print '<div class="clearboth"></div><br><br>';
 
@@ -5725,6 +5717,7 @@ if ($action == 'create') {
     }
 
     print '<div class="div-table-responsive-no-min">';
+    print '<div>';
     print '<table id="tablelines" class="noborder noshadow" width="100%">';
 
     // Show object lines
@@ -5732,6 +5725,12 @@ if ($action == 'create') {
         $object->printObjectLines($action, $mysoc, $soc, $lineid, 1);
     }
 
+    print "</table>\n";
+    print "</div>";
+    print '</div>';
+
+    print '<div>';
+    print '<table id="tablelines" class="noborder noshadow" width="100%">';
     // Form to add new line
     if ($object->statut == 0 && $usercancreate && $action != 'valid' && $action != 'editline') {
         if ($action != 'editline' && $action != 'selectlines') {
@@ -5748,7 +5747,6 @@ if ($action == 'create') {
             }
         }
     }
-
     print "</table>\n";
     print "</div>";
 
@@ -5803,9 +5801,9 @@ if ($action == 'create') {
 
             // Reopen an invoice
             if ((($object->type == Facture::TYPE_STANDARD || $object->type == Facture::TYPE_REPLACEMENT)
-                    || ($object->type == Facture::TYPE_CREDIT_NOTE && empty($discount->id))
-                    || ($object->type == Facture::TYPE_DEPOSIT && empty($discount->id))
-                    || ($object->type == Facture::TYPE_SITUATION && empty($discount->id)))
+                || ($object->type == Facture::TYPE_CREDIT_NOTE && empty($discount->id))
+                || ($object->type == Facture::TYPE_DEPOSIT && empty($discount->id))
+                || ($object->type == Facture::TYPE_SITUATION && empty($discount->id)))
                 && ($object->statut == Facture::STATUS_CLOSED || $object->statut == Facture::STATUS_ABANDONED || ($object->statut == 1 && $object->paye == 1)) // Condition ($object->statut == 1 && $object->paye == 1) should not happened but can be found due to corrupted data
                 && ((empty($conf->global->MAIN_USE_ADVANCED_PERMS) && $usercancreate) || $usercanreopen)
             ) { // A paid invoice (partially or completely)
