@@ -4501,13 +4501,12 @@ class PropaleLigne extends CommonObjectLine
         $sqlFacture .= ", '" . $this->db->escape(GETPOSTISSET("unit") ? GETPOST("unit") : '') . "')";
 
         $categoryValue = $this->db->escape(GETPOSTISSET("category") ? GETPOST("category") : 'null');
-        echo "hello " . $categoryValue;
         $sqlCategories = "INSERT INTO llx_default_product_categories (category_name) VALUES ('$categoryValue')";
         $sqlPropalRes = $this->db->query($sqlPropal);
         $sqlFactureRes = $this->db->query($sqlFacture);
         $sqlCategoriesRes = $this->db->query($sqlCategories);
 
-        if ($sqlFactureRes && $sqlPropalRes && $sqlCategoriesRes) {
+        if ($sqlFactureRes && $sqlPropalRes) {
             $this->rowid = $this->db->last_insert_id(MAIN_DB_PREFIX . 'propaldet');
 
             if (!$error) {
