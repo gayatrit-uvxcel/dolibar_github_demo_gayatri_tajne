@@ -1210,7 +1210,7 @@ class Propal extends CommonObject
         $sql .= ", '" . $this->db->escape($this->notes) . "'";
         $sql .= ")";
 
-        $terms_conditions = json_decode($this->terms_and_conditions, true);;
+        $terms_conditions = json_decode($this->terms_and_conditions, true);
         $note = json_decode($this->notes, true);
 
         foreach ($terms_conditions as $value) {
@@ -4512,10 +4512,11 @@ class PropaleLigne extends CommonObjectLine
         $sqlFacture .= ", '" . $this->db->escape(GETPOSTISSET("unit") ? GETPOST("unit") : '') . "')";
 
         $categoryValue = $this->db->escape(GETPOSTISSET("category") ? GETPOST("category") : 'null');
-        $sqlCategories = "INSERT IGNORE INTO llx_default_product_categories (category_name) VALUES ('$categoryValue')";
+        $sqlCategories = "INSERT INTO llx_default_product_categories (category_name) VALUES ('$categoryValue')";
         $sqlPropalRes = $this->db->query($sqlPropal);
         $sqlFactureRes = $this->db->query($sqlFacture);
         $sqlCategoriesRes = $this->db->query($sqlCategories);
+        // echo $sqlCategories;
 
         if ($sqlFactureRes && $sqlPropalRes) {
             $this->rowid = $this->db->last_insert_id(MAIN_DB_PREFIX . 'propaldet');
