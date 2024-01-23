@@ -2104,7 +2104,7 @@ if ($action == 'create') {
 
             // Display the input field for adding custom values
             print '<input type="text" id="customTAC" placeholder="Add more terms & condition">';
-            print '<input type="button" class="button button-add small" onclick="addCustomOption(\'multi_tc_content\', \'customTAC\')"  value="Add">';
+            print '<input type="button" class="button button-add small" onclick="addCustomOption(\'Terms and conditions\',\'multi_tc_content\', \'customTAC\')"  value="Add">';
 
             print '</td>';
             print '</tr>';
@@ -2127,23 +2127,29 @@ if ($action == 'create') {
 
             // Display the input field for adding custom notes
             print '<input type="text" id="customNotes" placeholder="Add more notes">';
-            print '<input type="button" class="button button-add small" onclick="addCustomOption(\'notes_content\', \'customNotes\')"  value="Add">';
+            print '<input type="button" class="button button-add small" onclick="addCustomOption(\'Note\',\'notes_content\', \'customNotes\')"  value="Add">';
             print '</td>';
             print '</tr>';
 
             print '<script>
-            function addCustomOption(selectId, inputId) {
+            function addCustomOption(errorName, selectId, inputId) {
                  var select = document.getElementById(selectId);
                  var input = document.getElementById(inputId);
                  var optionValue = input.value.trim();
                  var regex = /^[a-zA-Z][a-zA-Z1-9\s.,-]*\s+[a-zA-Z1-9][a-zA-Z1-9\s.,-]*(\s+[a-zA-Z1-9][a-zA-Z1-9\s.,-]*)*$/;
-
+                 var prohibitedWords = ["idiot", "mad", "lame", "fool", "Shoot", "kill"];
                 if(optionValue === ""){
-                    alert("input should not be blank");
+                    alert(errorName + " cannot be empty");
                 }else if(Array.from(select.options).some(option => option.value === optionValue)){
-                    alert("Added value is already there in dropdown list");
+                    alert("Added " + errorName + " is already there in dropdown list");
                 }else if(!regex.test(optionValue)){
                     alert("enter valid input");
+                }else if(optionValue.length > 500){
+                    alert(errorName + " length cannot be greater than 20 characters");
+                }else if(optionValue.length < 10){
+                    alert("Add valid " + errorName);
+                }else if (containsProhibitedWords(optionValue, prohibitedWords)) {
+                    alert(errorName + " contains prohibited words");
                 }else {
                    var newOption = document.createElement("option");
                    newOption.value = optionValue;
@@ -2153,6 +2159,16 @@ if ($action == 'create') {
                    input.value = "";
                 }
             }
+            function containsProhibitedWords(str, prohibitedWords) {
+                str = str.toLowerCase();
+                for (var i = 0; i < prohibitedWords.length; i++) {
+                    if (str.includes(prohibitedWords[i].toLowerCase())) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+
             </script>';
         }
     }
