@@ -1210,6 +1210,18 @@ class Propal extends CommonObject
         $sql .= ", '" . $this->db->escape($this->notes) . "'";
         $sql .= ")";
 
+        $terms_conditions = json_decode($this->terms_and_conditions, true);;
+        $note = json_decode($this->notes, true);
+
+        foreach ($terms_conditions as $value) {
+            $sql_terms_condition = "INSERT INTO llx_terms_conditions (category_name, tc_content) VALUES ('Quotation','$value')";
+            $resql_terms_condition = $this->db->query($sql_terms_condition);
+        }
+        foreach ($note as $value) {
+            $sql_note = "INSERT INTO llx_notes (category_name, notes) VALUES ('Quotation','$value')";
+            $resql_note = $this->db->query($sql_note);
+        }
+
         dol_syslog(get_class($this) . "::create", LOG_DEBUG);
         $resql = $this->db->query($sql);
         if ($resql) {
@@ -4314,7 +4326,6 @@ class PropaleLigne extends CommonObjectLine
 
     public function insert_new()
     {
-
     }
     public function insert($notrigger = 0)
     {
@@ -4501,7 +4512,7 @@ class PropaleLigne extends CommonObjectLine
         $sqlFacture .= ", '" . $this->db->escape(GETPOSTISSET("unit") ? GETPOST("unit") : '') . "')";
 
         $categoryValue = $this->db->escape(GETPOSTISSET("category") ? GETPOST("category") : 'null');
-        $sqlCategories = "INSERT INTO llx_default_product_categories (category_name) VALUES ('$categoryValue')";
+        $sqlCategories = "INSERT IGNORE INTO llx_default_product_categories (category_name) VALUES ('$categoryValue')";
         $sqlPropalRes = $this->db->query($sqlPropal);
         $sqlFactureRes = $this->db->query($sqlFacture);
         $sqlCategoriesRes = $this->db->query($sqlCategories);
@@ -4676,7 +4687,7 @@ class PropaleLigne extends CommonObjectLine
         $sqlPropal .= " description='" . $this->db->escape($this->desc) . "'";
         $sqlPropal .= ", label=" . (!empty($this->label) ? "'" . $this->db->escape($this->label) . "'" : "null");
         $sqlPropal .= ", product_type=" . $this->product_type;
-        // $sqlPropal .= ", category=" . $this->category;
+        $sqlPropal .= ", category='" . (empty($this->category) ? '' : $this->category) . "'";
         $sqlPropal .= ", vat_src_code = '" . (empty($this->vat_src_code) ? '' : $this->vat_src_code) . "'";
         $sqlPropal .= ", tva_tx='" . price2num($this->tva_tx) . "'";
         $sqlPropal .= ", localtax1_tx=" . price2num($this->localtax1_tx);
@@ -4721,7 +4732,7 @@ class PropaleLigne extends CommonObjectLine
         $sqlFacture = "UPDATE " . MAIN_DB_PREFIX . "facturedet SET";
         $sqlFacture .= " description='" . $this->db->escape($this->desc) . "'";
         $sqlFacture .= ", label=" . (!empty($this->label) ? "'" . $this->db->escape($this->label) . "'" : "null");
-        // $sqlFacture .= ", category=" . $this->category;
+        $sqlFacture .= ", category='" . (empty($this->category) ? '' : $this->category) . "'";
         $sqlFacture .= ", vat_src_code = '" . (empty($this->vat_src_code) ? '' : $this->vat_src_code) . "'";
         $sqlFacture .= ", tva_tx='" . price2num($this->tva_tx) . "'";
         $sqlFacture .= ", localtax1_tx=" . price2num($this->localtax1_tx);

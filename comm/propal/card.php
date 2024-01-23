@@ -2110,7 +2110,7 @@ if ($action == 'create') {
             print '</tr>';
 
             // for Notes
-            $sql_llx_notes = "SELECT notes FROM " . MAIN_DB_PREFIX . "terms_conditions WHERE category_name='Quotation'";
+            $sql_llx_notes = "SELECT notes FROM " . MAIN_DB_PREFIX . "notes WHERE category_name='Quotation'";
             $res_llx_notes = $db->query($sql_llx_notes);
             $options = array();
 
@@ -2140,7 +2140,7 @@ if ($action == 'create') {
                  var prohibitedWords = ["idiot", "mad", "lame", "fool", "Shoot", "kill"];
                 if(optionValue === ""){
                     alert(errorName + " cannot be empty");
-                }else if(Array.from(select.options).some(option => option.value === optionValue)){
+                }else if(Array.from(select.options).some(option => option.value.toLowerCase() === optionValue.toLowerCase())){
                     alert("Added " + errorName + " is already there in dropdown list");
                 }else if(!regex.test(optionValue)){
                     alert("enter valid input");
