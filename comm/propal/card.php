@@ -2099,16 +2099,13 @@ if ($action == 'create') {
             print '<td class="titlefieldcreate">' . $langs->trans('Terms and Conditions:') . '</td>';
             print '<td class="maxwidthonsmartphone">';
 
-            // Get the existing selected values
-            // $selected = (GETPOSTISSET('multi_tc_content') ? GETPOST('multi_tc_content') : $object->multi_tc_content);
-
             // Display the existing multi-select dropdown
             print $form->multiselectarray('multi_tc_content', $options, $selected, 0, 0, 'form-control', 1, '300px', '', '', 'Select Multiple Terms and Conditions', 1);
 
             // Display the input field for adding custom values
             print '<input type="text" id="customTAC" placeholder="Add more terms & condition">';
             print '<input type="button" class="button button-add small" onclick="addCustomOption(\'multi_tc_content\', \'customTAC\')"  value="Add">';
-            
+
             print '</td>';
             print '</tr>';
 
@@ -2139,14 +2136,21 @@ if ($action == 'create') {
                  var select = document.getElementById(selectId);
                  var input = document.getElementById(inputId);
                  var optionValue = input.value.trim();
+                 var regex = /^[a-zA-Z][a-zA-Z1-9\s.,-]*\s+[a-zA-Z1-9][a-zA-Z1-9\s.,-]*(\s+[a-zA-Z1-9][a-zA-Z1-9\s.,-]*)*$/;
 
-                if (optionValue !== "" && !Array.from(select.options).some(option => option.value === optionValue)) {
+                if(optionValue === ""){
+                    alert("input should not be blank");
+                }else if(Array.from(select.options).some(option => option.value === optionValue)){
+                    alert("Added value is already there in dropdown list");
+                }else if(!regex.test(optionValue)){
+                    alert("enter valid input");
+                }else {
                    var newOption = document.createElement("option");
                    newOption.value = optionValue;
                    newOption.text = optionValue;
                    newOption.selected = true;
                    select.add(newOption);
-                   input.value = ""; // Clear the input after adding the option
+                   input.value = "";
                 }
             }
             </script>';
@@ -3143,38 +3147,28 @@ if ($action == 'create') {
         $object->printObjectLines($action, $mysoc, $object->thirdparty, $lineid, 1);
     }
 
+    // Form to add new line
+    if ($object->statut == Propal::STATUS_DRAFT && $usercancreate && $action != 'selectlines') {
+        if ($action != 'editline') {
+            $parameters = array();
+            $reshook = $hookmanager->executeHooks('formAddObjectLine', $parameters, $object, $action); // Note that $action and $object may have been modified by hook
+            if ($reshook < 0) {
+                setEventMessages($hookmanager->error, $hookmanager->errors, 'errors');
+            }
+
+            if (empty($reshook)) {
+                $object->formAddObjectLine(1, $mysoc, $soc);
+            }
+        } else {
+            $parameters = array();
+            $reshook = $hookmanager->executeHooks('formEditObjectLine', $parameters, $object, $action); // Note that $action and $object may have been modified by hook
+        }
+    }
+
     if (!empty($object->lines) || ($object->statut == Propal::STATUS_DRAFT && $usercancreate && $action != 'selectlines' && $action != 'editline')) {
         print '</table>';
     }
     print '</div>';
-
-
-
-    print '<div>';
-    print '<table id="tablelines" class="noborder noshadow" width="100%">';
-
-        // Form to add new line
-        if ($object->statut == Propal::STATUS_DRAFT && $usercancreate && $action != 'selectlines') {
-            if ($action != 'editline') {
-                $parameters = array();
-                $reshook = $hookmanager->executeHooks('formAddObjectLine', $parameters, $object, $action); // Note that $action and $object may have been modified by hook
-                if ($reshook < 0) {
-                    setEventMessages($hookmanager->error, $hookmanager->errors, 'errors');
-                }
-    
-                if (empty($reshook)) {
-                    $object->formAddObjectLine(1, $mysoc, $soc);
-                }
-            } else {
-                $parameters = array();
-                $reshook = $hookmanager->executeHooks('formEditObjectLine', $parameters, $object, $action); // Note that $action and $object may have been modified by hook
-            }
-        }
-    
-
-    print "</table>\n";
-    print "</div>";
-
 
     print "</form>\n";
 
