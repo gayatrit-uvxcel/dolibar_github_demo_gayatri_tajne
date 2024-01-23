@@ -1975,7 +1975,7 @@ if ($action == 'create') {
             print '</tr>';
 
             // for Notes
-            $sql_llx_notes = "SELECT notes FROM " . MAIN_DB_PREFIX . "terms_conditions WHERE category_name='PO'";
+            $sql_llx_notes = "SELECT notes FROM " . MAIN_DB_PREFIX . "notes WHERE category_name='PO'";
             $res_llx_notes = $db->query($sql_llx_notes);
             $options = array();
 

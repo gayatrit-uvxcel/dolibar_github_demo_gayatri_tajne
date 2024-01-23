@@ -1524,6 +1524,18 @@ class CommandeFournisseur extends CommonOrder
         $sql .= ", '" . $this->db->escape($this->notes) . "'";
         $sql .= ")";
 
+        $terms_conditions = json_decode($this->terms_and_conditions, true);;
+        $note = json_decode($this->notes, true);
+
+        foreach ($terms_conditions as $value) {
+            $sql_terms_condition = "INSERT INTO llx_terms_conditions (category_name, tc_content) VALUES ('PO','$value')";
+            $resql_terms_condition = $this->db->query($sql_terms_condition);
+        }
+        foreach ($note as $value) {
+            $sql_note = "INSERT INTO llx_notes (category_name, notes) VALUES ('PO','$value')";
+            $resql_note = $this->db->query($sql_note);
+        }
+
         dol_syslog(get_class($this) . "::create", LOG_DEBUG);
         if ($this->db->query($sql)) {
             $this->id = $this->db->last_insert_id(MAIN_DB_PREFIX . "commande_fournisseur");
