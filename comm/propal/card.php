@@ -3155,6 +3155,7 @@ if ($action == 'create') {
     }
 
     print '<div class="div-table-responsive-no-min">';
+    print '<div>';
     if (!empty($object->lines) || ($object->statut == Propal::STATUS_DRAFT && $usercancreate && $action != 'selectlines' && $action != 'editline')) {
         print '<table id="tablelines" class="noborder noshadow centpercent">';
     }
@@ -3163,6 +3164,12 @@ if ($action == 'create') {
         $object->printObjectLines($action, $mysoc, $object->thirdparty, $lineid, 1);
     }
 
+    print "</table>\n";
+    print "</div>";
+    print '</div>';
+
+    print '<div>';
+    print '<table id="tablelines" class="noborder noshadow" width="100%">';
     // Form to add new line
     if ($object->statut == Propal::STATUS_DRAFT && $usercancreate && $action != 'selectlines') {
         if ($action != 'editline') {
@@ -3181,10 +3188,11 @@ if ($action == 'create') {
         }
     }
 
-    if (!empty($object->lines) || ($object->statut == Propal::STATUS_DRAFT && $usercancreate && $action != 'selectlines' && $action != 'editline')) {
-        print '</table>';
-    }
-    print '</div>';
+    // if (!empty($object->lines) || ($object->statut == Propal::STATUS_DRAFT && $usercancreate && $action != 'selectlines' && $action != 'editline')) {
+    //     print '</table>';
+    // }
+    print "</table>\n";
+    print "</div>";
 
     print "</form>\n";
 
