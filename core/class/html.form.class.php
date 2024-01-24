@@ -1206,14 +1206,14 @@ class Form
     //         if (empty($hidetext)) {
     //             print $langs->trans("Category") . ': ';
     //         }
-    //         print '<select class="flat" id="select_' . $htmlname . '" name="' . $htmlname . '">';
-    //         if ($showempty) {
-    //             print '<option value="-1"';
-    //             if ($selected == -1) {
-    //                 print ' selected';
-    //             }
-    //             print '>&nbsp;</option>';
-    //         }
+    // print '<select class="flat" id="select_' . $htmlname . '" name="' . $htmlname . '">';
+    // if ($showempty) {
+    //     print '<option value="-1"';
+    //     if ($selected == -1) {
+    //         print ' selected';
+    //     }
+    //     print '>&nbsp;</option>';
+    // }
 
     //         print '<option value="Electrical"';
     //         if (0 == $selected || ($selected == -1 && getDolGlobalString('MAIN_FREE_PRODUCT_CHECKED_BY_DEFAULT') == 'electrical')) {
@@ -1298,10 +1298,15 @@ class Form
                 print '>' . $langs->trans($category) . '</option>';
             }
         }
-        print '<option id="other_option" value="other_option"';
-        print '>Other</option>';
+        if ($forceall !== false) {
+            print '<option id="other_option" value="other_option"';
+            print '>Other</option>';
+        }
         print '</select>';
-        print ajax_combobox('select_' . $htmlname);
+        if ($forceall !== false) {
+            print ajax_combobox('select_' . $htmlname);
+        }
+
     }
 
     // phpcs:disable PEAR.NamingConventions.ValidFunctionName.ScopeNotCamelCaps

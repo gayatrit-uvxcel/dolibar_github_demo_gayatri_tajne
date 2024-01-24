@@ -620,6 +620,7 @@ class Propal extends CommonObject
             if ($type < 0) {
                 return -1;
             }
+
             if ($category < 0) {
                 return -1;
             }
@@ -827,10 +828,10 @@ class Propal extends CommonObject
      * @param       integer $rang   line rank
      *  @return     int                             0 if OK, <0 if KO
      */
-    public function updateline($rowid, $pu, $qty, $remise_percent, $txtva, $txlocaltax1 = 0.0, $txlocaltax2 = 0.0, $desc = '', $price_base_type = 'HT', $info_bits = 0, $special_code = 0, $fk_parent_line = 0, $skip_update_total = 0, $fk_fournprice = 0, $pa_ht = 0, $label = '', $type = 0, $category = 0, $date_start = '', $date_end = '', $array_options = 0, $fk_unit = null, $unit = null, $pu_ht_devise = 0, $notrigger = 0, $rang = 0)
+    public function updateline($rowid, $pu, $qty, $remise_percent, $txtva, $txlocaltax1 = 0.0, $txlocaltax2 = 0.0, $desc = '', $price_base_type = 'HT', $info_bits = 0, $special_code = 0, $fk_parent_line = 0, $skip_update_total = 0, $fk_fournprice = 0, $pa_ht = 0, $label = '', $type = 0, $category = null, $date_start = '', $date_end = '', $array_options = 0, $fk_unit = null, $unit = null, $pu_ht_devise = 0, $notrigger = 0, $rang = 0)
     {
         global $mysoc, $langs;
-
+        $category = GETPOST('category');
         dol_syslog(get_class($this) . "::updateLine rowid=$rowid, pu=$pu, qty=$qty, remise_percent=$remise_percent,
         txtva=$txtva, desc=$desc, price_base_type=$price_base_type, info_bits=$info_bits, special_code=$special_code, fk_parent_line=$fk_parent_line, pa_ht=$pa_ht, type=$type, category = $category, date_start=$date_start, date_end=$date_end");
         include_once DOL_DOCUMENT_ROOT . '/core/lib/price.lib.php';
@@ -855,6 +856,7 @@ class Propal extends CommonObject
         if (empty($type)) {
             $type = 0;
         }
+
         if (empty($category)) {
             $category = 0;
         }
@@ -4687,7 +4689,6 @@ class PropaleLigne extends CommonObjectLine
         $sqlPropal = "UPDATE " . MAIN_DB_PREFIX . "propaldet SET";
         $sqlPropal .= " description='" . $this->db->escape($this->desc) . "'";
         $sqlPropal .= ", label=" . (!empty($this->label) ? "'" . $this->db->escape($this->label) . "'" : "null");
-        $sqlPropal .= ", product_type=" . $this->product_type;
         $sqlPropal .= ", category='" . (empty($this->category) ? '' : $this->category) . "'";
         $sqlPropal .= ", vat_src_code = '" . (empty($this->vat_src_code) ? '' : $this->vat_src_code) . "'";
         $sqlPropal .= ", tva_tx='" . price2num($this->tva_tx) . "'";

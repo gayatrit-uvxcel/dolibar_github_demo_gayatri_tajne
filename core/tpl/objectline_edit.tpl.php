@@ -95,12 +95,9 @@ if ($res_llx_propaldet) {
     }
 }
 
-if (!$situationinvoicelinewithparent) {
-    print '<td class="minwidth250onall">' . $form->select_type_of_category($line->category, 'category', 1, 1, 0) . '</td>';
-}
-
 $coldisplay++;
 ?>
+	<td class="minwidth250onall"><?php echo $form->select_type_of_category($line->category, 'category', 1, 1, false) ?></td>
 	<td class="linecoldesc minwidth250onall">
 	<div id="line_<?php echo $line->id; ?>"></div>
 
