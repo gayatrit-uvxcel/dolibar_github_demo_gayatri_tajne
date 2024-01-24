@@ -4514,7 +4514,9 @@ class PropaleLigne extends CommonObjectLine
         $sqlFacture .= ", '" . $this->db->escape(GETPOSTISSET("unit") ? GETPOST("unit") : '') . "')";
 
         $categoryValue = $this->db->escape(GETPOSTISSET("category") ? GETPOST("category") : 'null');
-        $sqlCategories = "INSERT INTO llx_default_product_categories (category_name) VALUES ('$categoryValue')";
+        $main_category_name = explode(" - ", $categoryValue)[0];
+        $category_name = explode(" - ", $categoryValue)[1];
+        $sqlCategories = "INSERT INTO llx_default_product_categories (category_name, main_category_name) VALUES ('$category_name', '$main_category_name')";
         $sqlPropalRes = $this->db->query($sqlPropal);
         $sqlFactureRes = $this->db->query($sqlFacture);
         $sqlCategoriesRes = $this->db->query($sqlCategories);

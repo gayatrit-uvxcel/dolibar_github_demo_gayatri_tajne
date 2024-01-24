@@ -193,30 +193,72 @@ if (empty($conf->global->MAIN_DISABLE_CATEGORY)) {
     echo '</div>';
 }
 
+// echo '<script>function saveOtherCategory(e) {
+//     var otherCategoryInput = document.getElementById("other_category");
+//     var otherCategoryValue = otherCategoryInput.value.trim();
+//     let arrayOfCategories = [];
+//     let categoryOptions = document.querySelectorAll(".category_option");
+//     categoryOptions.forEach((i) => {
+//         arrayOfCategories.push(i.value.toLowerCase());
+//     });
+//     if(arrayOfCategories.includes(otherCategoryValue.toLowerCase())){
+//         alert("Category already exists");
+//         otherCategoryInput.value = "";
+//     } else if(e.value === "ADD"){
+//         if (otherCategoryValue !== "") {
+//           var otherOption = document.getElementById("other_option");
+//           otherOption.value =  otherCategoryValue;
+//           otherCategoryInput.disabled = true;
+//           e.value = "CHANGE";
+//         } else {
+//           alert("Please input valid category");
+//         }
+//     } else if(e.value === "CHANGE"){
+//         otherCategoryInput.disabled = false;
+//         e.value = "ADD";
+//     }
+//   }
+//   </script>';
+
+// echo '<div class="other_category_input_wrapper" style="display: none; align-items: center;">';
+// echo '<label for="other_category">';
+// echo 'Other Category: ';
+// echo '</label>';
+// echo '<input type="text" id="other_category" name="other_category" /><input type="button" id="save_category" class="button button-add small" onclick="saveOtherCategory(this)" value="ADD">';
+// echo '</div>';
+
 echo '<script>function saveOtherCategory(e) {
-	var otherCategoryInput = document.getElementById("other_category");
-	var otherCategoryValue = otherCategoryInput.value.trim();
-	let arrayOfCategories = [];
-	let categoryOptions = document.querySelectorAll(".category_option");
-	categoryOptions.forEach((i) => {
-		arrayOfCategories.push(i.value.toLowerCase());
-	});
-	if(arrayOfCategories.includes(otherCategoryValue.toLowerCase())){
-		alert("Category already exists");
-		otherCategoryInput.value = "";
-	} else if(e.value === "ADD"){
-		if (otherCategoryValue !== "") {
-		  var otherOption = document.getElementById("other_option");
-		  otherOption.value =  otherCategoryValue;
-		  otherCategoryInput.disabled = true;
-		  e.value = "CHANGE";
-		} else {
-		  alert("Please input valid category");
-		}
-	} else if(e.value === "CHANGE"){
-		otherCategoryInput.disabled = false;
-		e.value = "ADD";
-	}
+    var mainCategoryInput = document.getElementById("main_category_name");
+	var subCategoryInput = document.getElementById("subcategory_name");
+    var mainCategoryValue = mainCategoryInput.value.replace(/\s+/g," ").trim();
+	var subCategoryValue = subCategoryInput.value.replace(/\s+/g, " ").trim();
+	var fullCategory = mainCategoryValue + " - " + subCategoryValue;
+    let arrayOfCategories = [];
+    let categoryOptions = document.querySelectorAll(".category_option");
+    categoryOptions.forEach((i) => {
+        arrayOfCategories.push(i.value.toLowerCase());
+    });
+    if(arrayOfCategories.includes(fullCategory.toLowerCase())){
+        alert("Category already exists");
+    } else if(e.value === "ADD"){
+        if (mainCategoryValue !== "") {
+          var otherOption = document.getElementById("other_option");
+		  if(subCategoryValue === ""){
+			otherOption.value = mainCategoryValue + " - " + mainCategoryValue;
+		  }else{
+          	otherOption.value =  fullCategory;
+		  }
+          mainCategoryInput.disabled = true;
+		  subCategoryInput.disabled = true;
+          e.value = "CHANGE";
+        } else {
+          alert("Main category is required");
+        }
+    } else if(e.value === "CHANGE"){
+        mainCategoryInput.disabled = false;
+		subCategoryInput.disabled = false;
+        e.value = "ADD";
+    }
   }
   </script>';
 
@@ -224,7 +266,7 @@ echo '<div class="other_category_input_wrapper" style="display: none; align-item
 echo '<label for="other_category">';
 echo 'Other Category: ';
 echo '</label>';
-echo '<input type="text" id="other_category" name="other_category" /><input type="button" id="save_category" class="button button-add small" onclick="saveOtherCategory(this)" value="ADD">';
+echo '<input type="text" id="main_category_name" name="main_category_name" placeholder="Main Category" /><span style="margin: 0 15px"><span><input type="text" id="subcategory_name" name="subcategory_name" placeholder="Subcategory (Optional)" /> <input type="button" id="save_category" class="button button-add small" onclick="saveOtherCategory(this)" value="ADD">';
 echo '</div>';
 
 if (empty($conf->global->MAIN_DISABLE_FREE_LINES)) {

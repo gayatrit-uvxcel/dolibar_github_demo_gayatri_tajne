@@ -87,7 +87,12 @@ $res_llx_propaldet = $this->db->query($sql_llx_propaldet);
 
 if ($res_llx_propaldet) {
     while ($row = $this->db->fetch_object($res_llx_propaldet)) {
-        $line->category = $row->category;
+        $fullCategoryValueArr = explode(" - ", $row->category);
+        if (!($fullCategoryValueArr[0] === $fullCategoryValueArr[1])) {
+            $line->category = $row->category;
+        } else {
+            $line->category = $fullCategoryValueArr[0];
+        }
     }
 }
 ?>

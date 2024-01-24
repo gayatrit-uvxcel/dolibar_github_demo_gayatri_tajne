@@ -228,7 +228,7 @@ class pdf_cyan extends ModelePDFPropales
             $res_llx_propaldet = $this->db->query($sql_llx_propaldet);
             if ($res_llx_propaldet) {
                 while ($row = $this->db->fetch_object($res_llx_propaldet)) {
-                    $object->lines[$i]->category = $row->category;
+                    $object->lines[$i]->category = explode(" - ", $row->category)[0];
                 }
             }
         }

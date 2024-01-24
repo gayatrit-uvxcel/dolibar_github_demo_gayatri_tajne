@@ -1248,12 +1248,12 @@ class Form
     {
         global $langs, $conf;
         $categoryArray = [];
-        $sql_llx_propaldet_categories = "SELECT DISTINCT category_name AS category FROM " . MAIN_DB_PREFIX . "default_product_categories WHERE category_name IS NOT NULL";
+        $sql_llx_propaldet_categories = "SELECT *  FROM " . MAIN_DB_PREFIX . "default_product_categories WHERE category_name IS NOT NULL";
         $res_llx_propaldet_categories = $this->db->query($sql_llx_propaldet_categories);
 
         if ($res_llx_propaldet_categories) {
             while ($row = $this->db->fetch_object($res_llx_propaldet_categories)) {
-                $categoryArray[] = $row->category;
+                $categoryArray[] = $row->main_category_name . " - " . $row->category_name;
             }
         }
 
@@ -1266,14 +1266,20 @@ class Form
             var otherOption = document.getElementById("other_option");
 	        otherOption.value =  "other_option";
             var otherCategoryDiv = document.querySelector(".other_category_input_wrapper");
-            let otherCategoryInput = document.getElementById("other_category")
+            var mainCategoryInput = document.getElementById("main_category_name");
+	        var subCategoryInput = document.getElementById("subcategory_name");
+            let mainCategoryInputBox = document.getElementById("main_category_name")
             if (e.value === "other_option") {
                 otherCategoryDiv.style.display = "flex";
+                mainCategoryInputBox.setAttribute("required", true)
             } else {
                 let saveCategory = document.getElementById("save_category")
-                otherCategoryInput.disabled = false;
-                otherCategoryInput.value = "";
+                mainCategoryInput.disabled = false;
+		        subCategoryInput.disabled = false;
+                mainCategoryInput.value = "";
+		        subCategoryInput.value = "";
                 saveCategory.value = "ADD";
+                mainCategoryInputBox.removeAttribute("required")
                 otherCategoryDiv.style.display = "none";
             }
         }
@@ -1295,7 +1301,13 @@ class Form
                 if (($selected === $value) || ($selected == -1 && getDolGlobalString('MAIN_FREE_PRODUCT_CHECKED_BY_DEFAULT') == $value)) {
                     print ' selected';
                 }
-                print '>' . $langs->trans($category) . '</option>';
+                $fullCategoryValueArr = explode(" - ", $category);
+                if (!($fullCategoryValueArr[0] === $fullCategoryValueArr[1])) {
+                    print '>' . $langs->trans($category) . '</option>';
+                } else {
+                    print '>' . $fullCategoryValueArr[0] . '</option>';
+                }
+
             }
         }
         if ($forceall !== false) {
