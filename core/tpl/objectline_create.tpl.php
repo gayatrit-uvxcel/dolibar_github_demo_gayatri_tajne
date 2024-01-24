@@ -244,9 +244,13 @@ echo '<script>function saveOtherCategory(e) {
         if (mainCategoryValue !== "") {
           var otherOption = document.getElementById("other_option");
 		  if(subCategoryValue === ""){
-			otherOption.value = mainCategoryValue + " - " + mainCategoryValue;
+				otherOption.value = (mainCategoryValue + " - " + mainCategoryValue).replace(/\b\w/g, function (match) {
+				return match.toUpperCase();
+		  	});
 		  }else{
-          	otherOption.value =  fullCategory;
+          		otherOption.value =  fullCategory.replace(/\b\w/g, function (match) {
+				return match.toUpperCase();
+		 	});
 		  }
           mainCategoryInput.disabled = true;
 		  subCategoryInput.disabled = true;
