@@ -396,13 +396,13 @@ if ($projectid > 0) {
     print '</table>' . "\n";
 
     $categoryArray = [];
-    $sql_llx_propaldet_categories = "SELECT DISTINCT category FROM " . MAIN_DB_PREFIX . "propaldet WHERE category IS NOT NULL AND fk_projectid=$projectid";
+    $sql_llx_propaldet_categories = "SELECT DISTINCT SUBSTRING_INDEX(category, ' - ', 1) AS main_category FROM " . MAIN_DB_PREFIX . "propaldet WHERE category IS NOT NULL AND fk_projectid=$projectid";
 
     $res_llx_propaldet_categories = $db->query($sql_llx_propaldet_categories);
 
     if ($res_llx_propaldet_categories) {
         while ($row = $db->fetch_object($res_llx_propaldet_categories)) {
-            $categoryArray[] = $row->category;
+            $categoryArray[] = $row->main_category;
         }
     }
 
@@ -418,7 +418,7 @@ if ($projectid > 0) {
         $vatPercentage = 15;
 
         foreach ($categoryArray as $category) {
-            $sql_llx_propaldet_unit = "SELECT SUM(subprice) As sumOfUnitPrice FROM " . MAIN_DB_PREFIX . "propaldet WHERE category = '$category' AND fk_socid = $socid AND fk_projectid = $projectid";
+            $sql_llx_propaldet_unit = "SELECT SUM(subprice) As sumOfUnitPrice FROM " . MAIN_DB_PREFIX . "propaldet WHERE SUBSTRING_INDEX(category, ' - ', 1) = '$category' AND fk_socid = $socid AND fk_projectid = $projectid";
 
             $res_llx_propaldet_unit = $db->query($sql_llx_propaldet_unit);
 
@@ -428,7 +428,7 @@ if ($projectid > 0) {
                 }
             }
 
-            $sql_llx_propaldet_total = "SELECT SUM(total_ht) As sumOfTotalPrice FROM " . MAIN_DB_PREFIX . "propaldet WHERE category = '$category' AND fk_socid = $socid AND fk_projectid = $projectid";
+            $sql_llx_propaldet_total = "SELECT SUM(total_ht) As sumOfTotalPrice FROM " . MAIN_DB_PREFIX . "propaldet WHERE SUBSTRING_INDEX(category, ' - ', 1) = '$category' AND fk_socid = $socid AND fk_projectid = $projectid";
 
             $res_llx_propaldet_total = $db->query($sql_llx_propaldet_total);
 
