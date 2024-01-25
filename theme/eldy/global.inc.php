@@ -1981,10 +1981,15 @@ td.showDragHandle {
 /* Styles de positionnement des zones                                             */
 /* ============================================================================== */
 
-#id-container {
-	display: table;					/* DOL_XXX Empeche fonctionnement correct du scroll horizontal sur tableau, avec datatable ou CSS */
+/* #id-container {
+	display: table;
 	table-layout: fixed;
+} */
+
+#id-container {
+	display: flex;
 }
+
 #id-right, #id-left {
 	display: table-cell;			/* DOL_XXX Empeche fonctionnement correct du scroll horizontal sur tableau, avec datatable ou CSS */
 	float: none;
@@ -2002,6 +2007,7 @@ td.showDragHandle {
 	width: 100%;
 	background: var(--colorbackbody);
 	padding-bottom: 20px;
+	overflow: auto;
 }
 .bodyforlist #id-right {
 	padding-bottom: 4px;
@@ -2149,7 +2155,7 @@ div.vmenu, td.vmenu {
 
 	/* if no side-nav, we don't need to have width forced to calc(100% - 210px); */
 	.classforhorizontalscrolloftabs #id-right {
-		width: 100%;
+		/* width: 100%; */
 		/* width: unset; */
 		/* display: unset; */
 	}
@@ -2207,8 +2213,8 @@ div.vmenu, td.vmenu {
 
 
 div.fiche {
-	margin-<?php print $left;?>: <?php print(GETPOST('optioncss', 'aZ09') == 'print' ? 6 : (empty($conf->dol_optimize_smallscreen) ? '40' : '6'));?>px;
-	margin-<?php print $right;?>: <?php print(GETPOST('optioncss', 'aZ09') == 'print' ? 6 : (empty($conf->dol_optimize_smallscreen) ? '36' : '6'));?>px;
+	margin-<?php print $left;?>: <?php print(GETPOST('optioncss', 'aZ09') == 'print' ? 40 : (empty($conf->dol_optimize_smallscreen) ? '40' : '40'));?>px;
+	margin-<?php print $right;?>: <?php print(GETPOST('optioncss', 'aZ09') == 'print' ? 36 : (empty($conf->dol_optimize_smallscreen) ? '36' : '36'));?>px;
 	<?php if (!empty($dol_hide_leftmenu)) {
     print 'margin-bottom: 12px;' . "\n";
 }?>

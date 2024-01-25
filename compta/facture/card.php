@@ -5718,7 +5718,6 @@ if ($action == 'create') {
     }
 
     print '<div class="div-table-responsive-no-min">';
-    print '<div>';
     print '<table id="tablelines" class="noborder noshadow" width="100%">';
 
     // Show object lines
@@ -5728,7 +5727,6 @@ if ($action == 'create') {
 
     print "</table>\n";
     print "</div>";
-    print '</div>';
 
     print '<div style="display: none">';
     print '<table id="tablelines" class="noborder noshadow" width="100%">';
