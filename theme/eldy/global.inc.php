@@ -3464,7 +3464,6 @@ div.tabs {
 	padding-left: 6px;
 	padding-right: 6px;
 	clear:both;
-	height:100%;
 }
 div.tabsElem {
 	margin-top: 1px;
