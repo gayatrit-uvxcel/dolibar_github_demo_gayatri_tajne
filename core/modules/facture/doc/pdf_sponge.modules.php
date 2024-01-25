@@ -269,7 +269,7 @@ class pdf_sponge extends ModelePDFFactures
             $res_llx_facturedet = $this->db->query($sql_llx_facturedet);
             if ($res_llx_facturedet) {
                 while ($row = $this->db->fetch_object($res_llx_facturedet)) {
-                    $object->lines[$i]->category = $row->category;
+                    $object->lines[$i]->category = explode(" - ", $row->category)[0];
                 }
             }
         }
