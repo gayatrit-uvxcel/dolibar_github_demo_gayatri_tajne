@@ -233,12 +233,18 @@ echo '<script>function saveOtherCategory(e) {
     var mainCategoryValue = mainCategoryInput.value.replace(/\s+/g," ").trim();
 	var subCategoryValue = subCategoryInput.value.replace(/\s+/g, " ").trim();
 	var fullCategory = mainCategoryValue + " - " + subCategoryValue;
+	var categoryToCompare = "";
+	if(subCategoryValue === ""){
+		categoryToCompare = mainCategoryValue + " - " + mainCategoryValue;
+	} else {
+		categoryToCompare = fullCategory;
+	}
     let arrayOfCategories = [];
     let categoryOptions = document.querySelectorAll(".category_option");
     categoryOptions.forEach((i) => {
         arrayOfCategories.push(i.value.toLowerCase());
     });
-    if(arrayOfCategories.includes(fullCategory.toLowerCase())){
+    if(arrayOfCategories.includes(categoryToCompare.toLowerCase())){
         alert("Category already exists");
     } else if(e.value === "ADD"){
         if (mainCategoryValue !== "") {
