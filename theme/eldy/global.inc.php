@@ -3465,6 +3465,7 @@ div.tabs {
 	padding-right: 6px;
 	clear:both;
 }
+
 div.tabsElem {
 	margin-top: 1px;
 }	/* To avoid overlap of tabs when not browser */
