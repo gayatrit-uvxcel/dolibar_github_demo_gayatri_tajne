@@ -193,40 +193,6 @@ if (empty($conf->global->MAIN_DISABLE_CATEGORY)) {
     echo '</div>';
 }
 
-// echo '<script>function saveOtherCategory(e) {
-//     var otherCategoryInput = document.getElementById("other_category");
-//     var otherCategoryValue = otherCategoryInput.value.trim();
-//     let arrayOfCategories = [];
-//     let categoryOptions = document.querySelectorAll(".category_option");
-//     categoryOptions.forEach((i) => {
-//         arrayOfCategories.push(i.value.toLowerCase());
-//     });
-//     if(arrayOfCategories.includes(otherCategoryValue.toLowerCase())){
-//         alert("Category already exists");
-//         otherCategoryInput.value = "";
-//     } else if(e.value === "ADD"){
-//         if (otherCategoryValue !== "") {
-//           var otherOption = document.getElementById("other_option");
-//           otherOption.value =  otherCategoryValue;
-//           otherCategoryInput.disabled = true;
-//           e.value = "CHANGE";
-//         } else {
-//           alert("Please input valid category");
-//         }
-//     } else if(e.value === "CHANGE"){
-//         otherCategoryInput.disabled = false;
-//         e.value = "ADD";
-//     }
-//   }
-//   </script>';
-
-// echo '<div class="other_category_input_wrapper" style="display: none; align-items: center;">';
-// echo '<label for="other_category">';
-// echo 'Other Category: ';
-// echo '</label>';
-// echo '<input type="text" id="other_category" name="other_category" /><input type="button" id="save_category" class="button button-add small" onclick="saveOtherCategory(this)" value="ADD">';
-// echo '</div>';
-
 echo '<script>function saveOtherCategory(e) {
     var mainCategoryInput = document.getElementById("main_category_name");
 	var subCategoryInput = document.getElementById("subcategory_name");
