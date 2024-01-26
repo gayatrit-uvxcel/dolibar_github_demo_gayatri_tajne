@@ -238,11 +238,12 @@ echo '<script>function saveOtherCategory(e) {
   }
   </script>';
 
-echo '<div class="other_category_input_wrapper" style="display: none; align-items: center;">';
-echo '<label for="other_category">';
-echo 'Other Category: ';
-echo '</label>';
-echo '<input type="text" id="main_category_name" name="main_category_name" placeholder="Main Category" /><span style="margin: 0 15px"><span><input type="text" id="subcategory_name" name="subcategory_name" placeholder="Subcategory (Optional)" /> <input type="button" id="save_category" class="button button-add small" onclick="saveOtherCategory(this)" value="ADD">';
+echo '<div class="other_category_input_wrapper" style="display: none; align-items: center; flex-wrap: wrap">';
+echo '<label for="other_category">Other Category: </label>';
+echo '<div  style="display: flex">';
+echo '<input type="text" id="main_category_name" name="main_category_name" placeholder="Main Category" /><input type="text" id="subcategory_name" name="subcategory_name" placeholder="Subcategory (Optional)" style="margin: 0 15px" />';
+echo '<input type="button" id="save_category" class="button button-add small" onclick="saveOtherCategory(this)" value="ADD">';
+echo '</div>';
 echo '</div>';
 
 if (empty($conf->global->MAIN_DISABLE_FREE_LINES)) {
