@@ -1262,22 +1262,28 @@ class Form
         }
 
         print '<script>
-        function onCategoryChange(e){
+        function onCategoryChange(e) {
             var otherOption = document.getElementById("other_option");
-	        otherOption.value =  "other_option";
+            otherOption.value = "other_option";
             var otherCategoryDiv = document.querySelector(".other_category_input_wrapper");
             var mainCategoryInput = document.getElementById("main_category_name");
-	        var subCategoryInput = document.getElementById("subcategory_name");
+            var subCategoryInput = document.getElementById("subcategory_name");
             let mainCategoryInputBox = document.getElementById("main_category_name")
+            var percentgeInput = document.getElementById("percentage");
             if (e.value === "other_option") {
                 otherCategoryDiv.style.display = "flex";
                 mainCategoryInputBox.setAttribute("required", true)
             } else {
+                if (e.value.toLowerCase() === "project management - project management") {
+                    percentgeInput.setAttribute("required", "true");
+                } else {
+                    percentgeInput.removeAttribute("required");
+                }
                 let saveCategory = document.getElementById("save_category")
                 mainCategoryInput.disabled = false;
-		        subCategoryInput.disabled = false;
+                subCategoryInput.disabled = false;
                 mainCategoryInput.value = "";
-		        subCategoryInput.value = "";
+                subCategoryInput.value = "";
                 saveCategory.value = "ADD";
                 mainCategoryInputBox.removeAttribute("required")
                 otherCategoryDiv.style.display = "none";

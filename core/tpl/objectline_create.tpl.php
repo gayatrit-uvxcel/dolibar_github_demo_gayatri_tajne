@@ -188,63 +188,96 @@ if (empty($conf->global->MAIN_DISABLE_CATEGORY)) {
     echo '<label for="category">';
     echo '<span class="textradioforitem">' . $langs->trans("Category: ") . '</span>';
     echo '</label>';
-    $form->select_type_of_category(GETPOSTISSET("category") ? GETPOST("category") : -1, 'category', 1, 1, $forceall);
+    $form->select_type_of_category(GETPOSTISSET("category") ? GETPOST('category') : -1, 'category', 1, 1, $forceall);
     echo '</span>';
     echo '</div>';
 }
 
+$totalOfManHours = null;
+$percentage = (GETPOST('percentage') ? floatval(str_replace(',', '', GETPOST('percentage'))) : 0);
+$total_ht_value = null;
+$price_per = GETPOST("price_ht", 'alpha', 2);
+
+$sql_llx_propaldet_man_hours = "SELECT SUM(total_ht) As totalOfManHours FROM " . MAIN_DB_PREFIX . "propaldet WHERE SUBSTRING_INDEX(category, ' - ', 1) = 'Programming Man Hours' AND fk_socid = $object->socid AND fk_projectid =  $object->fk_project";
+$res_llx_propaldet_man_hours = $this->db->query($sql_llx_propaldet_man_hours);
+if ($res_llx_propaldet_man_hours) {
+    while ($row = $this->db->fetch_object($res_llx_propaldet_man_hours)) {
+        $totalOfManHours = floatval(str_replace(',', '', number_format($row->totalOfManHours, 2)));
+    }
+}
+
+if ($percentage > 0) {
+    $total_ht_value = ($totalOfManHours * $percentage) / 100;
+} else {
+    $price_per = null;
+}
+
+echo $total_ht_value;
 echo '<script>function saveOtherCategory(e) {
     var mainCategoryInput = document.getElementById("main_category_name");
-	var subCategoryInput = document.getElementById("subcategory_name");
-    var mainCategoryValue = mainCategoryInput.value.replace(/\s+/g," ").trim();
-	var subCategoryValue = subCategoryInput.value.replace(/\s+/g, " ").trim();
-	var fullCategory = mainCategoryValue + " - " + subCategoryValue;
-	var categoryToCompare = "";
-	if(subCategoryValue === ""){
-		categoryToCompare = mainCategoryValue + " - " + mainCategoryValue;
-	} else {
-		categoryToCompare = fullCategory;
-	}
+    var subCategoryInput = document.getElementById("subcategory_name");
+    var mainCategoryValue = mainCategoryInput.value.replace(/\s+/g, " ").trim();
+    var subCategoryValue = subCategoryInput.value.replace(/\s+/g, " ").trim();
+    var percentgeInput = document.getElementById("percentage");
+    var fullCategory = mainCategoryValue + " - " + subCategoryValue;
+    var categoryToCompare = "";
+    if (subCategoryValue === "") {
+        categoryToCompare = mainCategoryValue + " - " + mainCategoryValue;
+    } else {
+        categoryToCompare = fullCategory;
+    }
     let arrayOfCategories = [];
     let categoryOptions = document.querySelectorAll(".category_option");
     categoryOptions.forEach((i) => {
         arrayOfCategories.push(i.value.toLowerCase());
     });
-    if(arrayOfCategories.includes(categoryToCompare.toLowerCase())){
+    if (arrayOfCategories.includes(categoryToCompare.toLowerCase())) {
         alert("Category already exists");
-    } else if(e.value === "ADD"){
+    } else if (e.value === "ADD") {
         if (mainCategoryValue !== "") {
-          var otherOption = document.getElementById("other_option");
-		  if(subCategoryValue === ""){
-				otherOption.value = (mainCategoryValue + " - " + mainCategoryValue).replace(/\b\w/g, function (match) {
-				return match.toUpperCase();
-		  	});
-		  }else{
-          		otherOption.value =  fullCategory.replace(/\b\w/g, function (match) {
-				return match.toUpperCase();
-		 	});
-		  }
-          mainCategoryInput.disabled = true;
-		  subCategoryInput.disabled = true;
-          e.value = "CHANGE";
+            var otherOption = document.getElementById("other_option");
+            if (mainCategoryValue.toLowerCase() === "project management") {
+                percentgeInput.setAttribute("required", "true");
+            } else {
+                percentgeInput.removeAttribute("required");
+            }
+            if (subCategoryValue === "") {
+                otherOption.value = (mainCategoryValue + " - " + mainCategoryValue).replace(/\b\w/g, function(match) {
+                    return match.toUpperCase();
+                });
+            } else {
+                otherOption.value = fullCategory.replace(/\b\w/g, function(match) {
+                    return match.toUpperCase();
+                });
+            }
+            mainCategoryInput.disabled = true;
+            subCategoryInput.disabled = true;
+            e.value = "CHANGE";
         } else {
-          alert("Main category is required");
+            alert("Main category is required");
         }
-    } else if(e.value === "CHANGE"){
+    } else if (e.value === "CHANGE") {
         mainCategoryInput.disabled = false;
-		subCategoryInput.disabled = false;
+        subCategoryInput.disabled = false;
         e.value = "ADD";
     }
-  }
+};
+
+function test(e){
+	document.querySelector("form[name=addproduct]").submit();
+}
   </script>';
 
 echo '<div class="other_category_input_wrapper" style="display: none; align-items: center; flex-wrap: wrap">';
 echo '<label for="other_category">Other Category: </label>';
 echo '<div  style="display: flex">';
-echo '<input type="text" id="main_category_name" name="main_category_name" placeholder="Main Category" /><input type="text" id="subcategory_name" name="subcategory_name" placeholder="Subcategory (Optional)" style="margin: 0 15px" />';
+echo '<input type="text" id="main_category_name" name="main_category_name" placeholder="Main Category" />';
+echo '<input type="text" id="subcategory_name" name="subcategory_name" placeholder="Subcategory (Optional)" style="margin: 0 15px" />';
 echo '<input type="button" id="save_category" class="button button-add small" onclick="saveOtherCategory(this)" value="ADD">';
 echo '</div>';
 echo '</div>';
+
+echo '<div style="display: flex; align-items: center; flex-wrap: wrap"><label for="percentage">Percentage: </label><input type="text" onblur=test(this) id="percentage" name="percentage" value=' . (GETPOST('percentage') ? GETPOST('percentage') : '0') . ' /></div>';
 
 if (empty($conf->global->MAIN_DISABLE_FREE_LINES)) {
     $freelines = true;
@@ -467,7 +500,7 @@ if ($seller->tva_assuj == "0") {
 
 
 	<td class="nobottom linecoluht right"><?php $coldisplay++;?>
-		<input type="text" size="5" name="price_ht" id="price_ht" class="flat right" value="<?php echo (GETPOSTISSET("price_ht") ? GETPOST("price_ht", 'alpha', 2) : ''); ?>">
+		<input type="text" size="5" name="price_ht" id="price_ht" class="flat right" value="<?php echo $percentage > 0 ? $total_ht_value : (isset($price_per) ? $price_per : ''); ?>">
 	</td>
 
 	<?php
