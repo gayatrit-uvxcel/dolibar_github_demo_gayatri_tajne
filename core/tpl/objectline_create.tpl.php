@@ -212,7 +212,6 @@ if ($percentage > 0) {
     $price_per = null;
 }
 
-echo $total_ht_value;
 echo '<script>function saveOtherCategory(e) {
     var mainCategoryInput = document.getElementById("main_category_name");
     var subCategoryInput = document.getElementById("subcategory_name");
@@ -263,10 +262,20 @@ echo '<script>function saveOtherCategory(e) {
     }
 };
 
-function test(e){
+function onPercentageInputBlur(e){
+	let input = e.value.trim();
+    if (/^\d+(\.\d+)?$/.test(input)) {
+        const number = parseFloat(input);
+        if (number >= 0 && number <= 100) {
+            document.querySelector("form[name=addproduct]").submit();
+            return true;
+        }
+    }
+    alert("Only numbers between 0 and 100 are allowed.");
+	e.value = "0";
 	document.querySelector("form[name=addproduct]").submit();
 }
-  </script>';
+</script>';
 
 echo '<div class="other_category_input_wrapper" style="display: none; align-items: center; flex-wrap: wrap">';
 echo '<label for="other_category">Other Category: </label>';
@@ -277,7 +286,7 @@ echo '<input type="button" id="save_category" class="button button-add small" on
 echo '</div>';
 echo '</div>';
 
-echo '<div style="display: flex; align-items: center; flex-wrap: wrap"><label for="percentage">Percentage: </label><input type="text" onblur=test(this) id="percentage" name="percentage" value=' . (GETPOST('percentage') ? GETPOST('percentage') : '0') . ' /></div>';
+echo '<div style="display: flex; align-items: center; flex-wrap: wrap"><label for="percentage">Percentage: </label><input type="text" onblur=onPercentageInputBlur(this) id="percentage" name="percentage" value=' . (GETPOST('percentage') ? GETPOST('percentage') : '0') . ' /></div>';
 
 if (empty($conf->global->MAIN_DISABLE_FREE_LINES)) {
     $freelines = true;
