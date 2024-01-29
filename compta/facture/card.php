@@ -1334,11 +1334,11 @@ if (empty($reshook)) {
             $valuestandardinvoice = price2num(str_replace('%', '', GETPOST('valuestandardinvoice', 'alpha')), 'MU');
             $valuedeposit = price2num(str_replace('%', '', GETPOST('valuedeposit', 'alpha')), 'MU');
 
-            // if (GETPOST('socid', 'int') < 1) {
-            //     $error++;
-            //     setEventMessages($langs->trans("ErrorFieldRequired", $langs->transnoentitiesnoconv("Customer")), null, 'errors');
-            //     $action = 'create';
-            // }
+            if (GETPOST('socid', 'int') < 1) {
+                $error++;
+                setEventMessages($langs->trans("ErrorFieldRequired", $langs->transnoentitiesnoconv("Customer")), null, 'errors');
+                $action = 'create';
+            }
 
             // if (empty($dateinvoice)) {
             //     $error++;
@@ -1350,6 +1350,12 @@ if (empty($reshook)) {
             //     $action = 'create';
             // }
 
+            $cond_reglement_id = GETPOST('cond_reglement_id', 'int');
+            if (empty($cond_reglement_id)) {
+                setEventMessages($langs->trans("ErrorFieldRequired", $langs->transnoentitiesnoconv("Invoice Schedule")), null, 'errors');
+                $error++;
+                $action = 'create';
+            }
             if (GETPOST('type') == Facture::TYPE_STANDARD) {
                 if ($valuestandardinvoice < 0 || $valuestandardinvoice > 100) {
                     setEventMessages($langs->trans("ErrorAPercentIsRequired"), null, 'errors');
