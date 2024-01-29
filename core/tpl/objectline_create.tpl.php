@@ -249,21 +249,22 @@ echo '<script>function saveOtherCategory(e) {
                     return match.toUpperCase();
                 });
             }
-            mainCategoryInput.disabled = true;
-            subCategoryInput.disabled = true;
+			mainCategoryInput.setAttribute("readonly", true);
+            subCategoryInput.setAttribute("readonly", true);
             e.value = "CHANGE";
         } else {
             alert("Main category is required");
         }
     } else if (e.value === "CHANGE") {
-        mainCategoryInput.disabled = false;
-        subCategoryInput.disabled = false;
+		mainCategoryInput.removeAttribute("readonly");
+        subCategoryInput.removeAttribute("readonly");
         e.value = "ADD";
     }
 };
 
-function onPercentageInputBlur(e){
-	let input = e.value.trim();
+function onPercentageInputSubmit(e){
+	var percentgeInput = document.getElementById("percentage");
+	let input = percentgeInput.value.trim();
     if (/^\d+(\.\d+)?$/.test(input)) {
         const number = parseFloat(input);
         if (number >= 0 && number <= 100) {
@@ -272,7 +273,6 @@ function onPercentageInputBlur(e){
         }
     }
     alert("Only numbers between 0 and 100 are allowed.");
-	e.value = "0";
 	document.querySelector("form[name=addproduct]").submit();
 }
 </script>';
@@ -286,7 +286,7 @@ echo '<input type="button" id="save_category" class="button button-add small" on
 echo '</div>';
 echo '</div>';
 
-echo '<div style="display: flex; align-items: center; flex-wrap: wrap"><label for="percentage">Percentage: </label><input type="text" onblur=onPercentageInputBlur(this) id="percentage" name="percentage" value=' . (GETPOST('percentage') ? GETPOST('percentage') : '0') . ' /></div>';
+echo '<div style="display: flex; align-items: center; flex-wrap: wrap"><label for="percentage">Percentage: </label><input type="text" id="percentage" name="percentage" value=' . (GETPOST('percentage') ? GETPOST('percentage') : '0') . ' /><input type="button" id="save_percentage" class="button button-add small" onclick="onPercentageInputSubmit(this)" value="SAVE"></div>';
 
 if (empty($conf->global->MAIN_DISABLE_FREE_LINES)) {
     $freelines = true;

@@ -1280,8 +1280,8 @@ class Form
                     percentgeInput.removeAttribute("required");
                 }
                 let saveCategory = document.getElementById("save_category")
-                mainCategoryInput.disabled = false;
-                subCategoryInput.disabled = false;
+                mainCategoryInput.removeAttribute("readonly");
+                subCategoryInput.removeAttribute("readonly");
                 mainCategoryInput.value = "";
                 subCategoryInput.value = "";
                 saveCategory.value = "ADD";
