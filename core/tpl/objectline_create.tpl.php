@@ -197,6 +197,8 @@ $totalOfManHours = null;
 $percentage = (GETPOST('percentage') ? floatval(str_replace(',', '', GETPOST('percentage'))) : 0);
 $total_ht_value = null;
 $price_per = GETPOST("price_ht", 'alpha', 2);
+$maincategoryname = (GETPOSTISSET('main_category_name') ? GETPOST('main_category_name') : "");
+$subcategoryname = (GETPOSTISSET('subcategory_name') ? GETPOST('subcategory_name') : "");
 
 $sql_llx_propaldet_man_hours = "SELECT SUM(total_ht) As totalOfManHours FROM " . MAIN_DB_PREFIX . "propaldet WHERE SUBSTRING_INDEX(category, ' - ', 1) = 'Programming Man Hours' AND fk_socid = $object->socid AND fk_projectid =  $object->fk_project";
 $res_llx_propaldet_man_hours = $this->db->query($sql_llx_propaldet_man_hours);
@@ -232,7 +234,7 @@ echo '<script>function saveOtherCategory(e) {
     });
     if (arrayOfCategories.includes(categoryToCompare.toLowerCase())) {
         alert("Category already exists");
-    } else if (e.value === "ADD") {
+    } else if (e.value === "SAVE") {
         if (mainCategoryValue !== "") {
             var otherOption = document.getElementById("other_option");
             if (mainCategoryValue.toLowerCase() === "project management") {
@@ -249,16 +251,17 @@ echo '<script>function saveOtherCategory(e) {
                     return match.toUpperCase();
                 });
             }
-			mainCategoryInput.setAttribute("readonly", true);
-            subCategoryInput.setAttribute("readonly", true);
-            e.value = "CHANGE";
+			// mainCategoryInput.setAttribute("readonly", true);
+            // subCategoryInput.setAttribute("readonly", true);
+            // e.value = "CHANGE";
+			document.querySelector("form[name=addproduct]").submit();
         } else {
             alert("Main category is required");
         }
     } else if (e.value === "CHANGE") {
 		mainCategoryInput.removeAttribute("readonly");
         subCategoryInput.removeAttribute("readonly");
-        e.value = "ADD";
+        e.value = "SAVE";
     }
 };
 
@@ -283,16 +286,16 @@ function onPercentageInputSubmit(e){
 }
 </script>';
 
-echo '<div class="other_category_input_wrapper" style="display: none; align-items: center; flex-wrap: wrap; margin-bottom: 10px">';
+echo '<div class="other_category_input_wrapper" style="display: ' . ($maincategoryname !== "" ? 'flex' : 'none') . '; align-items: center; flex-wrap: wrap; margin-bottom: 10px">';
 echo '<label for="other_category">Other Category: </label>';
 echo '<div  style="display: flex">';
-echo '<input type="text" id="main_category_name" name="main_category_name" placeholder="Main Category" autocomplete="off" />';
-echo '<input type="text" id="subcategory_name" name="subcategory_name" placeholder="Subcategory (Optional)" style="margin: 0 0 0 15px" autocomplete="off" />';
-echo '<input type="button" id="save_category" class="button button-add small" onclick="saveOtherCategory(this)" value="ADD">';
+echo '<input type="text" id="main_category_name" name="main_category_name" placeholder="Main Category" autocomplete="off" ' . ($maincategoryname !== "" ? 'readonly' : '') . ' value="' . $maincategoryname . '"/>';
+echo '<input type="text" id="subcategory_name" name="subcategory_name" placeholder="Subcategory (Optional)" style="margin: 0 0 0 15px" autocomplete="off" ' . ($maincategoryname !== "" ? 'readonly' : '') . ' value="' . $subcategoryname . '" />';
+echo '<input type="button" id="save_category" class="button button-add small" onclick="saveOtherCategory(this)" value=' . ($maincategoryname !== "" ? 'CHANGE' : 'SAVE') . '>';
 echo '</div>';
 echo '</div>';
 
-echo '<div style="display: flex; align-items: center; flex-wrap: wrap; margin-bottom: 10px"><label for="percentage">Percentage: </label><input type="text" id="percentage" name="percentage" value=' . $percentage . ' ' . ($percentage >= 0 ? 'readonly' : '') . ' autocomplete="off" /><input type="button" id="save_percentage" class="button button-add small" onclick="onPercentageInputSubmit(this)" value=' . ($percentage >= 0 ? 'CHANGE' : 'SAVE') . '></div>';
+echo '<div style="display: flex; align-items: center; flex-wrap: wrap; margin-bottom: 10px"><label for="percentage">Percentage: </label><input type="text" id="percentage" name="percentage" ' . ($percentage >= 0 ? 'readonly' : '') . ' autocomplete="off" value=' . $percentage . ' /><input type="button" id="save_percentage" class="button button-add small" onclick="onPercentageInputSubmit(this)" value=' . ($percentage >= 0 ? 'CHANGE' : 'SAVE') . '></div>';
 
 if (empty($conf->global->MAIN_DISABLE_FREE_LINES)) {
     $freelines = true;

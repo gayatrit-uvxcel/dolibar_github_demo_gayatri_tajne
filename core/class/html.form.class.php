@@ -1284,7 +1284,7 @@ class Form
                 subCategoryInput.removeAttribute("readonly");
                 mainCategoryInput.value = "";
                 subCategoryInput.value = "";
-                saveCategory.value = "ADD";
+                saveCategory.value = "SAVE";
                 mainCategoryInputBox.removeAttribute("required")
                 otherCategoryDiv.style.display = "none";
             }
