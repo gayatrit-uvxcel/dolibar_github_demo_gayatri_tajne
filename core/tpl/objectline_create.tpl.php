@@ -180,17 +180,16 @@ if (!empty($conf->global->MAIN_VIEW_LINE_NUMBER)) {
 $coldisplay++;
 ?>
 	<td class="nobottom linecoldescription minwidth400imp">
-		<?php
-$freelines = false;
-if (empty($conf->global->MAIN_DISABLE_CATEGORY)) {
-    $forceall = 1;
-    echo '<div style="margin-bottom: 10px">';
-    echo '<label for="category">';
-    echo '<span class="textradioforitem">' . $langs->trans("Category: ") . '</span>';
-    echo '</label>';
-    $form->select_type_of_category(GETPOSTISSET("category") ? GETPOST('category') : -1, 'category', 1, 1, $forceall);
-    echo '</span>';
-    echo '</div>';
+<?php
+
+$categoryArray = [];
+$sql_llx_propaldet_categories = "SELECT *  FROM " . MAIN_DB_PREFIX . "default_product_categories WHERE category_name IS NOT NULL";
+$res_llx_propaldet_categories = $this->db->query($sql_llx_propaldet_categories);
+
+if ($res_llx_propaldet_categories) {
+    while ($row = $this->db->fetch_object($res_llx_propaldet_categories)) {
+        $categoryArray[] = $row->main_category_name . " - " . $row->category_name;
+    }
 }
 
 $totalOfManHours = null;
@@ -212,6 +211,18 @@ if ($percentage > 0) {
     $total_ht_value = ($totalOfManHours * $percentage) / 100;
 } else {
     $price_per = null;
+}
+
+$freelines = false;
+if (empty($conf->global->MAIN_DISABLE_CATEGORY)) {
+    $forceall = 1;
+    echo '<div style="margin-bottom: 10px">';
+    echo '<label for="category">';
+    echo '<span class="textradioforitem">' . $langs->trans("Category: ") . '</span>';
+    echo '</label>';
+    $form->select_type_of_category(GETPOSTISSET("category") ? GETPOST('category') : -1, 'category', 1, 1, $forceall, $categoryArray);
+    echo '</span>';
+    echo '</div>';
 }
 
 echo '<script>

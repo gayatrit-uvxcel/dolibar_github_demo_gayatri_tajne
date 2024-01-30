@@ -1244,18 +1244,9 @@ class Form
     //     }
     // }
 
-    public function select_type_of_category($selected = '', $htmlname = 'category', $showempty = 0, $hidetext = 0, $forceall = 0)
+    public function select_type_of_category($selected = '', $htmlname = 'category', $showempty = 0, $hidetext = 0, $forceall = 0, $categoryArray = [])
     {
         global $langs, $conf;
-        $categoryArray = [];
-        $sql_llx_propaldet_categories = "SELECT *  FROM " . MAIN_DB_PREFIX . "default_product_categories WHERE category_name IS NOT NULL";
-        $res_llx_propaldet_categories = $this->db->query($sql_llx_propaldet_categories);
-
-        if ($res_llx_propaldet_categories) {
-            while ($row = $this->db->fetch_object($res_llx_propaldet_categories)) {
-                $categoryArray[] = $row->main_category_name . " - " . $row->category_name;
-            }
-        }
 
         if (empty($hidetext)) {
             print $langs->trans("Category") . ': ';
