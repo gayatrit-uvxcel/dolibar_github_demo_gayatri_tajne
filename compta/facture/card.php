@@ -5734,7 +5734,7 @@ if ($action == 'create') {
     print "</table>\n";
     print "</div>";
 
-    print '<div style="display: none">';
+    print '<div class="div-table-responsive-no-min">';
     print '<table id="tablelines" class="noborder noshadow" width="100%">';
     // Form to add new line
     if ($object->statut == 0 && $usercancreate && $action != 'valid' && $action != 'editline') {

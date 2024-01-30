@@ -4415,7 +4415,7 @@ class PropaleLigne extends CommonObjectLine
 
         // Insert line into database
         $sqlPropal = 'INSERT INTO ' . MAIN_DB_PREFIX . 'propaldet';
-        $sqlPropal .= ' (fk_propal, fk_parent_line, label, description, fk_product, product_type,category,';
+        $sqlPropal .= ' (fk_propal, fk_parent_line, label, description, fk_product, product_type, category,';
         $sqlPropal .= ' fk_remise_except, qty, vat_src_code, tva_tx, localtax1_tx, localtax2_tx, localtax1_type, localtax2_type,';
         $sqlPropal .= ' subprice, remise_percent, ';
         $sqlPropal .= ' info_bits, ';
