@@ -701,9 +701,7 @@ class pdf_cyan extends ModelePDFPropales
                     $filteredValues = array_filter($values, 'strlen'); // Remove empty values
                     $displayValue = implode('<br>', $filteredValues);
 
-                    // echo "Line: ", json_encode($line);
                     if (isset($line->desc)) {
-                        echo "Line: ".$line->desc.'<br>';
                         $this->printStdColumnContent($pdf, $curY, 'desc', $displayValue);
                     } else {
                         $this->printStdColumnContent($pdf, $curY, 'desc', $line['desc']);
