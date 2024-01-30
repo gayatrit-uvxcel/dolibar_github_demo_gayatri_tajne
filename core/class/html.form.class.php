@@ -1261,6 +1261,17 @@ class Form
             print $langs->trans("Category") . ': ';
         }
 
+        $maincategoryvalue = GETPOST('main_category_name') ? ucwords(strtolower(preg_replace('/\s+/', ' ', GETPOST('main_category_name')))) : null;
+        $subcategoryvalue = GETPOST('subcategory_name') ? ucwords(strtolower(preg_replace('/\s+/', ' ', GETPOST('subcategory_name')))) : null;
+        $newcategoryvalue = null;
+        if ($maincategoryvalue !== null) {
+            if ($subcategoryvalue !== null) {
+                $newcategoryvalue = $maincategoryvalue . " - " . $subcategoryvalue;
+            } else {
+                $newcategoryvalue = $maincategoryvalue . " - " . $maincategoryvalue;
+            }
+        }
+
         print '<script>
         function onCategoryChange(e) {
             var otherOption = document.getElementById("other_option");
@@ -1317,7 +1328,10 @@ class Form
             }
         }
         if ($forceall !== false) {
-            print '<option id="other_option" value="other_option"';
+            print '<option id="other_option" value="' . ($newcategoryvalue !== null ? $newcategoryvalue : "other_option") . '"';
+            if ($maincategoryvalue !== null) {
+                print 'selected';
+            }
             print '>Other</option>';
         }
         print '</select>';

@@ -219,7 +219,6 @@ echo '<script>function saveOtherCategory(e) {
     var subCategoryInput = document.getElementById("subcategory_name");
     var mainCategoryValue = mainCategoryInput.value.replace(/\s+/g, " ").trim();
     var subCategoryValue = subCategoryInput.value.replace(/\s+/g, " ").trim();
-    var percentgeInput = document.getElementById("percentage");
     var fullCategory = mainCategoryValue + " - " + subCategoryValue;
     var categoryToCompare = "";
     if (subCategoryValue === "") {
@@ -236,24 +235,6 @@ echo '<script>function saveOtherCategory(e) {
         alert("Category already exists");
     } else if (e.value === "SAVE") {
         if (mainCategoryValue !== "") {
-            var otherOption = document.getElementById("other_option");
-            if (mainCategoryValue.toLowerCase() === "project management") {
-                percentgeInput.setAttribute("required", "true");
-            } else {
-                percentgeInput.removeAttribute("required");
-            }
-            if (subCategoryValue === "") {
-                otherOption.value = (mainCategoryValue + " - " + mainCategoryValue).replace(/\b\w/g, function(match) {
-                    return match.toUpperCase();
-                });
-            } else {
-                otherOption.value = fullCategory.replace(/\b\w/g, function(match) {
-                    return match.toUpperCase();
-                });
-            }
-			// mainCategoryInput.setAttribute("readonly", true);
-            // subCategoryInput.setAttribute("readonly", true);
-            // e.value = "CHANGE";
 			document.querySelector("form[name=addproduct]").submit();
         } else {
             alert("Main category is required");
