@@ -264,22 +264,16 @@ echo '<script>function saveOtherCategory(e) {
 
 function onPercentageInputSubmit(e){
 	var percentgeInput = document.getElementById("percentage");
-	if(e.value === "SAVE"){
-		let input = percentgeInput.value.trim();
-		if (/^\d+(\.\d+)?$/.test(input)) {
-			const number = parseFloat(input);
-			if (number >= 0 && number <= 100) {
-				document.querySelector("form[name=addproduct]").submit();
-				return true;
-			}
-		}
-		alert("Only numbers between 0 and 100 are allowed.");
-		document.querySelector("form[name=addproduct]").submit();
-	}else if(e.value === "CHANGE"){
-		percentgeInput.removeAttribute("readonly")
-		e.value = "SAVE"
-	}
-
+	let input = percentgeInput.value.trim();
+    if (/^\d+(\.\d+)?$/.test(input)) {
+        const number = parseFloat(input);
+        if (number >= 0 && number <= 100) {
+            document.querySelector("form[name=addproduct]").submit();
+            return true;
+        }
+    }
+    alert("Only numbers between 0 and 100 are allowed.");
+	document.querySelector("form[name=addproduct]").submit();
 }
 </script>';
 
@@ -292,7 +286,7 @@ echo '<input type="button" id="save_category" class="button button-add small" on
 echo '</div>';
 echo '</div>';
 
-echo '<div style="display: flex; align-items: center; flex-wrap: wrap"><label for="percentage">Percentage: </label><input type="text" id="percentage" name="percentage" value=' . (GETPOST('percentage') ? GETPOST('percentage') : '0') . ' ' . (GETPOST('percentage') ? 'readonly' : '0') . ' /><input type="button" id="save_percentage" class="button button-add small" onclick="onPercentageInputSubmit(this)" value="SAVE"></div>';
+echo '<div style="display: flex; align-items: center; flex-wrap: wrap"><label for="percentage">Percentage: </label><input type="text" id="percentage" name="percentage" value=' . (GETPOST('percentage') ? GETPOST('percentage') : '0') . ' /><input type="button" id="save_percentage" class="button button-add small" onclick="onPercentageInputSubmit(this)" value="SAVE"></div>';
 
 if (empty($conf->global->MAIN_DISABLE_FREE_LINES)) {
     $freelines = true;
