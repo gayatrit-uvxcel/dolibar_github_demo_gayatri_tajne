@@ -182,16 +182,6 @@ $coldisplay++;
 	<td class="nobottom linecoldescription minwidth400imp">
 <?php
 
-$categoryArray = [];
-$sql_llx_propaldet_categories = "SELECT *  FROM " . MAIN_DB_PREFIX . "default_product_categories WHERE category_name IS NOT NULL";
-$res_llx_propaldet_categories = $this->db->query($sql_llx_propaldet_categories);
-
-if ($res_llx_propaldet_categories) {
-    while ($row = $this->db->fetch_object($res_llx_propaldet_categories)) {
-        $categoryArray[] = $row->main_category_name . " - " . $row->category_name;
-    }
-}
-
 $totalOfManHours = null;
 $percentage = (GETPOST('percentage') ? floatval(str_replace(',', '', GETPOST('percentage'))) : 0);
 $total_ht_value = null;
@@ -220,7 +210,7 @@ if (empty($conf->global->MAIN_DISABLE_CATEGORY)) {
     echo '<label for="category">';
     echo '<span class="textradioforitem">' . $langs->trans("Category: ") . '</span>';
     echo '</label>';
-    $form->select_type_of_category(GETPOSTISSET("category") ? GETPOST('category') : -1, 'category', 1, 1, $forceall, $categoryArray);
+    $form->select_type_of_category(GETPOSTISSET("category") ? GETPOST('category') : -1, 'category', 1, 1, $forceall);
     echo '</span>';
     echo '</div>';
 }
