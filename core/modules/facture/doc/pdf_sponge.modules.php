@@ -832,9 +832,14 @@ class pdf_sponge extends ModelePDFFactures
                     //     $posYAfterDescription = $pdf->GetY();
                     // }
 
+                    $displayValue = '';
+                    $values = array($line->product_ref, $line->product_label, $line->desc);
+                    $filteredValues = array_filter($values, 'strlen'); // Remove empty values
+                    $displayValue = implode('<br>', $filteredValues);
+
                     // modification by sp start
                     if (isset($line->desc)) {
-                        $this->printStdColumnContent($pdf, $curY, 'desc', $line->desc);
+                        $this->printStdColumnContent($pdf, $curY, 'desc', $displayValue);
                     } else {
                         $this->printStdColumnContent($pdf, $curY, 'desc', $line['desc']);
                     }
