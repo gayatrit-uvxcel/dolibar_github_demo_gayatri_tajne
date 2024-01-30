@@ -1279,12 +1279,12 @@ class Form
             var otherCategoryDiv = document.querySelector(".other_category_input_wrapper");
             var mainCategoryInput = document.getElementById("main_category_name");
             var subCategoryInput = document.getElementById("subcategory_name");
-            let mainCategoryInputBox = document.getElementById("main_category_name")
+            var mainCategoryInputBox = document.getElementById("main_category_name")
             if (e.value === "other_option") {
                 otherCategoryDiv.style.display = "flex";
                 mainCategoryInputBox.setAttribute("required", true)
             } else {
-                let saveCategory = document.getElementById("save_category")
+                var saveCategory = document.getElementById("save_category")
                 mainCategoryInput.removeAttribute("readonly");
                 subCategoryInput.removeAttribute("readonly");
                 mainCategoryInput.value = "";

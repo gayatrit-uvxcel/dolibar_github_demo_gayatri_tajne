@@ -214,37 +214,31 @@ if ($percentage > 0) {
     $price_per = null;
 }
 
-echo '<script>function saveOtherCategory(e) {
-    var mainCategoryInput = document.getElementById("main_category_name");
-    var subCategoryInput = document.getElementById("subcategory_name");
-    var mainCategoryValue = mainCategoryInput.value.replace(/\s+/g, " ").trim();
-    var subCategoryValue = subCategoryInput.value.replace(/\s+/g, " ").trim();
-    var fullCategory = mainCategoryValue + " - " + subCategoryValue;
-    var categoryToCompare = "";
-    if (subCategoryValue === "") {
-        categoryToCompare = mainCategoryValue + " - " + mainCategoryValue;
-    } else {
-        categoryToCompare = fullCategory;
-    }
-    let arrayOfCategories = [];
-    let categoryOptions = document.querySelectorAll(".category_option");
-    categoryOptions.forEach((i) => {
-        arrayOfCategories.push(i.value.toLowerCase());
-    });
-    if (arrayOfCategories.includes(categoryToCompare.toLowerCase())) {
-        alert("Category already exists");
-    } else if (e.value === "SAVE") {
-        if (mainCategoryValue !== "") {
+echo '<script>
+function saveOtherCategory(e) {
+    const mainCategoryInput = document.getElementById("main_category_name");
+    const subCategoryInput = document.getElementById("subcategory_name");
+    const mainCategoryValue = mainCategoryInput.value.replace(/\s+/g, " ").trim();
+    const subCategoryValue = subCategoryInput.value.replace(/\s+/g, " ").trim();
+    const fullCategory = mainCategoryValue + " - " + subCategoryValue;
+    const categoryToCompare = subCategoryValue === "" ? mainCategoryValue + " - " + mainCategoryValue : fullCategory;
+    const arrayOfCategories = Array.from(document.querySelectorAll(".category_option"), i => i.value.toLowerCase());
+
+  	if (e.value === "SAVE") {
+		if (!mainCategoryValue) {
+			alert("Main category is required");
+		} else if (arrayOfCategories.includes(categoryToCompare.toLowerCase())) {
+			alert("Category already exists");
+		} else {
 			document.querySelector("form[name=addproduct]").submit();
-        } else {
-            alert("Main category is required");
-        }
+		}
     } else if (e.value === "CHANGE") {
-		mainCategoryInput.removeAttribute("readonly");
+        mainCategoryInput.removeAttribute("readonly");
         subCategoryInput.removeAttribute("readonly");
         e.value = "SAVE";
     }
-};
+}
+
 
 function onPercentageInputSubmit(e){
 	var percentgeInput = document.getElementById("percentage");
