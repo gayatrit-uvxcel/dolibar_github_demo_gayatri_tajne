@@ -670,6 +670,9 @@ form {
 form#addproduct {
 	padding-top: 10px;
 }
+form#addproduct input[readonly] {
+  background: #80808021;
+}
 div.float, span.floatleft
 {
 	float:<?php print $left;?>;

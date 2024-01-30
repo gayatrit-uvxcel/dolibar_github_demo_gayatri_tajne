@@ -184,7 +184,7 @@ $coldisplay++;
 $freelines = false;
 if (empty($conf->global->MAIN_DISABLE_CATEGORY)) {
     $forceall = 1;
-    echo '<div>';
+    echo '<div style="margin-bottom: 10px">';
     echo '<label for="category">';
     echo '<span class="textradioforitem">' . $langs->trans("Category: ") . '</span>';
     echo '</label>';
@@ -264,29 +264,35 @@ echo '<script>function saveOtherCategory(e) {
 
 function onPercentageInputSubmit(e){
 	var percentgeInput = document.getElementById("percentage");
-	let input = percentgeInput.value.trim();
-    if (/^\d+(\.\d+)?$/.test(input)) {
-        const number = parseFloat(input);
-        if (number >= 0 && number <= 100) {
-            document.querySelector("form[name=addproduct]").submit();
-            return true;
-        }
-    }
-    alert("Only numbers between 0 and 100 are allowed.");
-	document.querySelector("form[name=addproduct]").submit();
+	if(e.value === "SAVE"){
+		let input = percentgeInput.value.trim();
+		if (/^\d+(\.\d+)?$/.test(input)) {
+			const number = parseFloat(input);
+			if (number >= 0 && number <= 100) {
+				document.querySelector("form[name=addproduct]").submit();
+				return true;
+			}
+		}
+		alert("Only numbers between 0 and 100 are allowed.");
+		document.querySelector("form[name=addproduct]").submit();
+	}else if(e.value === "CHANGE"){
+		percentgeInput.removeAttribute("readonly")
+		e.value = "SAVE"
+	}
+
 }
 </script>';
 
-echo '<div class="other_category_input_wrapper" style="display: none; align-items: center; flex-wrap: wrap">';
+echo '<div class="other_category_input_wrapper" style="display: none; align-items: center; flex-wrap: wrap; margin-bottom: 10px">';
 echo '<label for="other_category">Other Category: </label>';
 echo '<div  style="display: flex">';
-echo '<input type="text" id="main_category_name" name="main_category_name" placeholder="Main Category" />';
-echo '<input type="text" id="subcategory_name" name="subcategory_name" placeholder="Subcategory (Optional)" style="margin: 0 15px" />';
+echo '<input type="text" id="main_category_name" name="main_category_name" placeholder="Main Category" autocomplete="off" />';
+echo '<input type="text" id="subcategory_name" name="subcategory_name" placeholder="Subcategory (Optional)" style="margin: 0 0 0 15px" autocomplete="off" />';
 echo '<input type="button" id="save_category" class="button button-add small" onclick="saveOtherCategory(this)" value="ADD">';
 echo '</div>';
 echo '</div>';
 
-echo '<div style="display: flex; align-items: center; flex-wrap: wrap"><label for="percentage">Percentage: </label><input type="text" id="percentage" name="percentage" value=' . (GETPOST('percentage') ? GETPOST('percentage') : '0') . ' /><input type="button" id="save_percentage" class="button button-add small" onclick="onPercentageInputSubmit(this)" value="SAVE"></div>';
+echo '<div style="display: flex; align-items: center; flex-wrap: wrap; margin-bottom: 10px"><label for="percentage">Percentage: </label><input type="text" id="percentage" name="percentage" value=' . $percentage . ' ' . ($percentage >= 0 ? 'readonly' : '') . ' autocomplete="off" /><input type="button" id="save_percentage" class="button button-add small" onclick="onPercentageInputSubmit(this)" value=' . ($percentage >= 0 ? 'CHANGE' : 'SAVE') . '></div>';
 
 if (empty($conf->global->MAIN_DISABLE_FREE_LINES)) {
     $freelines = true;
