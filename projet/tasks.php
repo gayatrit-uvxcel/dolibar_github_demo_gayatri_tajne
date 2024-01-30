@@ -826,9 +826,7 @@ if ($action == 'create' && $user->rights->projet->creer && (empty($object->third
 	print '</td></tr>';
 
 	print '<tr><td>'.$langs->trans("Budget").'</td><td>';
-	$logo = '<span class="pictofixedwidth" style="padding-right: 10px;font-weight: 600;">R</span>';
-    print $logo;
-	// print img_picto('', 'currency', 'class="pictofixedwidth"');
+	print img_picto('', 'currency', 'class="pictofixedwidth"');
 	print '<input size="8" type="text" name="budget_amount" value="'.dol_escape_htmltag(GETPOSTISSET('budget_amount') ? GETPOST('budget_amount') : '').'"></td>';
 	print '</tr>';
 
