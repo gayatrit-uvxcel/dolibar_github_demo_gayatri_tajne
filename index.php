@@ -381,97 +381,100 @@ if ($projectid > 0) {
         );
     }
 
-    print '<table class="noborder centpercent" style="margin-top: 20px;">' . "\n";
-    for ($row = 0; $row < 7; $row++) {
-        print '<tr><td class="liste_titre_filter">' . $firstColumnData[$row] . '</td><td class="liste_titre_filter" colspan="2">';
-        print $firstColumnValues[$row];
-        print '</td>';
-        print '<td class="liste_titre_filter" colspan="2">';
-        print $secondColumnData[$row];
-        print '</td>';
-        print '<td colspan="2" class="liste_titre_filter">';
-        print $secondColumnValues[$row];
-        print '</td></tr>';
-    }
-    print '</table>' . "\n";
+    if ($object->quote_no && $object->invoice_no) {
 
-    $categoryArray = [];
-    $sql_llx_propaldet_categories = "SELECT DISTINCT SUBSTRING_INDEX(category, ' - ', 1) AS main_category FROM " . MAIN_DB_PREFIX . "propaldet WHERE category IS NOT NULL AND fk_projectid=$projectid";
-
-    $res_llx_propaldet_categories = $db->query($sql_llx_propaldet_categories);
-
-    if ($res_llx_propaldet_categories) {
-        while ($row = $db->fetch_object($res_llx_propaldet_categories)) {
-            $categoryArray[] = $row->main_category;
+        print '<table class="noborder centpercent" style="margin-top: 20px;">' . "\n";
+        for ($row = 0; $row < 7; $row++) {
+            print '<tr><td class="liste_titre_filter">' . $firstColumnData[$row] . '</td><td class="liste_titre_filter" colspan="2">';
+            print $firstColumnValues[$row];
+            print '</td>';
+            print '<td class="liste_titre_filter" colspan="2">';
+            print $secondColumnData[$row];
+            print '</td>';
+            print '<td colspan="2" class="liste_titre_filter">';
+            print $secondColumnValues[$row];
+            print '</td></tr>';
         }
-    }
+        print '</table>' . "\n";
 
-    if (isset($categoryArray) && is_array($categoryArray) && !empty($categoryArray)) {
-        print '<table class="noborder" style="margin-top: 20px; text-align: center;">' . "\n";
-        print '<thead>';
-        print '<tr><th>No.</th> <th colspan="2">QTY</th> <th colspan="2">Description</th> <th colspan="2">Unit Price(R)</th> <th colspan="2">Total Price(R)</th></tr>';
-        print '</thead>';
-        print '<tbody>';
+        $categoryArray = [];
+        $sql_llx_propaldet_categories = "SELECT DISTINCT SUBSTRING_INDEX(category, ' - ', 1) AS main_category FROM " . MAIN_DB_PREFIX . "propaldet WHERE category IS NOT NULL AND fk_projectid=$projectid";
 
-        $index = 0;
-        $subTotalExclTax = 0;
-        $vatPercentage = 15;
+        $res_llx_propaldet_categories = $db->query($sql_llx_propaldet_categories);
 
-        foreach ($categoryArray as $category) {
-            $sql_llx_propaldet_unit = "SELECT SUM(subprice) As sumOfUnitPrice FROM " . MAIN_DB_PREFIX . "propaldet WHERE SUBSTRING_INDEX(category, ' - ', 1) = '$category' AND fk_socid = $socid AND fk_projectid = $projectid";
+        if ($res_llx_propaldet_categories) {
+            while ($row = $db->fetch_object($res_llx_propaldet_categories)) {
+                $categoryArray[] = $row->main_category;
+            }
+        }
 
-            $res_llx_propaldet_unit = $db->query($sql_llx_propaldet_unit);
+        if (isset($categoryArray) && is_array($categoryArray) && !empty($categoryArray)) {
+            print '<table class="noborder" style="margin-top: 20px; text-align: center;">' . "\n";
+            print '<thead>';
+            print '<tr><th>No.</th> <th colspan="2">QTY</th> <th colspan="2">Description</th> <th colspan="2">Unit Price(R)</th> <th colspan="2">Total Price(R)</th></tr>';
+            print '</thead>';
+            print '<tbody>';
 
-            if ($res_llx_propaldet_unit) {
-                while ($row = $db->fetch_object($res_llx_propaldet_unit)) {
-                    $sumOfUnitPrice = number_format($row->sumOfUnitPrice, 2);
+            $index = 0;
+            $subTotalExclTax = 0;
+            $vatPercentage = 15;
+
+            foreach ($categoryArray as $category) {
+                // $sql_llx_propaldet_unit = "SELECT SUM(subprice) As sumOfUnitPrice FROM " . MAIN_DB_PREFIX . "propaldet WHERE SUBSTRING_INDEX(category, ' - ', 1) = '$category' AND fk_socid = $socid AND fk_projectid = $projectid";
+
+                // $res_llx_propaldet_unit = $db->query($sql_llx_propaldet_unit);
+
+                // if ($res_llx_propaldet_unit) {
+                //     while ($row = $db->fetch_object($res_llx_propaldet_unit)) {
+                //         $sumOfUnitPrice = number_format($row->sumOfUnitPrice, 2);
+                //     }
+                // }
+
+                $sql_llx_propaldet_total = "SELECT SUM(total_ht) As sumOfTotalPrice FROM " . MAIN_DB_PREFIX . "propaldet WHERE SUBSTRING_INDEX(category, ' - ', 1) = '$category' AND fk_socid = $socid AND fk_projectid = $projectid";
+
+                $res_llx_propaldet_total = $db->query($sql_llx_propaldet_total);
+
+                if ($res_llx_propaldet_total) {
+                    while ($row = $db->fetch_object($res_llx_propaldet_total)) {
+                        $sumOfTotalPrice = number_format($row->sumOfTotalPrice, 2);
+                        $totalInFloat = (float) str_replace(',', '', $sumOfTotalPrice);
+                        $subTotalExclTax += $totalInFloat;
+                    }
                 }
+
+                $index++;
+
+                print '<tr>';
+                print '<td>' . $index . '</td><td colspan="2">1</td> <td colspan="2">' . $category . '</td> <td colspan="2">' . $sumOfTotalPrice . '</td> <td colspan="2">' . $sumOfTotalPrice . '</td>';
+                print '</tr>';
             }
 
-            $sql_llx_propaldet_total = "SELECT SUM(total_ht) As sumOfTotalPrice FROM " . MAIN_DB_PREFIX . "propaldet WHERE SUBSTRING_INDEX(category, ' - ', 1) = '$category' AND fk_socid = $socid AND fk_projectid = $projectid";
-
-            $res_llx_propaldet_total = $db->query($sql_llx_propaldet_total);
-
-            if ($res_llx_propaldet_total) {
-                while ($row = $db->fetch_object($res_llx_propaldet_total)) {
-                    $sumOfTotalPrice = number_format($row->sumOfTotalPrice, 2);
-                    $totalInFloat = (float) str_replace(',', '', $sumOfTotalPrice);
-                    $subTotalExclTax += $totalInFloat;
-                }
-            }
-
-            $index++;
+            $vatPrice = ($subTotalExclTax * $vatPercentage) / 100;
+            $totalPriceInclTax = $subTotalExclTax + $vatPrice;
 
             print '<tr>';
-            print '<td>' . $index . '</td><td colspan="2">1</td> <td colspan="2">' . $category . '</td> <td colspan="2">' . $sumOfUnitPrice . '</td> <td colspan="2">' . $sumOfTotalPrice . '</td>';
+            print '<td></td><td colspan="2"></td> <td colspan="2"></td>';
+            print '<td colspan="2"><b>Sub Total (excl. VAT)</b></td>';
+            print '<td colspan="2"><b>' . number_format($subTotalExclTax, 2) . '</b></td>';
+            print '</tr>';
+
+            print '<tr>';
+            print '<td></td><td colspan="2"></td> <td colspan="2"></td>';
+            print '<td colspan="2">VAT @' . $vatPercentage . '%</td>';
+            print '<td colspan="2">' . number_format($vatPrice, 2) . '</td>';
+            print '</tr>';
+
+            print '<tr>';
+            print '<td></td><td colspan="2"></td> <td colspan="2"></td>';
+            print '<td colspan="2"><b>Total Price (incl. VAT)</b></td>';
+            print '<td colspan="2"><b>' . number_format($totalPriceInclTax, 2) . '</b></td>';
             print '</tr>';
         }
 
-        $vatPrice = ($subTotalExclTax * $vatPercentage) / 100;
-        $totalPriceInclTax = $subTotalExclTax + $vatPrice;
+        print '</tbody>';
+        print '</table>' . "\n";
 
-        print '<tr>';
-        print '<td></td><td colspan="2"></td> <td colspan="2"></td>';
-        print '<td colspan="2"><b>Sub Total (excl. VAT)</b></td>';
-        print '<td colspan="2"><b>' . number_format($subTotalExclTax, 2) . '</b></td>';
-        print '</tr>';
-
-        print '<tr>';
-        print '<td></td><td colspan="2"></td> <td colspan="2"></td>';
-        print '<td colspan="2">VAT @' . $vatPercentage . '%</td>';
-        print '<td colspan="2">' . number_format($vatPrice, 2) . '</td>';
-        print '</tr>';
-
-        print '<tr>';
-        print '<td></td><td colspan="2"></td> <td colspan="2"></td>';
-        print '<td colspan="2"><b>Total Price (incl. VAT)</b></td>';
-        print '<td colspan="2"><b>' . number_format($totalPriceInclTax, 2) . '</b></td>';
-        print '</tr>';
     }
-
-    print '</tbody>';
-    print '</table>' . "\n";
-
 }
 
 print "</form>\n";
