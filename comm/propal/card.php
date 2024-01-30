@@ -2136,7 +2136,7 @@ if ($action == 'create') {
                  var select = document.getElementById(selectId);
                  var input = document.getElementById(inputId);
                  var optionValue = input.value.trim();
-                 var regex = /^[a-zA-Z][a-zA-Z1-9\s.,-]*\s+[a-zA-Z1-9][a-zA-Z1-9\s.,-]*(\s+[a-zA-Z1-9][a-zA-Z1-9\s.,-]*)*$/;
+                 var regex = /^[a-zA-Z0-9][a-zA-Z0-9\s.,-@]*\s+[a-zA-Z0-9][a-zA-Z0-9\s.,-@]*(\s+[a-zA-Z0-9][a-zA-Z0-9\s.,-@]*)*$/;
                  var prohibitedWords = ["idiot", "mad", "lame", "fool", "Shoot", "kill"];
                 if(optionValue === ""){
                     alert(errorName + " cannot be empty");

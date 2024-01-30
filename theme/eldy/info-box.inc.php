@@ -433,7 +433,7 @@ if (GETPOSTISSET('THEME_SATURATE_RATIO')) {
 }
 .fa-dol-facture:before,
 .fa-dol-invoice_supplier:before {
-	content: "\f571";
+	content: "\f15c";
 }
 .fa-dol-project:before {
 	content: "\f542";

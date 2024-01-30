@@ -1773,7 +1773,7 @@ if (is_object($objcanvas) && $objcanvas->displayCanvasExists($canvasdisplayactio
 				print '<tr>';
 				print '<td>' . $form->editfieldkey('Currency', 'multicurrency_code', '', $object, 0) . '</td>';
 				print '<td colspan="3" class="maxwidthonsmartphone">';
-				// print img_picto('', 'currency', 'class="pictofixedwidth"');
+				print img_picto('', 'currency', 'class="pictofixedwidth"');
 				print $form->selectMultiCurrency((GETPOSTISSET('multicurrency_code') ? GETPOST('multicurrency_code') : ($object->multicurrency_code ? $object->multicurrency_code : $conf->currency)), 'multicurrency_code', 1, '', false, 'maxwidth150 widthcentpercentminusx');
 				print '</td></tr>';
 			}

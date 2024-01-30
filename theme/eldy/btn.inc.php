@@ -225,7 +225,7 @@ TITLE BUTTON
 	/* margin: 0 0 0 8px; */
 	min-width: 72px;
 	text-align: center;
-	color: var(--btncolortext);
+	color: #6D6845;
 	border: none;
 	font-size: 12px;
 	font-weight: 300;
