@@ -638,6 +638,7 @@ if ($action == 'create' || $action == 'confirm_paiement' || $action == 'add_paie
 				$totalrecucreditnote = 0;
 				$totalrecudeposits = 0;
 
+				$displayedInvoices = [];
 				while ($i < $num) {
 					$objp = $db->fetch_object($resql);
 
@@ -665,178 +666,180 @@ if ($action == 'create' || $action == 'confirm_paiement' || $action == 'add_paie
 						$multicurrency_alreadypayed = price2num($multicurrency_payment + $multicurrency_creditnotes + $multicurrency_deposits, 'MT');
 						$multicurrency_remaintopay = price2num($invoice->multicurrency_total_ttc - $multicurrency_payment - $multicurrency_creditnotes - $multicurrency_deposits, 'MT');
 					}
+					if (!in_array($invoice->getNomUrl(1, ''), $displayedInvoices)) {
+						// If not displayed, proceed to display the record
+						$displayedInvoices[] = $invoice->getNomUrl(1, '');
 
+						print '<tr class="oddeven' . (($invoice->id == $facid) ? ' highlight' : '') . '">';
 
-					print '<tr class="oddeven' . (($invoice->id == $facid) ? ' highlight' : '') . '">';
+						print '<td class="nowraponall">';
+						print $invoice->getNomUrl(1, '');
+						if ($objp->socid != $facture->thirdparty->id) {
+							print ' - ' . $soc->getNomUrl(1) . ' ';
+						}
+						print "</td>\n";
 
-					print '<td class="nowraponall">';
-					print $invoice->getNomUrl(1, '');
-					if ($objp->socid != $facture->thirdparty->id) {
-						print ' - ' . $soc->getNomUrl(1) . ' ';
-					}
-					print "</td>\n";
+						// Date
+						print '<td class="center">' . dol_print_date($db->jdate($objp->df), 'day') . "</td>\n";
 
-					// Date
-					print '<td class="center">' . dol_print_date($db->jdate($objp->df), 'day') . "</td>\n";
+						// Due date
+						if ($objp->dlr > 0) {
+							print '<td class="nowraponall center">';
+							print dol_print_date($db->jdate($objp->dlr), 'day');
 
-					// Due date
-					if ($objp->dlr > 0) {
-						print '<td class="nowraponall center">';
-						print dol_print_date($db->jdate($objp->dlr), 'day');
+							if ($invoice->hasDelay()) {
+								print img_warning($langs->trans('Late'));
+							}
 
-						if ($invoice->hasDelay()) {
-							print img_warning($langs->trans('Late'));
+							print '</td>';
+						} else {
+							print '<td align="center"></td>';
 						}
 
-						print '</td>';
-					} else {
-						print '<td align="center"></td>';
-					}
-
-					// Currency
-					if (isModEnabled('multicurrency')) {
-						print '<td class="center">' . $objp->multicurrency_code . "</td>\n";
-					}
-
-					// Multicurrency Price
-					if (isModEnabled('multicurrency')) {
-						print '<td class="right">';
-						if ($objp->multicurrency_code && $objp->multicurrency_code != $conf->currency) {
-							print price($sign * $objp->multicurrency_total_ttc);
+						// Currency
+						if (isModEnabled('multicurrency')) {
+							print '<td class="center">' . $objp->multicurrency_code . "</td>\n";
 						}
-						print '</td>';
 
 						// Multicurrency Price
-						print '<td class="right">';
-						if ($objp->multicurrency_code && $objp->multicurrency_code != $conf->currency) {
-							print price($sign * $multicurrency_payment);
-							if ($multicurrency_creditnotes) {
-								print '+' . price($multicurrency_creditnotes);
+						if (isModEnabled('multicurrency')) {
+							print '<td class="right">';
+							if ($objp->multicurrency_code && $objp->multicurrency_code != $conf->currency) {
+								print price($sign * $objp->multicurrency_total_ttc);
 							}
-							if ($multicurrency_deposits) {
-								print '+' . price($multicurrency_deposits);
+							print '</td>';
+
+							// Multicurrency Price
+							print '<td class="right">';
+							if ($objp->multicurrency_code && $objp->multicurrency_code != $conf->currency) {
+								print price($sign * $multicurrency_payment);
+								if ($multicurrency_creditnotes) {
+									print '+' . price($multicurrency_creditnotes);
+								}
+								if ($multicurrency_deposits) {
+									print '+' . price($multicurrency_deposits);
+								}
+							}
+							print '</td>';
+
+							// Multicurrency remain to pay
+							print '<td class="right">';
+							if ($objp->multicurrency_code && $objp->multicurrency_code != $conf->currency) {
+								print price($sign * $multicurrency_remaintopay);
+							}
+							print '</td>';
+
+							print '<td class="right nowraponall">';
+
+							// Add remind multicurrency amount
+							$namef = 'multicurrency_amount_' . $objp->facid;
+							$nameRemain = 'multicurrency_remain_' . $objp->facid;
+
+							if ($objp->multicurrency_code && $objp->multicurrency_code != $conf->currency) {
+								if ($action != 'add_paiement') {
+									if (!empty($conf->use_javascript_ajax)) {
+										print img_picto("Auto fill", 'rightarrow', "class='AutoFillAmout' data-rowname='" . $namef . "' data-value='" . ($sign * $multicurrency_remaintopay) . "'");
+									}
+									print '<input type="text" class="maxwidth75 multicurrency_amount" name="' . $namef . '" value="' . GETPOST($namef) . '">';
+									print '<input type="hidden" class="multicurrency_remain" name="' . $nameRemain . '" value="' . $multicurrency_remaintopay . '">';
+								} else {
+									print '<input type="text" class="maxwidth75" name="' . $namef . '_disabled" value="' . GETPOST($namef) . '" disabled>';
+									print '<input type="hidden" name="' . $namef . '" value="' . GETPOST($namef) . '">';
+								}
+							}
+							print "</td>";
+						}
+
+						// Price
+						print '<td class="right"><span class="amount">' . price($sign * $objp->total_ttc) . '</span></td>';
+
+						// Received + already paid
+						print '<td class="right"><span class="amount">' . price($sign * $paiement);
+						if ($creditnotes) {
+							print '<span class="opacitymedium">+' . price($creditnotes) . '</span>';
+						}
+						if ($deposits) {
+							print '<span class="opacitymedium">+' . price($deposits) . '</span>';
+						}
+						print '</span></td>';
+
+						// Remain to take or to pay back
+						print '<td class="right">';
+						print price($sign * $remaintopay);
+						if (isModEnabled('prelevement')) {
+							$numdirectdebitopen = 0;
+							$totaldirectdebit = 0;
+							$sql = "SELECT COUNT(pfd.rowid) as nb, SUM(pfd.amount) as amount";
+							$sql .= " FROM " . MAIN_DB_PREFIX . "prelevement_demande as pfd";
+							$sql .= " WHERE fk_facture = " . ((int) $objp->facid);
+							$sql .= " AND pfd.traite = 0";
+							$sql .= " AND pfd.ext_payment_id IS NULL";
+
+							$result_sql = $db->query($sql);
+							if ($result_sql) {
+								$obj = $db->fetch_object($result_sql);
+								$numdirectdebitopen = $obj->nb;
+								$totaldirectdebit = $obj->amount;
+							} else {
+								dol_print_error($db);
+							}
+							if ($numdirectdebitopen) {
+								$langs->load("withdrawals");
+								print img_warning($langs->trans("WarningSomeDirectDebitOrdersAlreadyExists", $numdirectdebitopen, price(price2num($totaldirectdebit, 'MT'), 0, $langs, 1, -1, -1, $conf->currency)), '', 'classfortooltip');
 							}
 						}
 						print '</td>';
+						//$test= price(price2num($objp->total_ttc - $paiement - $creditnotes - $deposits));
 
-						// Multicurrency remain to pay
-						print '<td class="right">';
-						if ($objp->multicurrency_code && $objp->multicurrency_code != $conf->currency) {
-							print price($sign * $multicurrency_remaintopay);
-						}
-						print '</td>';
-
+						// Amount
 						print '<td class="right nowraponall">';
 
-						// Add remind multicurrency amount
-						$namef = 'multicurrency_amount_' . $objp->facid;
-						$nameRemain = 'multicurrency_remain_' . $objp->facid;
+						// Add remind amount
+						$namef = 'amount_' . $objp->facid;
+						$nameRemain = 'remain_' . $objp->facid;
 
-						if ($objp->multicurrency_code && $objp->multicurrency_code != $conf->currency) {
-							if ($action != 'add_paiement') {
-								if (!empty($conf->use_javascript_ajax)) {
-									print img_picto("Auto fill", 'rightarrow', "class='AutoFillAmout' data-rowname='" . $namef . "' data-value='" . ($sign * $multicurrency_remaintopay) . "'");
-								}
-								print '<input type="text" class="maxwidth75 multicurrency_amount" name="' . $namef . '" value="' . GETPOST($namef) . '">';
-								print '<input type="hidden" class="multicurrency_remain" name="' . $nameRemain . '" value="' . $multicurrency_remaintopay . '">';
-							} else {
-								print '<input type="text" class="maxwidth75" name="' . $namef . '_disabled" value="' . GETPOST($namef) . '" disabled>';
-								print '<input type="hidden" name="' . $namef . '" value="' . GETPOST($namef) . '">';
+						$invoiceSchedule_total_ht = ($objp->total_ht * $objp->cond_reglement_code) / 100;
+						$invoiceSchedule_vat = ($invoiceSchedule_total_ht * $objp->tva_tx) / 100;
+						$invoiceSchedule_payment = $invoiceSchedule_total_ht + $invoiceSchedule_vat;
+						if ($action != 'add_paiement') {
+							if (!empty($conf->use_javascript_ajax)) {
+								print img_picto("Auto fill", 'rightarrow', "class='AutoFillAmout' data-rowname='" . $namef . "' data-value='" . ($sign * $remaintopay) . "'");
 							}
+							if (($invoice->id == $facid)) {
+								print '<input type="text" class="maxwidth75 amount" id="' . $namef . '" name="' . $namef . '" value="' . price($invoiceSchedule_payment, '', $langs, 0, -1, -1) . '">';
+							} else {
+								print '<input type="text" class="maxwidth75 amount" id="' . $namef . '" name="' . $namef . '" value="' . dol_escape_htmltag(GETPOST($namef)) . '">';
+							}
+
+							print '<input type="hidden" class="remain" name="' . $nameRemain . '" value="' . $remaintopay . '">';
+						} else {
+							print '<input type="text" class="maxwidth75" name="' . $namef . '_disabled" value="' . dol_escape_htmltag(GETPOST($namef)) . '" disabled>';
+							print '<input type="hidden" name="' . $namef . '" value="' . dol_escape_htmltag(GETPOST($namef)) . '">';
 						}
 						print "</td>";
-					}
 
-					// Price
-					print '<td class="right"><span class="amount">' . price($sign * $objp->total_ttc) . '</span></td>';
+						$parameters = array();
+						$reshook = $hookmanager->executeHooks('printFieldListValue', $parameters, $objp, $action); // Note that $action and $object may have been modified by hook
 
-					// Received + already paid
-					print '<td class="right"><span class="amount">' . price($sign * $paiement);
-					if ($creditnotes) {
-						print '<span class="opacitymedium">+' . price($creditnotes) . '</span>';
-					}
-					if ($deposits) {
-						print '<span class="opacitymedium">+' . price($deposits) . '</span>';
-					}
-					print '</span></td>';
-
-					// Remain to take or to pay back
-					print '<td class="right">';
-					print price($sign * $remaintopay);
-					if (isModEnabled('prelevement')) {
-						$numdirectdebitopen = 0;
-						$totaldirectdebit = 0;
-						$sql = "SELECT COUNT(pfd.rowid) as nb, SUM(pfd.amount) as amount";
-						$sql .= " FROM " . MAIN_DB_PREFIX . "prelevement_demande as pfd";
-						$sql .= " WHERE fk_facture = " . ((int) $objp->facid);
-						$sql .= " AND pfd.traite = 0";
-						$sql .= " AND pfd.ext_payment_id IS NULL";
-
-						$result_sql = $db->query($sql);
-						if ($result_sql) {
-							$obj = $db->fetch_object($result_sql);
-							$numdirectdebitopen = $obj->nb;
-							$totaldirectdebit = $obj->amount;
-						} else {
-							dol_print_error($db);
+						// Warning
+						print '<td align="center" width="16">';
+						//print "xx".$amounts[$invoice->id]."-".$amountsresttopay[$invoice->id]."<br>";
+						if (
+							!empty($amounts[$invoice->id]) && (abs($amounts[$invoice->id]) > abs($amountsresttopay[$invoice->id]))
+							|| !empty($multicurrency_amounts[$invoice->id]) && (abs($multicurrency_amounts[$invoice->id]) > abs($multicurrency_amountsresttopay[$invoice->id]))
+						) {
+							print ' ' . img_warning($langs->trans("PaymentHigherThanReminderToPay"));
 						}
-						if ($numdirectdebitopen) {
-							$langs->load("withdrawals");
-							print img_warning($langs->trans("WarningSomeDirectDebitOrdersAlreadyExists", $numdirectdebitopen, price(price2num($totaldirectdebit, 'MT'), 0, $langs, 1, -1, -1, $conf->currency)), '', 'classfortooltip');
-						}
+						print '</td>';
+
+						print "</tr>\n";
+
+						$total_ttc += $objp->total_ttc;
+						$totalrecu += $paiement;
+						$totalrecucreditnote += $creditnotes;
+						$totalrecudeposits += $deposits;
 					}
-					print '</td>';
-					//$test= price(price2num($objp->total_ttc - $paiement - $creditnotes - $deposits));
 
-					// Amount
-					print '<td class="right nowraponall">';
-
-					// Add remind amount
-					$namef = 'amount_' . $objp->facid;
-					$nameRemain = 'remain_' . $objp->facid;
-					print '<script>console.log("$objp->total_tva: ' . $objp->total_tva . '")</script>';
-					print '<script>console.log("$objp->tva_tx: ' . $objp->tva_tx . '")</script>';
-
-					$invoiceSchedule_total_ht = ($objp->total_ht * $objp->cond_reglement_code) / 100;
-					$invoiceSchedule_vat = ($invoiceSchedule_total_ht * $objp->tva_tx) / 100;
-					$invoiceSchedule_payment = $invoiceSchedule_total_ht + $invoiceSchedule_vat;
-					if ($action != 'add_paiement') {
-						if (!empty($conf->use_javascript_ajax)) {
-							print img_picto("Auto fill", 'rightarrow', "class='AutoFillAmout' data-rowname='" . $namef . "' data-value='" . ($sign * $remaintopay) . "'");
-						}
-						if (($invoice->id == $facid)) {
-							print '<input type="text" class="maxwidth75 amount" id="' . $namef . '" name="' . $namef . '" value="' . price($invoiceSchedule_payment, '', $langs, 0, -1, -1) . '">';
-						}else{
-							print '<input type="text" class="maxwidth75 amount" id="'.$namef.'" name="'.$namef.'" value="'.dol_escape_htmltag(GETPOST($namef)).'">';
-						}
-
-						print '<input type="hidden" class="remain" name="' . $nameRemain . '" value="' . $remaintopay . '">';
-					} else {
-						print '<input type="text" class="maxwidth75" name="' . $namef . '_disabled" value="' . dol_escape_htmltag(GETPOST($namef)) . '" disabled>';
-						print '<input type="hidden" name="' . $namef . '" value="' . dol_escape_htmltag(GETPOST($namef)) . '">';
-					}
-					print "</td>";
-
-					$parameters = array();
-					$reshook = $hookmanager->executeHooks('printFieldListValue', $parameters, $objp, $action); // Note that $action and $object may have been modified by hook
-
-					// Warning
-					print '<td align="center" width="16">';
-					//print "xx".$amounts[$invoice->id]."-".$amountsresttopay[$invoice->id]."<br>";
-					if (
-						!empty($amounts[$invoice->id]) && (abs($amounts[$invoice->id]) > abs($amountsresttopay[$invoice->id]))
-						|| !empty($multicurrency_amounts[$invoice->id]) && (abs($multicurrency_amounts[$invoice->id]) > abs($multicurrency_amountsresttopay[$invoice->id]))
-					) {
-						print ' ' . img_warning($langs->trans("PaymentHigherThanReminderToPay"));
-					}
-					print '</td>';
-
-					print "</tr>\n";
-
-					$total_ttc += $objp->total_ttc;
-					$totalrecu += $paiement;
-					$totalrecucreditnote += $creditnotes;
-					$totalrecudeposits += $deposits;
 					$i++;
 				}
 
@@ -861,7 +864,7 @@ if ($action == 'create' || $action == 'confirm_paiement' || $action == 'add_paie
 					}
 					print '</b></td>';
 					print '<td class="right"><b>' . price($sign * price2num($total_ttc - $totalrecu - $totalrecucreditnote - $totalrecudeposits, 'MT')) . '</b></td>';
-					print '<td class="right" id="result" style="font-weight: bold;">' . price($invoiceSchedule_payment, '', $langs, 0, -1, -1, '') . '</td>';
+					print '<td class="right" id="result" style="font-weight: bold;"></td>';
 					print '<td align="center">&nbsp;</td>';
 					print "</tr>\n";
 				}
