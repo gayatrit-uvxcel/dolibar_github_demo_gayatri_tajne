@@ -4422,7 +4422,7 @@ class PropaleLigne extends CommonObjectLine
         $sqlPropal .= ' total_ht, total_tva, total_localtax1, total_localtax2, total_ttc, fk_product_fournisseur_price, buy_price_ht, special_code, rang,';
         $sqlPropal .= ' fk_unit,';
         $sqlPropal .= ' date_start, date_end';
-        $sqlPropal .= ', fk_multicurrency, multicurrency_code, multicurrency_subprice, multicurrency_total_ht, multicurrency_total_tva, multicurrency_total_ttc,fk_projectid,fk_socid,unit)';
+        $sqlPropal .= ', fk_multicurrency, multicurrency_code, multicurrency_subprice, multicurrency_total_ht, multicurrency_total_tva, multicurrency_total_ttc,fk_projectid, fk_socid, unit)';
         $sqlPropal .= " VALUES (" . $this->fk_propal . ",";
         $sqlPropal .= " " . ($this->fk_parent_line > 0 ? "'" . $this->db->escape($this->fk_parent_line) . "'" : "null") . ",";
         $sqlPropal .= " " . (!empty($this->label) ? "'" . $this->db->escape($this->label) . "'" : "null") . ",";

@@ -1018,6 +1018,8 @@ class Facture extends CommonInvoice
                             $line->ref_ext,
                             1,
                             $line->unit,
+                            $line->fk_projectid,
+                            $line->fk_socid,
                         );
                         if ($result < 0) {
                             $this->error = $this->db->lasterror();
@@ -3862,6 +3864,7 @@ class Facture extends CommonInvoice
         $price_base_type = 'HT',
         $pu_ttc = 0,
         $type = 0,
+        $category = null,
         $rang = -1,
         $special_code = 0,
         $origin = '',
@@ -3877,7 +3880,9 @@ class Facture extends CommonInvoice
         $pu_ht_devise = 0,
         $ref_ext = '',
         $noupdateafterinsertline = 0,
-        $unit
+        $unit,
+        $fk_projectid = null,
+        $fk_socid = null
     ) {
         // Deprecation warning
         if ($label) {
@@ -3950,6 +3955,10 @@ class Facture extends CommonInvoice
 
             // Check parameters
             if ($type < 0) {
+                return -1;
+            }
+
+            if ($category < 0) {
                 return -1;
             }
 
@@ -4040,6 +4049,7 @@ class Facture extends CommonInvoice
 
             $this->line->fk_product = $fk_product;
             $this->line->product_type = $product_type;
+            $this->line->category = $category;
             $this->line->remise_percent = $remise_percent;
             $this->line->date_start = $date_start;
             $this->line->date_end = $date_end;
@@ -4056,6 +4066,10 @@ class Facture extends CommonInvoice
             $this->line->fk_prev_id = $fk_prev_id;
             $this->line->fk_unit = $fk_unit;
             $this->line->unit = $unit;
+
+            $this->line->fk_socid = $fk_socid;
+            $this->line->fk_projectid = $fk_projectid;
+
             // infos marge
             $this->line->fk_fournprice = $fk_fournprice;
             $this->line->pa_ht = $pa_ht;
@@ -4142,10 +4156,11 @@ class Facture extends CommonInvoice
      *  @param        integer        $rang                rank of line
      *  @return        int                             < 0 if KO, > 0 if OK
      */
-    public function updateline($rowid, $desc, $pu, $qty, $remise_percent, $date_start, $date_end, $txtva, $txlocaltax1 = 0, $txlocaltax2 = 0, $price_base_type = 'HT', $info_bits = 0, $type = self::TYPE_STANDARD, $fk_parent_line = 0, $skip_update_total = 0, $fk_fournprice = null, $pa_ht = 0, $label = '', $special_code = 0, $array_options = 0, $situation_percent = 100, $fk_unit = null, $unit = null, $pu_ht_devise = 0, $notrigger = 0, $ref_ext = '', $rang = 0)
+    public function updateline($rowid, $desc, $pu, $qty, $remise_percent, $date_start, $date_end, $txtva, $txlocaltax1 = 0, $txlocaltax2 = 0, $price_base_type = 'HT', $info_bits = 0, $type = self::TYPE_STANDARD, $category = null, $fk_parent_line = 0, $skip_update_total = 0, $fk_fournprice = null, $pa_ht = 0, $label = '', $special_code = 0, $array_options = 0, $situation_percent = 100, $fk_unit = null, $unit = null, $pu_ht_devise = 0, $notrigger = 0, $ref_ext = '', $rang = 0)
     {
 
         global $conf, $user;
+        $category = GETPOST('category');
         // Deprecation warning
         if ($label) {
             dol_syslog(__METHOD__ . ": using line label is deprecated", LOG_WARNING);
@@ -4206,6 +4221,10 @@ class Facture extends CommonInvoice
             // Check parameters
             if ($type < 0) {
                 return -1;
+            }
+
+            if (empty($category)) {
+                $category = 0;
             }
 
             // Calculate total with, without tax and tax from qty, pu, remise_percent and txtva
@@ -4305,6 +4324,7 @@ class Facture extends CommonInvoice
             $this->line->info_bits = $info_bits;
             $this->line->special_code = $special_code;
             $this->line->product_type = $type;
+            $this->line->category = $category;
             $this->line->fk_parent_line = $fk_parent_line;
             $this->line->skip_update_total = $skip_update_total;
             $this->line->situation_percent = $situation_percent;
@@ -6075,6 +6095,7 @@ class FactureLigne extends CommonInvoiceLine
      * @var FactureLigne
      */
     public $oldline;
+    public $category;
 
     //! From llx_facturedet
     //! Id facture
@@ -6353,7 +6374,7 @@ class FactureLigne extends CommonInvoiceLine
 
         // Update line in database
         $sql = 'INSERT INTO ' . MAIN_DB_PREFIX . 'facturedet';
-        $sql .= ' (fk_facture, fk_parent_line, label, description, qty,';
+        $sql .= ' (fk_facture, fk_parent_line, label, description, qty, category,';
         $sql .= ' vat_src_code, tva_tx, localtax1_tx, localtax2_tx, localtax1_type, localtax2_type,';
         $sql .= ' fk_product, product_type, remise_percent, subprice, ref_ext, fk_remise_except,';
         $sql .= ' date_start, date_end, fk_code_ventilation, ';
@@ -6361,13 +6382,14 @@ class FactureLigne extends CommonInvoiceLine
         $sql .= ' info_bits, total_ht, total_tva, total_ttc, total_localtax1, total_localtax2,';
         $sql .= ' situation_percent, fk_prev_id,';
         $sql .= ' fk_unit, fk_user_author, fk_user_modif,';
-        $sql .= ' fk_multicurrency, multicurrency_code, multicurrency_subprice, multicurrency_total_ht, multicurrency_total_tva, multicurrency_total_ttc,unit';
+        $sql .= ' fk_multicurrency, multicurrency_code, multicurrency_subprice, multicurrency_total_ht, multicurrency_total_tva, multicurrency_total_ttc,fk_projectid, fk_socid, unit';
         $sql .= ')';
         $sql .= " VALUES (" . $this->fk_facture . ",";
         $sql .= " " . ($this->fk_parent_line > 0 ? $this->fk_parent_line : "null") . ",";
         $sql .= " " . (!empty($this->label) ? "'" . $this->db->escape($this->label) . "'" : "null") . ",";
         $sql .= " '" . $this->db->escape($this->desc) . "',";
         $sql .= " " . price2num($this->qty) . ",";
+        $sql .= " '" . $this->db->escape(GETPOSTISSET("category") ? GETPOST("category") : 'null') . "',";
         $sql .= " " . (empty($this->vat_src_code) ? "''" : "'" . $this->db->escape($this->vat_src_code) . "'") . ",";
         $sql .= " " . price2num($this->tva_tx) . ",";
         $sql .= " " . price2num($this->localtax1_tx) . ",";
@@ -6404,7 +6426,16 @@ class FactureLigne extends CommonInvoiceLine
         $sql .= ", " . price2num($this->multicurrency_total_ht);
         $sql .= ", " . price2num($this->multicurrency_total_tva);
         $sql .= ", " . price2num($this->multicurrency_total_ttc);
+        $sql .= ", '" . $this->db->escape(GETPOSTISSET("fk_projectid") ? GETPOST("fk_projectid") : 'null') . "'";
+        $sql .= ", '" . $this->db->escape(GETPOSTISSET("fk_socid") ? GETPOST("fk_socid") : 'null') . "'";
         $sql .= ", '" . $this->db->escape(GETPOSTISSET("unit") ? GETPOST("unit") : '') . "')";
+
+        // $categoryValue = $this->db->escape(GETPOSTISSET("category") ? GETPOST("category") : 'null');
+        // $main_category_name = explode(" - ", $categoryValue)[0];
+        // $category_name = explode(" - ", $categoryValue)[1];
+        // $sqlCategories = "INSERT INTO llx_default_product_categories (category_name, main_category_name) VALUES ('$category_name', '$main_category_name')";
+        // $sqlCategoriesRes = $this->db->query($sqlCategories);
+
         dol_syslog(get_class($this) . "::insert", LOG_DEBUG);
         $resql = $this->db->query($sql);
         if ($resql) {
@@ -6575,6 +6606,7 @@ class FactureLigne extends CommonInvoiceLine
         $sql .= " description='" . $this->db->escape($this->desc) . "'";
         $sql .= ", ref_ext='" . $this->db->escape($this->ref_ext) . "'";
         $sql .= ", label=" . (!empty($this->label) ? "'" . $this->db->escape($this->label) . "'" : "null");
+        $sql .= ", category='" . (empty($this->category) ? '' : $this->category) . "'";
         $sql .= ", subprice=" . price2num($this->subprice);
         $sql .= ", remise_percent=" . price2num($this->remise_percent);
         if ($this->fk_remise_except) {

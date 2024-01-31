@@ -81,8 +81,15 @@ if (!empty($conf->global->INVOICE_POSITIVE_CREDIT_NOTE_SCREEN) && in_array($obje
 }
 
 $coldisplay = 0;
+$tablename = "";
 
-$sql_llx_propaldet = "SELECT * FROM " . MAIN_DB_PREFIX . "propaldet WHERE rowid = $line->rowid";
+if ($object->element === "facture") {
+    $tablename = "facturedet";
+} else if ($object->element === "propal") {
+    $tablename = "propaldet";
+}
+
+$sql_llx_propaldet = "SELECT * FROM " . MAIN_DB_PREFIX . "$tablename WHERE rowid = $line->rowid";
 $res_llx_propaldet = $this->db->query($sql_llx_propaldet);
 
 if ($res_llx_propaldet) {

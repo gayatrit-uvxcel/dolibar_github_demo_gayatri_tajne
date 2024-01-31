@@ -1541,7 +1541,6 @@ if (empty($reshook)) {
             $res = $product->fetch($productid);
 
             $type = $product->type;
-            $$category = $product->$category;
             $label = ((GETPOST('update_label') && GETPOST('product_label')) ? GETPOST('product_label') : '');
 
             $price_min = $product->price_min;

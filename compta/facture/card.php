@@ -1786,7 +1786,7 @@ if (empty($reshook)) {
                                             0,
                                             '',
                                             1,
-                                            $lines[$i]->unit
+                                            $lines[$i]->unit, $lines[$i]->fk_socid, $lines[$i]->fk_projectid
                                         );
 
                                         if ($result > 0) {
@@ -2027,14 +2027,14 @@ if (empty($reshook)) {
         $localtax2_rate = get_localtax($vat_rate, 2, $object->thirdparty, $mysoc);
 
         foreach ($object->lines as $line) {
-            $result = $object->updateline($line->id, $line->desc, $line->subprice, $line->qty, $line->remise_percent, $line->date_start, $line->date_end, $vat_rate, $localtax1_rate, $localtax2_rate, 'HT', $line->info_bits, $line->product_type, $line->fk_parent_line, 0, $line->fk_fournprice, $line->pa_ht, $line->label, $line->special_code, $line->array_options, $line->situation_percent, $line->fk_unit, $line->multicurrency_subprice, $line->unit);
+            $result = $object->updateline($line->id, $line->desc, $line->subprice, $line->qty, $line->remise_percent, $line->date_start, $line->date_end, $vat_rate, $localtax1_rate, $localtax2_rate, 'HT', $line->info_bits, $line->product_type, $line->fk_parent_line, 0, $line->fk_fournprice, $line->pa_ht, $line->label, $line->special_code, $line->array_options, $line->situation_percent, $line->fk_unit, $line->multicurrency_subprice, $line->unit, $line->fk_projectid, $line->fk_socid);
         }
     } elseif ($action == 'addline' && GETPOST('submitforalllines', 'alpha') && GETPOST('remiseforalllines', 'alpha') !== '' && $usercancreate) {
         // Define vat_rate
         $remise_percent = (GETPOST('remiseforalllines') ? GETPOST('remiseforalllines') : 0);
         $remise_percent = str_replace('*', '', $remise_percent);
         foreach ($object->lines as $line) {
-            $result = $object->updateline($line->id, $line->desc, $line->subprice, $line->qty, $remise_percent, $line->date_start, $line->date_end, $line->tva_tx, $line->localtax1_tx, $line->localtax2_tx, 'HT', $line->info_bits, $line->product_type, $line->fk_parent_line, 0, $line->fk_fournprice, $line->pa_ht, $line->label, $line->special_code, $line->array_options, $line->situation_percent, $line->fk_unit, $line->multicurrency_subprice, $line->unit);
+            $result = $object->updateline($line->id, $line->desc, $line->subprice, $line->qty, $remise_percent, $line->date_start, $line->date_end, $line->tva_tx, $line->localtax1_tx, $line->localtax2_tx, 'HT', $line->info_bits, $line->product_type, $line->fk_parent_line, 0, $line->fk_fournprice, $line->pa_ht, $line->label, $line->special_code, $line->array_options, $line->situation_percent, $line->fk_unit, $line->multicurrency_subprice, $line->unit, $line->fk_projectid, $line->fk_socid);
         }
     } elseif ($action == 'addline' && $usercancreate) { // Add a new line
         $langs->load('errors');
@@ -2051,6 +2051,8 @@ if (empty($reshook)) {
         $price_min = '';
         $price_min_ttc = '';
         $unit = '';
+        $fk_projectid = '';
+        $fk_socid = '';
 
         if (GETPOST('price_ht') !== '') {
             $price_ht = price2num(GETPOST('price_ht'), 'MU', 2);
@@ -2064,6 +2066,9 @@ if (empty($reshook)) {
         if (GETPOST('multicurrency_price_ttc') !== '') {
             $price_ttc_devise = price2num(GETPOST('multicurrency_price_ttc'), 'CU', 2);
         }
+
+        $fk_projectid = GETPOST('fk_projectid');
+        $fk_socid = GETPOST('fk_socid');
 
         $prod_entry_mode = GETPOST('prod_entry_mode', 'aZ09');
         if ($prod_entry_mode == 'free') {
@@ -2290,8 +2295,11 @@ if (empty($reshook)) {
                 }
 
                 $type = $prod->type;
+                $category = $prod->category;
                 $fk_unit = $prod->fk_unit;
                 $unit = $prod->unit;
+                $fk_socid = $prod->fk_socid;
+                $fk_projectid = $prod->fk_projectid;
             } else {
                 $pu_ht = price2num($price_ht, 'MU');
                 $pu_ttc = price2num($price_ttc, 'MU');
@@ -2303,8 +2311,11 @@ if (empty($reshook)) {
                 $label = (GETPOST('product_label') ? GETPOST('product_label') : '');
                 $desc = $product_desc;
                 $type = GETPOST('type');
+                $category = GETPOST('category');
                 $fk_unit = GETPOST('units', 'alpha');
                 $unit = GETPOST('unit');
+                $fk_projectid = GETPOST('fk_projectid');
+                $fk_socid = GETPOST('fk_socid');
 
                 if ($pu_ttc && !$pu_ht) {
                     $price_base_type = 'TTC';
@@ -2395,7 +2406,7 @@ if (empty($reshook)) {
 
                 // Insert line
                 // $result = $object->addline($desc, $pu_ht, $qty, $tva_tx, $localtax1_tx, $localtax2_tx, $idprod, $remise_percent, $date_start, $date_end, 0, $info_bits, '', $price_base_type, $pu_ttc, $type, min($rank, count($object->lines) + 1), $special_code, '', 0, GETPOST('fk_parent_line'), $fournprice, $buyingprice, $label, $array_options, GETPOST('progress'), '', $fk_unit, $pu_ht_devise,$unit);
-                $result = $object->addline($desc, $pu_ht, $qty, $tva_tx, $txlocaltax1 = 0, $txlocaltax2 = 0, $fk_product = 0, $remise_percent = 0, $date_start = '', $date_end = '', $ventil = 0, $info_bits = 0, $fk_remise_except = '', $price_base_type = 'HT', $pu_ttc = 0, $type = 0, $rang = -1, $special_code = 0, $origin = '', $origin_id = 0, $fk_parent_line = 0, $fk_fournprice = null, $pa_ht = 0, $label = '', $array_options = 0, $situation_percent = 100, $fk_prev_id = 0, $fk_unit = null, $pu_ht_devise = 0, $ref_ext = '', $noupdateafterinsertline = 0, $unit);
+                $result = $object->addline($desc, $pu_ht, $qty, $tva_tx, $txlocaltax1 = 0, $txlocaltax2 = 0, $fk_product = 0, $remise_percent = 0, $date_start = '', $date_end = '', $ventil = 0, $info_bits = 0, $fk_remise_except = '', $price_base_type = 'HT', $pu_ttc = 0, $type = 0, $category, $rang = -1, $special_code = 0, $origin = '', $origin_id = 0, $fk_parent_line = 0, $fk_fournprice = null, $pa_ht = 0, $label = '', $array_options = 0, $situation_percent = 100, $fk_prev_id = 0, $fk_unit = null, $pu_ht_devise = 0, $ref_ext = '', $noupdateafterinsertline = 0, $unit, $fk_projectid, $fk_socid);
                 if ($result > 0) {
                     // Define output language and generate document
                     if (empty($conf->global->MAIN_DISABLE_PDF_AUTOUPDATE)) {
@@ -2607,6 +2618,7 @@ if (empty($reshook)) {
             }
         } else {
             $type = GETPOST('type');
+            $category = GETPOST('category');
             $label = (GETPOST('product_label') ? GETPOST('product_label') : '');
 
             // Check parameters
@@ -2669,6 +2681,7 @@ if (empty($reshook)) {
                 $price_base_type,
                 $info_bits,
                 $type,
+                $category,
                 GETPOST('fk_parent_line', 'int'),
                 0,
                 $fournprice,
@@ -2678,6 +2691,8 @@ if (empty($reshook)) {
                 $array_options,
                 price2num(GETPOST('progress', 'alpha')),
                 $unit,
+                $fk_projectid,
+                $fk_socid,
                 $pu_ht_devise
             );
 
@@ -2905,6 +2920,7 @@ if (empty($reshook)) {
                     $price_base_type = 'HT';
                     $pu_ttc = 0;
                     $type = $originLine->product_type;
+                    $category = $originLine->category;
                     $rang = $nextRang++;
                     $special_code = $originLine->special_code;
                     $origin = $originLine->element;
@@ -2923,6 +2939,8 @@ if (empty($reshook)) {
                     $fk_unit = $originLine->fk_unit;
                     $pu_ht_devise = $originLine->multicurrency_subprice;
                     $unit = $originLine->unit;
+                    $fk_projectid = $originLine->fk_projectid;
+                    $fk_socid = $originLine->fk_socid;
 
                     $res = $object->addline(
                         $desc,
@@ -2941,6 +2959,7 @@ if (empty($reshook)) {
                         $price_base_type,
                         $pu_ttc,
                         $type,
+                        $category,
                         $rang,
                         $special_code,
                         $origin,
@@ -2955,6 +2974,7 @@ if (empty($reshook)) {
                         $fk_unit,
                         $pu_ht_devise,
                         $unit,
+                        $fk_projectid, $fk_socid,
                         $ref_ext,
                         $noupdateafterinsertline
                     );
@@ -5611,7 +5631,7 @@ if ($action == 'create') {
     print '<table class="border tableforfield centpercent">';
     print '<tr class="center liste_titre">';
     // print '<td class="center amountcard nowrap liste_titre"  colspan="2">' . $langs->trans('Invoice Schedule') . '</td>';
-    print '<td class="center amountcard nowrap liste_titre"  colspan="2">' . 'Invoice Schedule ' .$object->cond_reglement_code .'%'. '</td>';
+    print '<td class="center amountcard nowrap liste_titre"  colspan="2">' . 'Invoice Schedule ' . $object->cond_reglement_code . '%' . '</td>';
     print '</tr>';
     print '<tr class="">';
     // Amount HT with invoice schedule
@@ -5717,6 +5737,8 @@ if ($action == 'create') {
 	<input type="hidden" name="page_y" value="">
 	<input type="hidden" name="id" value="' . $object->id . '">
 	<input type="hidden" name="backtopage" value="' . $backtopage . '">
+    <input type="hidden" name="fk_projectid" value="' . $object->fk_project . '">
+	<input type="hidden" name="fk_socid" value="' . $object->socid . '">
 	';
 
     if (!empty($conf->use_javascript_ajax) && $object->statut == 0) {
