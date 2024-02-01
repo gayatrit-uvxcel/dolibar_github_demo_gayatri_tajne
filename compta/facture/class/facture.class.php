@@ -932,6 +932,7 @@ class Facture extends CommonInvoice
                             $newinvoiceline->ref_ext,
                             1,
                             $newinvoiceline->unit,
+                            0
                         );
 
                         // Defined the new fk_parent_line
@@ -1120,6 +1121,7 @@ class Facture extends CommonInvoice
                         $_facrec->lines[$i]->ref_ext,
                         1,
                         $_facrec->lines[$i]->unit,
+                        0
                     );
 
                     if ($result_insert < 0) {
@@ -1888,6 +1890,7 @@ class Facture extends CommonInvoice
                 0,
                 '',
                 1,
+                0,
                 0
                 //,$langs->trans('Deposit') //Deprecated
 
@@ -2573,7 +2576,6 @@ class Facture extends CommonInvoice
 
         // Check parameters
         // Put here code to add control on parameters values
-
         // Update request
         $sql = "UPDATE " . MAIN_DB_PREFIX . "facture SET";
         $sql .= " ref=" . (isset($this->ref) ? "'" . $this->db->escape($this->ref) . "'" : "null") . ",";

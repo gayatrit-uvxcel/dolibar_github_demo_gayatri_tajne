@@ -1152,8 +1152,10 @@ class Form
         global $langs, $conf;
 
         // If product & services are enabled or both disabled.
-        if ($forceall == 1 || (empty($forceall) && isModEnabled("product") && isModEnabled("service"))
-            || (empty($forceall) && !isModEnabled('product') && !isModEnabled('service'))) {
+        if (
+            $forceall == 1 || (empty($forceall) && isModEnabled("product") && isModEnabled("service"))
+            || (empty($forceall) && !isModEnabled('product') && !isModEnabled('service'))
+        ) {
             if (empty($hidetext)) {
                 print $langs->trans("Type") . ': ';
             }
@@ -1319,7 +1321,6 @@ class Form
                 } else {
                     print '>' . $fullCategoryValueArr[0] . '</option>';
                 }
-
             }
         }
         if ($forceall !== false) {
@@ -1333,7 +1334,6 @@ class Form
         if ($forceall !== false) {
             print ajax_combobox('select_' . $htmlname);
         }
-
     }
 
     // phpcs:disable PEAR.NamingConventions.ValidFunctionName.ScopeNotCamelCaps
@@ -3491,7 +3491,7 @@ class Form
             $urloption = ($socid > 0 ? 'socid=' . $socid . '&' : '') . 'htmlname=' . $htmlname . '&outjson=1&price_level=' . $price_level . '&type=' . $filtertype . '&mode=2&status=' . $status . '&finished=' . $finished . '&alsoproductwithnosupplierprice=' . $alsoproductwithnosupplierprice;
             print ajax_autocompleter($selected, $htmlname, DOL_URL_ROOT . '/product/ajax/products.php', $urloption, $conf->global->PRODUIT_USE_SEARCH_TO_SELECT, 0, $ajaxoptions);
 
-            print($hidelabel ? '' : $langs->trans("RefOrLabel") . ' : ') . '<input type="text" class="minwidth300" name="search_' . $htmlname . '" id="search_' . $htmlname . '" value="' . $selected_input_value . '"' . ($placeholder ? ' placeholder="' . $placeholder . '"' : '') . '>';
+            print ($hidelabel ? '' : $langs->trans("RefOrLabel") . ' : ') . '<input type="text" class="minwidth300" name="search_' . $htmlname . '" id="search_' . $htmlname . '" value="' . $selected_input_value . '"' . ($placeholder ? ' placeholder="' . $placeholder . '"' : '') . '>';
         } else {
             print $this->select_produits_fournisseurs_list($socid, $selected, $htmlname, $filtertype, $filtre, '', $status, 0, 0, $alsoproductwithnosupplierprice, $morecss, 0, $placeholder);
         }
@@ -3879,7 +3879,8 @@ class Form
                 $out .= $optstart . ' data-html="' . dol_escape_htmltag($optlabel) . '">' . $optlabel . "</option>\n";
                 array_push(
                     $outarray,
-                    array('key' => $outkey,
+                    array(
+                        'key' => $outkey,
                         'value' => $outref,
                         'label' => $outvallabel,
                         'qty' => $outqty,
@@ -4788,7 +4789,7 @@ class Form
                     } else {
                         print '<option value="' . $obj->rowid . '">';
                     }
-                    print($langs->trans("SendingMethod" . strtoupper($obj->code)) != "SendingMethod" . strtoupper($obj->code)) ? $langs->trans("SendingMethod" . strtoupper($obj->code)) : $obj->label;
+                    print ($langs->trans("SendingMethod" . strtoupper($obj->code)) != "SendingMethod" . strtoupper($obj->code)) ? $langs->trans("SendingMethod" . strtoupper($obj->code)) : $obj->label;
                     print '</option>';
                     $i++;
                 }
@@ -5752,17 +5753,18 @@ class Form
      * @param int         $nooutput             No print is done. String is returned.
      * @return string                       HTML output or ''
      */
-    public function form_conditions_reglement($page, $selected = '', $htmlname = 'cond_reglement_id', $addempty = 0, $type = '', $filtertype = -1, $deposit_percent = -1, $nooutput = 0)
+    public function form_conditions_reglement($page, $selected = '', $htmlname = 'cond_reglement_id', $addempty = 0, $type = '', $filtertype = -1, $deposit_percent = -1, $nooutput = 0, $invoiceref = '')
     {
         // phpcs:enable
         global $langs;
 
         $out = '';
-
         if ($htmlname != "none") {
-            $out .= '<form method="POST" action="' . $page . '">';
+            $invoiceref = $this->addSuffixToInvoiceref($invoiceref);
+            $out .= '<form method="POST" name="paymentModify" action="' . $page . '">';
             $out .= '<input type="hidden" name="action" value="setconditions">';
             $out .= '<input type="hidden" name="token" value="' . newToken() . '">';
+            $out .= '<input type="hidden" name="invoiceref " value="' .  $invoiceref . '">';
             if ($type) {
                 $out .= '<input type="hidden" name="type" value="' . dol_escape_htmltag($type) . '">';
             }
@@ -5788,14 +5790,32 @@ class Form
                 $out .= '&nbsp;';
             }
         }
-
+        print '<script>console.log("invoiceref: ' . $invoiceref . '")</script>';
+        print '<script>console.log("GETPOST INVOICE REF: ' . GETPOSTISSET("invoiceref") ?  GETPOST("invoiceref") : -1 . '")</script>';
         if (empty($nooutput)) {
             print $out;
-            return '';
+            return $invoiceref;
         }
         return $out;
     }
 
+    private function addSuffixToInvoiceref($invoiceref)
+    {
+        // Get the last character of the current invoiceref
+        $lastChar = substr($invoiceref, -1);
+
+        // Check if the last character is a letter (A-Z)
+        if (ctype_alpha($lastChar)) {
+            // Increment the letter to the next one (A->B, B->C, ..., Z->A)
+            $nextChar = chr(((ord($lastChar) - 65 + 1) % 26) + 65);
+            $invoiceref .= $nextChar;
+        } else {
+            // If the last character is not a letter, append 'A' as the suffix
+            $invoiceref .= 'A';
+        }
+
+        return $invoiceref;
+    }
     // phpcs:disable PEAR.NamingConventions.ValidFunctionName.ScopeNotCamelCaps
 
     /**
@@ -7519,12 +7539,10 @@ class Form
                 } else {
                     $textifempty .= $langs->trans("All");
                 }
-
             } else {
                 if ($showempty && !is_numeric($showempty)) {
                     $textifempty = $langs->trans($showempty);
                 }
-
             }
             if ($showempty) {
                 $out .= '<option value="0" selected>' . $textifempty . '</option>';
@@ -7748,12 +7766,10 @@ class Form
                 } else {
                     $textifempty .= $langs->trans("All");
                 }
-
             } else {
                 if ($showempty && !is_numeric($showempty)) {
                     $textifempty = $langs->trans($showempty);
                 }
-
             }
             if ($showempty) {
                 $out .= '<option value="0" selected>' . $textifempty . '</option>';
@@ -7987,12 +8003,10 @@ class Form
                 } else {
                     $textifempty .= $langs->trans("All");
                 }
-
             } else {
                 if ($showempty && !is_numeric($showempty)) {
                     $textifempty = $langs->trans($showempty);
                 }
-
             }
             if ($showempty) {
                 $out .= '<option value="-1" selected>' . $textifempty . '</option>';
@@ -8460,7 +8474,8 @@ class Form
                 }
                 if (!empty($disablebademail)) {
                     if (($disablebademail == 1 && !preg_match('/&lt;.+@.+&gt;/', $value))
-                        || ($disablebademail == 2 && preg_match('/---/', $value))) {
+                        || ($disablebademail == 2 && preg_match('/---/', $value))
+                    ) {
                         $disabled = ' disabled';
                         $style = ' class="warning"';
                     }
@@ -9254,27 +9269,32 @@ class Form
                     'enabled' => isModEnabled('propal'),
                     'perms' => 1,
                     'label' => 'LinkToProposal',
-                    'sql' => "SELECT s.rowid as socid, s.nom as name, s.client, t.rowid, t.ref, t.ref_client, t.total_ht FROM " . $this->db->prefix() . "societe as s, " . $this->db->prefix() . "propal as t WHERE t.fk_soc = s.rowid AND t.fk_soc IN (" . $this->db->sanitize($listofidcompanytoscan) . ') AND t.entity IN (' . getEntity('propal') . ')'),
+                    'sql' => "SELECT s.rowid as socid, s.nom as name, s.client, t.rowid, t.ref, t.ref_client, t.total_ht FROM " . $this->db->prefix() . "societe as s, " . $this->db->prefix() . "propal as t WHERE t.fk_soc = s.rowid AND t.fk_soc IN (" . $this->db->sanitize($listofidcompanytoscan) . ') AND t.entity IN (' . getEntity('propal') . ')'
+                ),
                 'shipping' => array(
                     'enabled' => isModEnabled('expedition'),
                     'perms' => 1,
                     'label' => 'LinkToExpedition',
-                    'sql' => "SELECT s.rowid as socid, s.nom as name, s.client, t.rowid, t.ref FROM " . $this->db->prefix() . "societe as s, " . $this->db->prefix() . "expedition as t WHERE t.fk_soc = s.rowid AND t.fk_soc IN (" . $this->db->sanitize($listofidcompanytoscan) . ') AND t.entity IN (' . getEntity('shipping') . ')'),
+                    'sql' => "SELECT s.rowid as socid, s.nom as name, s.client, t.rowid, t.ref FROM " . $this->db->prefix() . "societe as s, " . $this->db->prefix() . "expedition as t WHERE t.fk_soc = s.rowid AND t.fk_soc IN (" . $this->db->sanitize($listofidcompanytoscan) . ') AND t.entity IN (' . getEntity('shipping') . ')'
+                ),
                 'order' => array(
                     'enabled' => isModEnabled('commande'),
                     'perms' => 1,
                     'label' => 'LinkToOrder',
-                    'sql' => "SELECT s.rowid as socid, s.nom as name, s.client, t.rowid, t.ref, t.ref_client, t.total_ht FROM " . $this->db->prefix() . "societe as s, " . $this->db->prefix() . "commande as t WHERE t.fk_soc = s.rowid AND t.fk_soc IN (" . $this->db->sanitize($listofidcompanytoscan) . ') AND t.entity IN (' . getEntity('commande') . ')'),
+                    'sql' => "SELECT s.rowid as socid, s.nom as name, s.client, t.rowid, t.ref, t.ref_client, t.total_ht FROM " . $this->db->prefix() . "societe as s, " . $this->db->prefix() . "commande as t WHERE t.fk_soc = s.rowid AND t.fk_soc IN (" . $this->db->sanitize($listofidcompanytoscan) . ') AND t.entity IN (' . getEntity('commande') . ')'
+                ),
                 'invoice' => array(
                     'enabled' => isModEnabled('facture'),
                     'perms' => 1,
                     'label' => 'LinkToInvoice',
-                    'sql' => "SELECT s.rowid as socid, s.nom as name, s.client, t.rowid, t.ref, t.ref_client, t.total_ht FROM " . $this->db->prefix() . "societe as s, " . $this->db->prefix() . "facture as t WHERE t.fk_soc = s.rowid AND t.fk_soc IN (" . $this->db->sanitize($listofidcompanytoscan) . ') AND t.entity IN (' . getEntity('invoice') . ')'),
+                    'sql' => "SELECT s.rowid as socid, s.nom as name, s.client, t.rowid, t.ref, t.ref_client, t.total_ht FROM " . $this->db->prefix() . "societe as s, " . $this->db->prefix() . "facture as t WHERE t.fk_soc = s.rowid AND t.fk_soc IN (" . $this->db->sanitize($listofidcompanytoscan) . ') AND t.entity IN (' . getEntity('invoice') . ')'
+                ),
                 'invoice_template' => array(
                     'enabled' => isModEnabled('facture'),
                     'perms' => 1,
                     'label' => 'LinkToTemplateInvoice',
-                    'sql' => "SELECT s.rowid as socid, s.nom as name, s.client, t.rowid, t.titre as ref, t.total_ht FROM " . $this->db->prefix() . "societe as s, " . $this->db->prefix() . "facture_rec as t WHERE t.fk_soc = s.rowid AND t.fk_soc IN (" . $this->db->sanitize($listofidcompanytoscan) . ') AND t.entity IN (' . getEntity('invoice') . ')'),
+                    'sql' => "SELECT s.rowid as socid, s.nom as name, s.client, t.rowid, t.titre as ref, t.total_ht FROM " . $this->db->prefix() . "societe as s, " . $this->db->prefix() . "facture_rec as t WHERE t.fk_soc = s.rowid AND t.fk_soc IN (" . $this->db->sanitize($listofidcompanytoscan) . ') AND t.entity IN (' . getEntity('invoice') . ')'
+                ),
                 'contrat' => array(
                     'enabled' => isModEnabled('contrat'),
                     'perms' => 1,
@@ -9286,31 +9306,37 @@ class Form
                     'enabled' => isModEnabled('ficheinter'),
                     'perms' => 1,
                     'label' => 'LinkToIntervention',
-                    'sql' => "SELECT s.rowid as socid, s.nom as name, s.client, t.rowid, t.ref FROM " . $this->db->prefix() . "societe as s, " . $this->db->prefix() . "fichinter as t WHERE t.fk_soc = s.rowid AND t.fk_soc IN (" . $this->db->sanitize($listofidcompanytoscan) . ') AND t.entity IN (' . getEntity('intervention') . ')'),
+                    'sql' => "SELECT s.rowid as socid, s.nom as name, s.client, t.rowid, t.ref FROM " . $this->db->prefix() . "societe as s, " . $this->db->prefix() . "fichinter as t WHERE t.fk_soc = s.rowid AND t.fk_soc IN (" . $this->db->sanitize($listofidcompanytoscan) . ') AND t.entity IN (' . getEntity('intervention') . ')'
+                ),
                 'supplier_proposal' => array(
                     'enabled' => (isModEnabled('supplier_proposal') ? $conf->supplier_proposal->enabled : 0),
                     'perms' => 1,
                     'label' => 'LinkToSupplierProposal',
-                    'sql' => "SELECT s.rowid as socid, s.nom as name, s.client, t.rowid, t.ref, '' as ref_supplier, t.total_ht FROM " . $this->db->prefix() . "societe as s, " . $this->db->prefix() . "supplier_proposal as t WHERE t.fk_soc = s.rowid AND t.fk_soc IN (" . $this->db->sanitize($listofidcompanytoscan) . ') AND t.entity IN (' . getEntity('supplier_proposal') . ')'),
+                    'sql' => "SELECT s.rowid as socid, s.nom as name, s.client, t.rowid, t.ref, '' as ref_supplier, t.total_ht FROM " . $this->db->prefix() . "societe as s, " . $this->db->prefix() . "supplier_proposal as t WHERE t.fk_soc = s.rowid AND t.fk_soc IN (" . $this->db->sanitize($listofidcompanytoscan) . ') AND t.entity IN (' . getEntity('supplier_proposal') . ')'
+                ),
                 'order_supplier' => array(
                     'enabled' => (isModEnabled("supplier_order") ? $conf->supplier_order->enabled : 0),
                     'perms' => 1,
                     'label' => 'LinkToSupplierOrder',
-                    'sql' => "SELECT s.rowid as socid, s.nom as name, s.client, t.rowid, t.ref, t.ref_supplier, t.total_ht FROM " . $this->db->prefix() . "societe as s, " . $this->db->prefix() . "commande_fournisseur as t WHERE t.fk_soc = s.rowid AND t.fk_soc IN (" . $this->db->sanitize($listofidcompanytoscan) . ') AND t.entity IN (' . getEntity('commande_fournisseur') . ')'),
+                    'sql' => "SELECT s.rowid as socid, s.nom as name, s.client, t.rowid, t.ref, t.ref_supplier, t.total_ht FROM " . $this->db->prefix() . "societe as s, " . $this->db->prefix() . "commande_fournisseur as t WHERE t.fk_soc = s.rowid AND t.fk_soc IN (" . $this->db->sanitize($listofidcompanytoscan) . ') AND t.entity IN (' . getEntity('commande_fournisseur') . ')'
+                ),
                 'invoice_supplier' => array(
                     'enabled' => (isModEnabled("supplier_invoice") ? $conf->supplier_invoice->enabled : 0),
                     'perms' => 1, 'label' => 'LinkToSupplierInvoice',
-                    'sql' => "SELECT s.rowid as socid, s.nom as name, s.client, t.rowid, t.ref, t.ref_supplier, t.total_ht FROM " . $this->db->prefix() . "societe as s, " . $this->db->prefix() . "facture_fourn as t WHERE t.fk_soc = s.rowid AND t.fk_soc IN (" . $this->db->sanitize($listofidcompanytoscan) . ') AND t.entity IN (' . getEntity('facture_fourn') . ')'),
+                    'sql' => "SELECT s.rowid as socid, s.nom as name, s.client, t.rowid, t.ref, t.ref_supplier, t.total_ht FROM " . $this->db->prefix() . "societe as s, " . $this->db->prefix() . "facture_fourn as t WHERE t.fk_soc = s.rowid AND t.fk_soc IN (" . $this->db->sanitize($listofidcompanytoscan) . ') AND t.entity IN (' . getEntity('facture_fourn') . ')'
+                ),
                 'ticket' => array(
                     'enabled' => isModEnabled('ticket'),
                     'perms' => 1,
                     'label' => 'LinkToTicket',
-                    'sql' => "SELECT s.rowid as socid, s.nom as name, s.client, t.rowid, t.ref, t.track_id, '0' as total_ht FROM " . $this->db->prefix() . "societe as s, " . $this->db->prefix() . "ticket as t WHERE t.fk_soc = s.rowid AND t.fk_soc IN (" . $this->db->sanitize($listofidcompanytoscan) . ') AND t.entity IN (' . getEntity('ticket') . ')'),
+                    'sql' => "SELECT s.rowid as socid, s.nom as name, s.client, t.rowid, t.ref, t.track_id, '0' as total_ht FROM " . $this->db->prefix() . "societe as s, " . $this->db->prefix() . "ticket as t WHERE t.fk_soc = s.rowid AND t.fk_soc IN (" . $this->db->sanitize($listofidcompanytoscan) . ') AND t.entity IN (' . getEntity('ticket') . ')'
+                ),
                 'mo' => array(
                     'enabled' => isModEnabled('mrp'),
                     'perms' => 1,
                     'label' => 'LinkToMo',
-                    'sql' => "SELECT s.rowid as socid, s.nom as name, s.client, t.rowid, t.ref, t.rowid, '0' as total_ht FROM " . $this->db->prefix() . "societe as s INNER JOIN " . $this->db->prefix() . "mrp_mo as t ON t.fk_soc = s.rowid  WHERE  t.fk_soc IN (" . $this->db->sanitize($listofidcompanytoscan) . ') AND t.entity IN (' . getEntity('mo') . ')'),
+                    'sql' => "SELECT s.rowid as socid, s.nom as name, s.client, t.rowid, t.ref, t.rowid, '0' as total_ht FROM " . $this->db->prefix() . "societe as s INNER JOIN " . $this->db->prefix() . "mrp_mo as t ON t.fk_soc = s.rowid  WHERE  t.fk_soc IN (" . $this->db->sanitize($listofidcompanytoscan) . ') AND t.entity IN (' . getEntity('mo') . ')'
+                ),
             );
         }
 

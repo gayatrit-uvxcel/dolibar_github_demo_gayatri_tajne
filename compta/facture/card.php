@@ -1786,7 +1786,9 @@ if (empty($reshook)) {
                                             0,
                                             '',
                                             1,
-                                            $lines[$i]->unit, $lines[$i]->fk_socid, $lines[$i]->fk_projectid
+                                            $lines[$i]->unit,
+                                            $lines[$i]->fk_socid,
+                                            $lines[$i]->fk_projectid
                                         );
 
                                         if ($result > 0) {
@@ -2974,7 +2976,8 @@ if (empty($reshook)) {
                         $fk_unit,
                         $pu_ht_devise,
                         $unit,
-                        $fk_projectid, $fk_socid,
+                        $fk_projectid,
+                        $fk_socid,
                         $ref_ext,
                         $noupdateafterinsertline
                     );
@@ -3829,7 +3832,7 @@ if ($action == 'create') {
         print '</td></tr>';
     }
 
-    // Payment term
+    // Invoice Schedule
     print '<tr class="field_cond_reglement_id"><td class="nowrap fieldrequired">' . 'Invoice Schedule' . '</td><td colspan="2">';
     print img_picto('', 'payment', 'class="pictofixedwidth"');
     print $form->getSelectConditionsPaiements((GETPOSTISSET('cond_reglement_id') && GETPOST('cond_reglement_id', 'int') != 0) ? GETPOST('cond_reglement_id', 'int') : $cond_reglement_id, 'cond_reglement_id', -1, 1, 0, '');
@@ -4643,6 +4646,7 @@ if ($action == 'create') {
         $morehtmlref .= $form->editfieldval("Ref", 'ref', $object->ref, $object, $usercancreate, 'string', '', null, null, '', 1);
         $morehtmlref .= '<br>';
     }
+
     // Ref customer
     $morehtmlref .= $form->editfieldkey("RefCustomer", 'ref_client', $object->ref_client, $object, $usercancreate, 'string', '', 0, 1);
     $morehtmlref .= $form->editfieldval("RefCustomer", 'ref_client', $object->ref_client, $object, $usercancreate, 'string' . (isset($conf->global->THIRDPARTY_REF_INPUT_SIZE) ? ':' . $conf->global->THIRDPARTY_REF_INPUT_SIZE : ''), '', null, null, '', 1);
@@ -4796,7 +4800,8 @@ if ($action == 'create') {
         print '</td></tr>';
     }
 
-    // Payment term
+    //Invoice Schedule
+
     print '<tr><td>';
     print '<table class="nobordernopadding centpercent"><tr><td>';
     print 'Invoice Schedule';
@@ -4808,10 +4813,9 @@ if ($action == 'create') {
     print '</td><td>';
     if ($object->type != Facture::TYPE_CREDIT_NOTE) {
         if ($action == 'editconditions') {
-            $form->form_conditions_reglement($_SERVER['PHP_SELF'] . '?facid=' . $object->id, $object->cond_reglement_id, 'cond_reglement_id');
-
+            $form->form_conditions_reglement($_SERVER['PHP_SELF'] . '?facid=' . $object->id, $object->cond_reglement_id, 'cond_reglement_id', 0, '', -1, -1, 0, $object->ref);
         } else {
-            $form->form_conditions_reglement($_SERVER['PHP_SELF'] . '?facid=' . $object->id, $object->cond_reglement_id, 'none');
+            $form->form_conditions_reglement($_SERVER['PHP_SELF'] . '?facid=' . $object->id, $object->cond_reglement_id, 'none', 0, '', -1, -1, 0, $object->ref);
         }
     } else {
         print '&nbsp;';
@@ -5064,7 +5068,6 @@ if ($action == 'create') {
     if (!empty($conf->global->INVOICE_POSITIVE_CREDIT_NOTE_SCREEN) && $object->type == $object::TYPE_CREDIT_NOTE) {
         $sign = -1; // We invert sign for output
     }
-    print '<script>console.log("$object->cond_reglement_id: ' . $object->cond_reglement_code . '")</script>';
     print '<tr>';
     // Amount HT
     print '<td class="titlefieldmiddle">' . $langs->trans('AmountHT') . '</td>';
@@ -5630,7 +5633,6 @@ if ($action == 'create') {
     // for displaying invoice scheduling
     print '<table class="border tableforfield centpercent">';
     print '<tr class="center liste_titre">';
-    // print '<td class="center amountcard nowrap liste_titre"  colspan="2">' . $langs->trans('Invoice Schedule') . '</td>';
     print '<td class="center amountcard nowrap liste_titre"  colspan="2">' . 'Invoice Schedule ' . $object->cond_reglement_code . '%' . '</td>';
     print '</tr>';
     print '<tr class="">';
@@ -5828,9 +5830,9 @@ if ($action == 'create') {
 
             // Reopen an invoice
             if ((($object->type == Facture::TYPE_STANDARD || $object->type == Facture::TYPE_REPLACEMENT)
-                || ($object->type == Facture::TYPE_CREDIT_NOTE && empty($discount->id))
-                || ($object->type == Facture::TYPE_DEPOSIT && empty($discount->id))
-                || ($object->type == Facture::TYPE_SITUATION && empty($discount->id)))
+                    || ($object->type == Facture::TYPE_CREDIT_NOTE && empty($discount->id))
+                    || ($object->type == Facture::TYPE_DEPOSIT && empty($discount->id))
+                    || ($object->type == Facture::TYPE_SITUATION && empty($discount->id)))
                 && ($object->statut == Facture::STATUS_CLOSED || $object->statut == Facture::STATUS_ABANDONED || ($object->statut == 1 && $object->paye == 1)) // Condition ($object->statut == 1 && $object->paye == 1) should not happened but can be found due to corrupted data
                 && ((empty($conf->global->MAIN_USE_ADVANCED_PERMS) && $usercancreate) || $usercanreopen)
             ) { // A paid invoice (partially or completely)
