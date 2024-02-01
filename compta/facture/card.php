@@ -477,6 +477,7 @@ if (empty($reshook)) {
         $db->begin();
 
         if (!$error) {
+            $object->ref = GETPOST('invoiceref', 'alpha');
             $result = $object->setPaymentTerms(GETPOST('cond_reglement_id', 'int'));
             if ($result < 0) {
                 $error++;
@@ -4801,7 +4802,6 @@ if ($action == 'create') {
     }
 
     //Invoice Schedule
-
     print '<tr><td>';
     print '<table class="nobordernopadding centpercent"><tr><td>';
     print 'Invoice Schedule';
@@ -4813,15 +4813,15 @@ if ($action == 'create') {
     print '</td><td>';
     if ($object->type != Facture::TYPE_CREDIT_NOTE) {
         if ($action == 'editconditions') {
-            $form->form_conditions_reglement($_SERVER['PHP_SELF'] . '?facid=' . $object->id, $object->cond_reglement_id, 'cond_reglement_id', 0, '', -1, -1, 0, $object->ref);
+            $invoiceRef = $form->form_conditions_reglement($_SERVER['PHP_SELF'] . '?facid=' . $object->id, $object->cond_reglement_id, 'cond_reglement_id', 0, '', -1, -1, 0, $object->ref, $object->id);
         } else {
-            $form->form_conditions_reglement($_SERVER['PHP_SELF'] . '?facid=' . $object->id, $object->cond_reglement_id, 'none', 0, '', -1, -1, 0, $object->ref);
+            $form->form_conditions_reglement($_SERVER['PHP_SELF'] . '?facid=' . $object->id, $object->cond_reglement_id, 'none', 0, '', -1, -1, 0, $object->ref, $object->id);
         }
     } else {
         print '&nbsp;';
     }
     print '</td></tr>';
-
+    print '<script>console.log("Updated Invoice Reference: ' . $invoiceref . '")</script>';
     // Date payment term
     print '<tr><td>';
     print '<table class="nobordernopadding centpercent"><tr><td>';
@@ -5011,7 +5011,7 @@ if ($action == 'create') {
                 print '<input type="submit" class="button valignmiddle" value="' . $langs->trans("Modify") . '">';
                 print '</form>';
             } else {
-                $form->form_conditions_reglement($_SERVER['PHP_SELF'] . '?facid=' . $object->id, $object->retained_warranty_fk_cond_reglement, 'none');
+                $form->form_conditions_reglement($_SERVER['PHP_SELF'] . '?facid=' . $object->id, $object->cond_reglement_id, 'cond_reglement_id', 0, '', -1, -1, 0, $object->ref, $object->id);
                 if (!$displayWarranty) {
                     print img_picto($langs->trans('RetainedWarrantyNeed100Percent'), 'warning.png', 'class="pictowarning valignmiddle" ');
                 }

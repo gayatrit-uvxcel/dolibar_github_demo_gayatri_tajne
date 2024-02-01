@@ -5753,18 +5753,19 @@ class Form
      * @param int         $nooutput             No print is done. String is returned.
      * @return string                       HTML output or ''
      */
-    public function form_conditions_reglement($page, $selected = '', $htmlname = 'cond_reglement_id', $addempty = 0, $type = '', $filtertype = -1, $deposit_percent = -1, $nooutput = 0, $invoiceref = '')
+    public function form_conditions_reglement($page, $selected = '', $htmlname = 'cond_reglement_id', $addempty = 0, $type = '', $filtertype = -1, $deposit_percent = -1, $nooutput = 0, $invoiceref = '', $rowid)
     {
         // phpcs:enable
         global $langs;
 
         $out = '';
         if ($htmlname != "none") {
-            $invoiceref = $this->addSuffixToInvoiceref($invoiceref);
+            $modifiedInvoiceref = $this->addSuffixToInvoiceref($invoiceref);
             $out .= '<form method="POST" name="paymentModify" action="' . $page . '">';
             $out .= '<input type="hidden" name="action" value="setconditions">';
             $out .= '<input type="hidden" name="token" value="' . newToken() . '">';
-            $out .= '<input type="hidden" name="invoiceref " value="' .  $invoiceref . '">';
+
+            $out .= '<input type="hidden" name="invoiceref" value="' . $modifiedInvoiceref . '">';
             if ($type) {
                 $out .= '<input type="hidden" name="type" value="' . dol_escape_htmltag($type) . '">';
             }
@@ -5790,8 +5791,7 @@ class Form
                 $out .= '&nbsp;';
             }
         }
-        print '<script>console.log("invoiceref: ' . $invoiceref . '")</script>';
-        print '<script>console.log("GETPOST INVOICE REF: ' . GETPOSTISSET("invoiceref") ?  GETPOST("invoiceref") : -1 . '")</script>';
+        $invoiceref = (GETPOSTISSET("invoiceref") ?  GETPOST("invoiceref") : -1);
         if (empty($nooutput)) {
             print $out;
             return $invoiceref;
@@ -5799,21 +5799,17 @@ class Form
         return $out;
     }
 
-    private function addSuffixToInvoiceref($invoiceref)
+    function addSuffixToInvoiceref($invoiceref)
     {
-        // Get the last character of the current invoiceref
-        $lastChar = substr($invoiceref, -1);
-
-        // Check if the last character is a letter (A-Z)
-        if (ctype_alpha($lastChar)) {
-            // Increment the letter to the next one (A->B, B->C, ..., Z->A)
-            $nextChar = chr(((ord($lastChar) - 65 + 1) % 26) + 65);
-            $invoiceref .= $nextChar;
-        } else {
-            // If the last character is not a letter, append 'A' as the suffix
-            $invoiceref .= 'A';
+        if (strpos($invoiceref, 'FVAI') === 0) {
+            $lastChar = substr($invoiceref, -1);
+            if (ctype_alpha($lastChar)) {
+                $nextChar = chr(((ord($lastChar) - 65 + 1) % 26) + 65);
+                $invoiceref = substr_replace($invoiceref, $nextChar, -1);
+            } else {
+                $invoiceref .= 'A';
+            }
         }
-
         return $invoiceref;
     }
     // phpcs:disable PEAR.NamingConventions.ValidFunctionName.ScopeNotCamelCaps
