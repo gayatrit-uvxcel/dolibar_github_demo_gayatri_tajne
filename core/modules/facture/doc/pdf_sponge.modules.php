@@ -2338,7 +2338,7 @@ class pdf_sponge extends ModelePDFFactures
 
         if ($res_llx_facture) {
             while ($row = $this->db->fetch_object($res_llx_facture)) {
-                $originalDate = $row->datec;
+                $originalDate = $row->datef;
                 $dateTime = new DateTime($originalDate);
                 $formattedDate = $dateTime->format('d M Y');
                 $invoice_obj->dateValue = $formattedDate;

@@ -746,7 +746,7 @@ if ($resql) {
 			// Payment term
 			if (!empty($arrayfields['f.fk_cond_reglement']['checked'])) {
 				print '<td class="right">';
-				$form->form_conditions_reglement('', $objp->fk_cond_reglement, 'none');
+				$form->form_conditions_reglement('', $objp->fk_cond_reglement, 'none',0,0,0,0,0,0,0);
 				print '</td>'."\n";
 				if (!$i) {
 					$totalarray['nbfield']++;

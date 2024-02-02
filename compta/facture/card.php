@@ -4769,7 +4769,7 @@ if ($action == 'create') {
     print '<table class="nobordernopadding centpercent"><tr><td>';
     print $langs->trans('DateInvoice');
     print '</td>';
-    if ($action != 'editinvoicedate' && !empty($object->brouillon) && $usercancreate && empty($conf->global->FAC_FORCE_DATE_VALIDATION)) {
+    if ($action != 'editinvoicedate' && $usercancreate && empty($conf->global->FAC_FORCE_DATE_VALIDATION)) {
         print '<td class="right"><a class="editfielda" href="' . $_SERVER["PHP_SELF"] . '?action=editinvoicedate&token=' . newToken() . '&facid=' . $object->id . '">' . img_edit($langs->trans('SetDate'), 1) . '</a></td>';
     }
     print '</tr></table>';
@@ -4813,7 +4813,7 @@ if ($action == 'create') {
     print '</td><td>';
     if ($object->type != Facture::TYPE_CREDIT_NOTE) {
         if ($action == 'editconditions') {
-            $invoiceRef = $form->form_conditions_reglement($_SERVER['PHP_SELF'] . '?facid=' . $object->id, $object->cond_reglement_id, 'cond_reglement_id', 0, '', -1, -1, 0, $object->ref, $object->id);
+           $form->form_conditions_reglement($_SERVER['PHP_SELF'] . '?facid=' . $object->id, $object->cond_reglement_id, 'cond_reglement_id', 0, '', -1, -1, 0, $object->ref, $object->id);
         } else {
             $form->form_conditions_reglement($_SERVER['PHP_SELF'] . '?facid=' . $object->id, $object->cond_reglement_id, 'none', 0, '', -1, -1, 0, $object->ref, $object->id);
         }

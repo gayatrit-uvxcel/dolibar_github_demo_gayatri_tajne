@@ -983,7 +983,7 @@ if ($action == 'create') {
 
 		// Payment term
 		print "<tr><td>" . $langs->trans("PaymentConditions") . "</td><td>";
-		$form->form_conditions_reglement($_SERVER['PHP_SELF'] . '?id=' . $object->id, $object->cond_reglement_id, 'none');
+		$form->form_conditions_reglement($_SERVER['PHP_SELF'] . '?id=' . $object->id, $object->cond_reglement_id, 'none',0,0,0,0,0,0,0);
 		print "</td></tr>";
 
 		// Payment mode
@@ -1224,9 +1224,9 @@ if ($action == 'create') {
 		print '</tr></table>';
 		print '</td><td>';
 		if ($action == 'editconditions') {
-			$form->form_conditions_reglement($_SERVER['PHP_SELF'] . '?facid=' . $object->id, $object->cond_reglement_id, 'cond_reglement_id');
+			$form->form_conditions_reglement($_SERVER['PHP_SELF'] . '?facid=' . $object->id, $object->cond_reglement_id, 'cond_reglement_id',0,0,0,0,0,0,0);
 		} else {
-			$form->form_conditions_reglement($_SERVER['PHP_SELF'] . '?facid=' . $object->id, $object->cond_reglement_id, 'none');
+			$form->form_conditions_reglement($_SERVER['PHP_SELF'] . '?facid=' . $object->id, $object->cond_reglement_id, 'none',0,0,0,0,0,0,0);
 		}
 
 		print '</td></tr>';
