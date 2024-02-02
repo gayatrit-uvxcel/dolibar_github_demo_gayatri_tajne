@@ -1675,9 +1675,9 @@ if ($action == 'create') {
 	print '</tr></table>';
 	print '</td><td class="valuefield">';
 	if ($action == 'editconditions') {
-		$form->form_conditions_reglement($_SERVER['PHP_SELF'].'?id='.$object->id, $object->cond_reglement_id, 'cond_reglement_id', 1);
+		$form->form_conditions_reglement($_SERVER['PHP_SELF'] . '?facid=' . $object->id, $object->cond_reglement_id, 'cond_reglement_id', 1, 1, -1, -1, 0, $object->ref, $object->id);
 	} else {
-		$form->form_conditions_reglement($_SERVER['PHP_SELF'].'?id='.$object->id, $object->cond_reglement_id, 'none', 1);
+		$form->form_conditions_reglement($_SERVER['PHP_SELF'] . '?facid=' . $object->id, $object->cond_reglement_id, 'cond_reglement_id', 'none', 1, -1, -1, 0, $object->ref, $object->id);
 	}
 	print '</td>';
 	print '</tr>';

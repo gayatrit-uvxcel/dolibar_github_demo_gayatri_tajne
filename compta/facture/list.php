@@ -2210,7 +2210,7 @@ if ($resql) {
 
 				// Payment terms
 				if (!empty($arrayfields['f.fk_cond_reglement']['checked'])) {
-					$s = $form->form_conditions_reglement($_SERVER['PHP_SELF'], $obj->fk_cond_reglement, 'none', 0, '', -1, -1, 1);
+					$s = $form->form_conditions_reglement($_SERVER['PHP_SELF'], $obj->fk_cond_reglement, 'none', 0, '', -1, -1, 1,0,0);
 					print '<td class="tdoverflowmax100" title="'.dol_escape_htmltag($s).'">';
 					print $s;
 					print '</td>';

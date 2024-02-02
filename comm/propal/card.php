@@ -2813,9 +2813,9 @@ if ($action == 'create') {
     // print '</tr></table>';
     // print '</td><td class="valuefield">';
     if ($action == 'editconditions' && $usercancreate && $caneditfield) {
-        $form->form_conditions_reglement($_SERVER['PHP_SELF'] . '?id=' . $object->id, $object->cond_reglement_id, 'cond_reglement_id', 0, '', 1, $object->deposit_percent);
+        $form->form_conditions_reglement($_SERVER['PHP_SELF'] . '?id=' . $object->id, $object->cond_reglement_id, 'cond_reglement_id', 0, '', 1, $object->deposit_percent, 0, $object->ref, $object->id);
     } else {
-        $form->form_conditions_reglement($_SERVER['PHP_SELF'] . '?id=' . $object->id, $object->cond_reglement_id, 'none', 0, '', 1, $object->deposit_percent);
+        $form->form_conditions_reglement($_SERVER['PHP_SELF'] . '?id=' . $object->id, $object->cond_reglement_id, 'none', 0, '', 1, $object->deposit_percent, $object->ref, $object->id, 0);
     }
     print '</td>';
     print '</tr>';
