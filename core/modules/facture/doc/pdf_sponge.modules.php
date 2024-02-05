@@ -343,14 +343,39 @@ class pdf_sponge extends ModelePDFFactures
             $amount_credit_notes_included = $object->getSumCreditNotesUsed((isModEnabled("multicurrency") && $object->multicurrency_tx != 1) ? 1 : 0);
             $amount_deposits_included = $object->getSumDepositsUsed((isModEnabled("multicurrency") && $object->multicurrency_tx != 1) ? 1 : 0);
 
+            function getMainInvoiceRef($subInvoiceRef)
+            {
+                $lastDashPos = strrpos($subInvoiceRef, '-');
+                $lastCharacter = substr($subInvoiceRef, -1);
+                if ($lastDashPos > 4) {
+                    return substr($subInvoiceRef, 0, $lastDashPos);
+                }else if (ctype_alpha($lastCharacter)) {
+                    $mainInvoiceRef = substr($subInvoiceRef, 0, -1);
+                    return $mainInvoiceRef;
+                } else {
+                    return $subInvoiceRef;
+                }
+            }
             // Definition of $dir and $file
             if ($object->specimen) {
                 $dir = $conf->facture->multidir_output[$conf->entity];
                 $file = $dir . "/SPECIMEN.pdf";
             } else {
+                // $objectref = dol_sanitizeFileName($object->ref);
+                // $dir = $conf->facture->multidir_output[$object->entity] . "/" . $objectref;
+                // $file = $dir . "/" . $objectref . ".pdf";
                 $objectref = dol_sanitizeFileName($object->ref);
-                $dir = $conf->facture->multidir_output[$object->entity] . "/" . $objectref;
-                $file = $dir . "/" . $objectref . ".pdf";
+                $mainInvoiceRef = getMainInvoiceRef($objectref);
+                // Check if it's a main invoice or subinvoice
+                if ($mainInvoiceRef === $objectref) {
+                    // Main invoice, create a folder
+                    $dir = $conf->facture->multidir_output[$object->entity] . "/" . $mainInvoiceRef;
+                    $file = $dir . "/" . $objectref . ".pdf";
+                } else {
+                    // Subinvoice, use the existing logic
+                    $dir = $conf->facture->multidir_output[$object->entity] . "/" . $mainInvoiceRef;
+                    $file = $dir . "/" . $objectref . ".pdf";
+                }
             }
             if (!file_exists($dir)) {
                 if (dol_mkdir($dir) < 0) {
