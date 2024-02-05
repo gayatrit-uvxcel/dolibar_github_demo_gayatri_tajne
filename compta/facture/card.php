@@ -1612,7 +1612,8 @@ if (empty($reshook)) {
                                     0,
                                     '',
                                     1,
-                                    0,0
+                                    0,
+                                    0
                                 );
                             }
 
@@ -6102,10 +6103,11 @@ if ($action == 'create') {
         // Generated documents
         $filename = dol_sanitizeFileName($object->ref);
         $filedir = $conf->facture->multidir_output[$object->entity] . '/' . dol_sanitizeFileName($object->ref);
+        $filedir = preg_replace('/-01$/', '', $filedir);
+        $filedir = preg_replace('/A$/', '', $filedir);
         $urlsource = $_SERVER['PHP_SELF'] . '?facid=' . $object->id;
         $genallowed = $usercanread;
         $delallowed = $usercancreate;
-      
         print $formfile->showdocuments(
             'facture',
             $filename,
