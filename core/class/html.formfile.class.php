@@ -337,10 +337,6 @@ class FormFile
 	public function showdocuments($modulepart, $modulesubdir, $filedir, $urlsource, $genallowed, $delallowed = 0, $modelselected = '', $allowgenifempty = 1, $forcenomultilang = 0, $iconPDF = 0, $notused = 0, $noform = 0, $param = '', $title = '', $buttonlabel = '', $codelang = '', $morepicto = '', $object = null, $hideifempty = 0, $removeaction = 'remove_file', $tooltipontemplatecombo = '')
 	{
 		global $dolibarr_main_url_root;
-		echo $modulepart;
-		echo $urlsource;
-		echo $modulesubdir;
-
 		// Deprecation warning
 		if (!empty($iconPDF)) {
 			dol_syslog(__METHOD__ . ": passing iconPDF parameter is deprecated", LOG_WARNING);
@@ -407,8 +403,10 @@ class FormFile
 
 		// Get list of files
 		$file_list = null;
-		if (!empty($filedir)) {
+		if (!empty($filedir))
+        {
 			$file_list = dol_dir_list($filedir, 'files', 0, '', '(\.meta|_preview.*.*\.png)$', 'date', SORT_DESC);
+			// echo json_encode($file_list);
 		}
 		if ($hideifempty && empty($file_list)) {
 			return '';
@@ -1021,7 +1019,7 @@ class FormFile
 		} else {
 			$filterforfilesearch = '^' . preg_quote(basename($modulesubdir), '/') . '\.';
 		}
-		$file_list = dol_dir_list($filedir, 'files', 0, $filterforfilesearch, '\.meta$|\.png$'); // We also discard .meta and .png preview
+		$file_list = dol_dir_list($filedir, 'files', 0, '', '\.meta$|\.png$'); // We also discard .meta and .png preview
 
 		//var_dump($file_list);
 		// For ajax treatment

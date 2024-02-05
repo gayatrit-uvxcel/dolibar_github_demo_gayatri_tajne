@@ -2219,7 +2219,7 @@ class Facture extends CommonInvoice
         $sql .= ", f.retained_warranty as retained_warranty, f.retained_warranty_date_limit as retained_warranty_date_limit, f.retained_warranty_fk_cond_reglement as retained_warranty_fk_cond_reglement";
         $sql .= ' FROM ' . MAIN_DB_PREFIX . 'facture as f';
         $sql .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'c_payment_term as c ON f.fk_cond_reglement = c.rowid';
-        $sql .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'facturedet as d ON f.fk_soc = d.rowid';
+        $sql .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'facturedet as d ON f.rowid = d.fk_facture';
         $sql .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'c_paiement as p ON f.fk_mode_reglement = p.id';
         $sql .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'c_incoterms as i ON f.fk_incoterms = i.rowid';
 
@@ -5305,7 +5305,6 @@ class Facture extends CommonInvoice
     public function generateDocument($modele, $outputlangs, $hidedetails = 0, $hidedesc = 0, $hideref = 0, $moreparams = null)
     {
         global $conf, $langs;
-
         $outputlangs->loadLangs(array("bills", "products"));
 
         if (!dol_strlen($modele)) {

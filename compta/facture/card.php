@@ -1612,7 +1612,7 @@ if (empty($reshook)) {
                                     0,
                                     '',
                                     1,
-                                    0
+                                    0,0
                                 );
                             }
 
@@ -1861,7 +1861,7 @@ if (empty($reshook)) {
                             $product->fetch(GETPOST('idprod' . $i, 'int'));
                             $startday = dol_mktime(12, 0, 0, GETPOST('date_start' . $i . 'month'), GETPOST('date_start' . $i . 'day'), GETPOST('date_start' . $i . 'year'));
                             $endday = dol_mktime(12, 0, 0, GETPOST('date_end' . $i . 'month'), GETPOST('date_end' . $i . 'day'), GETPOST('date_end' . $i . 'year'));
-                            $result = $object->addline($product->description, $product->price, price2num(GETPOST('qty' . $i), 'MS'), $product->tva_tx, $product->localtax1_tx, $product->localtax2_tx, GETPOST('idprod' . $i, 'int'), price2num(GETPOST('remise_percent' . $i), '', 2), $startday, $endday, 0, 0, '', $product->price_base_type, $product->price_ttc, $product->type, -1, 0, '', 0, 0, null, 0, '', 0, 100, '', $product->fk_unit, 0, '', 1, $product->unit);
+                            $result = $object->addline($product->description, $product->price, price2num(GETPOST('qty' . $i), 'MS'), $product->tva_tx, $product->localtax1_tx, $product->localtax2_tx, GETPOST('idprod' . $i, 'int'), price2num(GETPOST('remise_percent' . $i), '', 2), $startday, $endday, 0, 0, '', $product->price_base_type, $product->price_ttc, $product->type, -1, 0, '', 0, 0, null, 0, '', 0, 100, '', $product->fk_unit, 0, '', 1, $product->unit, 0);
                         }
                     }
 
@@ -2998,7 +2998,6 @@ if (empty($reshook)) {
             }
         }
     }
-    print '<script>console.log(`' . $unit . '`)</script>';
     // Actions when printing a doc from card
     include DOL_DOCUMENT_ROOT . '/core/actions_printing.inc.php';
 
@@ -4813,7 +4812,7 @@ if ($action == 'create') {
     print '</td><td>';
     if ($object->type != Facture::TYPE_CREDIT_NOTE) {
         if ($action == 'editconditions') {
-           $form->form_conditions_reglement($_SERVER['PHP_SELF'] . '?facid=' . $object->id, $object->cond_reglement_id, 'cond_reglement_id', 0, '', -1, -1, 0, $object->ref, $object->id);
+            $form->form_conditions_reglement($_SERVER['PHP_SELF'] . '?facid=' . $object->id, $object->cond_reglement_id, 'cond_reglement_id', 0, '', -1, -1, 0, $object->ref, $object->id);
         } else {
             $form->form_conditions_reglement($_SERVER['PHP_SELF'] . '?facid=' . $object->id, $object->cond_reglement_id, 'none', 0, '', -1, -1, 0, $object->ref, $object->id);
         }
@@ -5647,6 +5646,7 @@ if ($action == 'create') {
     print '<tr>';
     // Amount TTC with invoice schedule
     print '<td>' . 'VAT @15%' . '</td>';
+    print '<script>console.log("$line->tva_tx: ' . $vatrate . '")</script>';
     $multicurrency_total_tva = ($scheduleAmountHT * $object->tva_tx) / 100;
     print '<td class="nowrap amountcard right">' . price($multicurrency_total_tva, '', $langs, 0, -1, -1, $object->multicurrency_code) . '</td>';
     print '</tr>';
@@ -6105,7 +6105,7 @@ if ($action == 'create') {
         $urlsource = $_SERVER['PHP_SELF'] . '?facid=' . $object->id;
         $genallowed = $usercanread;
         $delallowed = $usercancreate;
-
+      
         print $formfile->showdocuments(
             'facture',
             $filename,
