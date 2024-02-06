@@ -825,6 +825,8 @@ class FormFile
 					// Define relative path for download link (depends on module)
 					$relativepath = $file["name"]; // Cas general
 					if ($modulesubdir) {
+						$modulesubdir = preg_replace('/-01$/', '', $modulesubdir);
+						$modulesubdir = preg_replace('/A$/', '', $modulesubdir);
 						$relativepath = $modulesubdir . "/" . $file["name"]; // Cas propal, facture...
 					}
 					if ($modulepart == 'export') {
