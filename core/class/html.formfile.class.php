@@ -828,8 +828,6 @@ class FormFile
 						$modulesubdir = preg_replace('/-01$/', '', $modulesubdir);
 						$modulesubdir = preg_replace('/A$/', '', $modulesubdir);
 						$relativepath = $modulesubdir . "/" . $file["name"]; // Cas propal, facture...
-
-						echo "path in for each ", $modulesubdir;
 					}
 					if ($modulepart == 'export') {
 						$relativepath = $file["name"]; // Other case
