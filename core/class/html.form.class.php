@@ -5753,7 +5753,7 @@ class Form
      * @param int         $nooutput             No print is done. String is returned.
      * @return string                       HTML output or ''
      */
-    public function form_conditions_reglement($page, $selected = '', $htmlname = 'cond_reglement_id', $addempty = 0, $type = '', $filtertype = -1, $deposit_percent = -1, $nooutput = 0, $invoiceref = '', $rowid)
+    public function form_conditions_reglement($page, $selected = '', $htmlname = 'cond_reglement_id', $addempty = 0, $type = '', $filtertype = -1, $deposit_percent = -1, $nooutput = 0, $invoiceref = '')
     {
         // phpcs:enable
         global $langs, $db;
@@ -5769,16 +5769,6 @@ class Form
                 $out .= '<input type="hidden" name="type" value="' . dol_escape_htmltag($type) . '">';
             }
             $out .= $this->getSelectConditionsPaiements($selected, $htmlname, $filtertype, $addempty, 0, '', $deposit_percent);
-
-            $sql_invoice_schedule_limit = "SELECT code FROM " . MAIN_DB_PREFIX . "c_payment_term WHERE rowid = $selected";
-            $res_invoice_schedule_limit = $db->query($sql_invoice_schedule_limit);
-            if ($res_invoice_schedule_limit) {
-
-                while ($row = $db->fetch_object($res_invoice_schedule_limit)) {
-                    $invoice_schedule_limit = $row->code;
-                }
-            }
-            $out .= '<input type="hidden" name="invoice_schedule_limit"  id="invoice_schedule_limit" value="' . htmlspecialchars($invoice_schedule_limit) . '" readonly />';
             $out .= '<input type="submit" class="button valignmiddle smallpaddingimp" value="' . $langs->trans("Modify") . '">';
             $out .= '</form>';
         } else {

@@ -471,10 +471,8 @@ if (empty($reshook)) {
         $object->fetch($id);
         $object->cond_reglement_code = 0; // To clean property
         $object->cond_reglement_id = 0; // To clean property
-
         $error = 0;
         $db->begin();
-
         if (!$error) {
             $object->ref = GETPOST('invoiceref', 'alpha');
             $object->invoice_no = GETPOST('invoiceref', 'alpha');
@@ -489,8 +487,11 @@ if (empty($reshook)) {
                     $invoice_schedule_limit = $row->code;
                 }
             }
-            $object->invoice_schedule_limit =  $object->invoice_schedule_limit
-            + $invoice_schedule_limit;
+            if (strpos($object->ref, 'FVAI') === 0) {
+                $object->invoice_schedule_limit =  $object->invoice_schedule_limit + $invoice_schedule_limit;
+            } else {
+                $object->invoice_schedule_limit = $invoice_schedule_limit;
+            }
             if ($result < 0) {
                 $error++;
                 setEventMessages($object->error, $object->errors, 'errors');
@@ -3862,7 +3863,6 @@ if ($action == 'create') {
         }
     }
     print '<input type="hidden" id="invoice_schedule_limit" name="invoice_schedule_limit" value="' . $object->invoice_schedule_limit . '" readonly />';
-
     if (!empty($conf->global->INVOICE_USE_RETAINED_WARRANTY)) {
         $rwStyle = 'display:none;';
         if (in_array(GETPOST('type', 'int'), $retainedWarrantyInvoiceAvailableType)) {
@@ -4831,11 +4831,13 @@ if ($action == 'create') {
     print 'Invoice Schedule';
     print '</td>';
     if ($object->type != Facture::TYPE_CREDIT_NOTE && $action != 'editconditions' && $usercancreate) {
-        echo "object->invoice_schedule_limit",$object->invoice_schedule_limit;
-        print '<td class="right"><a class="editfielda" href="' . $_SERVER["PHP_SELF"] . '?action=editconditions&token=' . newToken() . '&facid=' . $object->id . '">' . img_edit($langs->trans('SetConditions'), 1) . '</a></td>';
+        if ($object->invoice_schedule_limit != 100) {
+            print '<td class="right"><a class="editfielda" href="' . $_SERVER["PHP_SELF"] . '?action=editconditions&token=' . newToken() . '&facid=' . $object->id . '">' . img_edit($langs->trans('SetConditions'), 1) . '</a></td>';
+        }
     }
     print '</tr></table>';
     print '</td><td>';
+    // echo "status" ,$object->status;
     if ($object->type != Facture::TYPE_CREDIT_NOTE) {
         if ($action == 'editconditions') {
             $form->form_conditions_reglement($_SERVER['PHP_SELF'] . '?facid=' . $object->id, $object->cond_reglement_id, 'cond_reglement_id', 0, '', -1, -1, 0, $object->ref, $object->id);
@@ -6125,9 +6127,32 @@ if ($action == 'create') {
 
         // Generated documents
         $filename = dol_sanitizeFileName($object->ref);
-        $filedir = $conf->facture->multidir_output[$object->entity] . '/' . dol_sanitizeFileName($object->ref);
-        $filedir = preg_replace('/-01$/', '', $filedir);
-        $filedir = preg_replace('/A$/', '', $filedir);
+
+        // $lastCharacter = substr($filedir, -1);
+        // $lastDashPos = strrpos($filedir, '-');
+        // if(ctype_alpha($lastCharacter)){
+        //     $filedir = substr($filedir, 0, -1);
+        // }
+        // if($lastDashPos > 4){ 
+        //     $filedir = substr($filedir, 0, $lastDashPos);
+        // }
+        // echo $filedir;
+
+        function getNewFileDir($filename)
+        {
+            $lastDashPos = strrpos($filename, '-');
+            $lastCharacter = substr($filename, -1);
+            if ($lastDashPos > 4) {
+                return substr($filename, 0, $lastDashPos);
+            } else if (ctype_alpha($lastCharacter)) {
+                $filedir = substr($filename, 0, -1);
+                return $filedir;
+            } else {
+                return $filename;
+            }
+        }
+        $newFileName = getNewFileDir($filename);
+        $filedir = $conf->facture->multidir_output[$object->entity] . '/' . dol_sanitizeFileName( $newFileName);
         $urlsource = $_SERVER['PHP_SELF'] . '?facid=' . $object->id;
         $genallowed = $usercanread;
         $delallowed = $usercancreate;
