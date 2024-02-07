@@ -336,6 +336,7 @@ class FormFile
 	 */
 	public function showdocuments($modulepart, $modulesubdir, $filedir, $urlsource, $genallowed, $delallowed = 0, $modelselected = '', $allowgenifempty = 1, $forcenomultilang = 0, $iconPDF = 0, $notused = 0, $noform = 0, $param = '', $title = '', $buttonlabel = '', $codelang = '', $morepicto = '', $object = null, $hideifempty = 0, $removeaction = 'remove_file', $tooltipontemplatecombo = '')
 	{
+		echo $urlsource;
 		global $dolibarr_main_url_root;
 		// Deprecation warning
 		if (!empty($iconPDF)) {
@@ -825,9 +826,15 @@ class FormFile
 					// Define relative path for download link (depends on module)
 					$relativepath = $file["name"]; // Cas general
 					if ($modulesubdir) {
-						// echo $modulesubdir;
-						$modulesubdir = preg_replace('/-01$/', '', $modulesubdir);
-						$modulesubdir = preg_replace('/A$/', '', $modulesubdir);
+						
+						if($modulepart == 'facture') {
+							$lastCharacter = substr($modulesubdir, -1);
+							if (ctype_alpha($lastCharacter)) {
+								$modulesubdir = substr($modulesubdir, 0, -1);
+							    $relativepath = $modulesubdir . "/" . $file["name"];
+							} 
+						}
+
 						$relativepath = $modulesubdir . "/" . $file["name"]; // Cas propal, facture...
 					}
 					if ($modulepart == 'export') {
