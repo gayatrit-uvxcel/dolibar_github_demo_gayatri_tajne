@@ -336,7 +336,6 @@ class FormFile
 	 */
 	public function showdocuments($modulepart, $modulesubdir, $filedir, $urlsource, $genallowed, $delallowed = 0, $modelselected = '', $allowgenifempty = 1, $forcenomultilang = 0, $iconPDF = 0, $notused = 0, $noform = 0, $param = '', $title = '', $buttonlabel = '', $codelang = '', $morepicto = '', $object = null, $hideifempty = 0, $removeaction = 'remove_file', $tooltipontemplatecombo = '')
 	{
-		echo $urlsource;
 		global $dolibarr_main_url_root;
 		// Deprecation warning
 		if (!empty($iconPDF)) {
