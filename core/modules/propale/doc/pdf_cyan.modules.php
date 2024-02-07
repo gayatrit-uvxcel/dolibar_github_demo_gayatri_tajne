@@ -655,58 +655,68 @@ class pdf_cyan extends ModelePDFPropales
                     }
 
                     // Description of product line
-                    // if ($this->getColumnStatus('desc')) {
-                    //     $pdf->startTransaction();
+                    if ($this->getColumnStatus('desc')) {
+                        $pdf->startTransaction();
 
-                    //     $this->printColDescContent($pdf, $curY, 'desc', $object, $i, $outputlangs, $hideref, $hidedesc);
-                    //     $pageposafter = $pdf->getPage();
+                        // $this->printColDescContent($pdf, $curY, 'desc', $object, $i, $outputlangs, $hideref, $hidedesc);
+                        if (!isset($line->desc)) {
+                            $this->printStdColumnContent($pdf, $curY, 'desc', $line['desc']);
+                        } else {
+                            $this->printColDescContent($pdf, $curY, 'desc', $object, $i, $outputlangs, $hideref, $hidedesc);
+                        }
+                        $pageposafter = $pdf->getPage();
+                        if ($pageposafter > $pageposbefore) { // There is a pagebreak
+                            $pdf->rollbackTransaction(true);
 
-                    //     if ($pageposafter > $pageposbefore) { // There is a pagebreak
-                    //         $pdf->rollbackTransaction(true);
+                            $pdf->setPageOrientation('', 1, $heightforfooter); // The only function to edit the bottom margin of current page to set it.
 
-                    //         $pdf->setPageOrientation('', 1, $heightforfooter); // The only function to edit the bottom margin of current page to set it.
+                            // $this->printColDescContent($pdf, $curY, 'desc', $object, $i, $outputlangs, $hideref, $hidedesc);
 
-                    //         $this->printColDescContent($pdf, $curY, 'desc', $object, $i, $outputlangs, $hideref, $hidedesc);
+                            if (!isset($line->desc)) {
+                                $this->printStdColumnContent($pdf, $curY, 'desc', $line['desc']);
+                            } else {
+                                $this->printColDescContent($pdf, $curY, 'desc', $object, $i, $outputlangs, $hideref, $hidedesc);
+                            }
 
-                    //         $pageposafter = $pdf->getPage();
-                    //         $posyafter = $pdf->GetY();
-                    //         //var_dump($posyafter); var_dump(($this->page_hauteur - ($heightforfooter+$heightforfreetext+$heightforinfotot))); exit;
-                    //         if ($posyafter > ($this->page_hauteur - ($heightforfooter + $heightforfreetext + $heightforsignature + $heightforinfotot))) { // There is no space left for total+free text
-                    //             if ($i == ($nblines - 1)) { // No more lines, and no space left to show total, so we create a new page
-                    //                 $object->isLinesAvailable = 1;
-                    //                 $pdf->AddPage('', '', true);
-                    //                 if (!empty($tplidx)) {
-                    //                     $pdf->useTemplate($tplidx);
-                    //                 }
-                    //                 $pdf->setPage($pageposafter + 1);
-                    //             }
-                    //         } else {
-                    //             // We found a page break
-                    //             // Allows data in the first page if description is long enough to break in multiples pages
-                    //             if (!empty($conf->global->MAIN_PDF_DATA_ON_FIRST_PAGE)) {
-                    //                 $showpricebeforepagebreak = 1;
-                    //             } else {
-                    //                 $showpricebeforepagebreak = 0;
-                    //             }
-                    //         }
-                    //     } else // No pagebreak
-                    //     {
-                    //         $pdf->commitTransaction();
-                    //     }
-                    //     $posYAfterDescription = $pdf->GetY();
-                    // }
-
-                    $displayValue = '';
-                    $values = array($line->product_ref, $line->product_label, $line->desc);
-                    $filteredValues = array_filter($values, 'strlen'); // Remove empty values
-                    $displayValue = implode('<br>', $filteredValues);
-
-                    if (isset($line->desc)) {
-                        $this->printStdColumnContent($pdf, $curY, 'desc', $displayValue);
-                    } else {
-                        $this->printStdColumnContent($pdf, $curY, 'desc', $line['desc']);
+                            $pageposafter = $pdf->getPage();
+                            $posyafter = $pdf->GetY();
+                            //var_dump($posyafter); var_dump(($this->page_hauteur - ($heightforfooter+$heightforfreetext+$heightforinfotot))); exit;
+                            if ($posyafter > ($this->page_hauteur - ($heightforfooter + $heightforfreetext + $heightforsignature + $heightforinfotot))) { // There is no space left for total+free text
+                                if ($i == ($nblines - 1)) { // No more lines, and no space left to show total, so we create a new page
+                                    $object->isLinesAvailable = 1;
+                                    $pdf->AddPage('', '', true);
+                                    if (!empty($tplidx)) {
+                                        $pdf->useTemplate($tplidx);
+                                    }
+                                    $pdf->setPage($pageposafter + 1);
+                                }
+                            } else {
+                                // We found a page break
+                                // Allows data in the first page if description is long enough to break in multiples pages
+                                if (!empty($conf->global->MAIN_PDF_DATA_ON_FIRST_PAGE)) {
+                                    $showpricebeforepagebreak = 1;
+                                } else {
+                                    $showpricebeforepagebreak = 0;
+                                }
+                            }
+                        } else // No pagebreak
+                        {
+                            $pdf->commitTransaction();
+                        }
+                        $posYAfterDescription = $pdf->GetY();
                     }
-                    $nexY = max($pdf->GetY(), $nexY);
+
+                    // $displayValue = '';
+                    // $values = array($line->product_ref, $line->product_label, $line->desc);
+                    // $filteredValues = array_filter($values, 'strlen'); // Remove empty values
+                    // $displayValue = implode('<br>', $filteredValues);
+
+                    // if (isset($line->desc)) {
+                    //     $this->printStdColumnContent($pdf, $curY, 'desc', $displayValue);
+                    // } else {
+                    //     $this->printStdColumnContent($pdf, $curY, 'desc', $line['desc']);
+                    // }
+                    // $nexY = max($pdf->GetY(), $nexY);
 
                     $nexY = $pdf->GetY();
                     $pageposafter = $pdf->getPage();
