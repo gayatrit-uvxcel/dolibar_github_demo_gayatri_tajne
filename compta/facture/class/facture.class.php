@@ -491,6 +491,8 @@ class Facture extends CommonInvoice
         global $langs, $conf, $mysoc, $hookmanager;
         $error = 0;
 
+       $this->cond_reglement_code = GETPOST('cond_reglement_code');
+
         // Clean parameters
         if (empty($this->type)) {
             $this->type = self::TYPE_STANDARD;
@@ -702,7 +704,7 @@ class Facture extends CommonInvoice
         $sql .= ", ref_client";
         $sql .= ", fk_account";
         $sql .= ", module_source, pos_source, fk_fac_rec_source, fk_facture_source, fk_user_author, fk_projet";
-        $sql .= ", fk_cond_reglement, fk_mode_reglement, date_lim_reglement, model_pdf";
+        $sql .= ", fk_cond_reglement,invoice_schedule_limit,fk_mode_reglement, date_lim_reglement, model_pdf";
         $sql .= ", situation_cycle_ref, situation_counter, situation_final";
         $sql .= ", fk_incoterms, location_incoterms";
         $sql .= ", fk_multicurrency";
@@ -744,6 +746,7 @@ class Facture extends CommonInvoice
         $sql .= ", " . ($user->id > 0 ? (int) $user->id : "null");
         $sql .= ", " . ($this->fk_project ? $this->fk_project : "null");
         $sql .= ", " . ((int) $this->cond_reglement_id);
+        $sql .= ", " . ($this->invoice_schedule_limit ? "'" . $this->db->escape($this->invoice_schedule_limit) . "'" : "invoice_schedule_limit");
         $sql .= ", " . ((int) $this->mode_reglement_id);
         $sql .= ", '" . $this->db->idate($this->date_lim_reglement) . "'";
         $sql .= ", " . (isset($this->model_pdf) ? "'" . $this->db->escape($this->model_pdf) . "'" : "null");
@@ -770,6 +773,7 @@ class Facture extends CommonInvoice
         $sql .= ", " . ($this->vat_no ? "'" . $this->db->escape($this->vat_no) . "'" : "null");
         $sql .= ")";
 
+        echo $sql;
         $resql = $this->db->query($sql);
         if ($resql) {
             $this->id = $this->db->last_insert_id(MAIN_DB_PREFIX . 'facture');
@@ -2209,6 +2213,7 @@ class Facture extends CommonInvoice
         $sql .= ', f.fk_mode_reglement, f.fk_cond_reglement, f.fk_projet as fk_project, f.extraparams';
         $sql .= ', f.situation_cycle_ref, f.situation_counter, f.situation_final';
         $sql .= ', f.fk_account';
+        $sql .= ', f.invoice_schedule_limit';
         $sql .= ", f.fk_multicurrency, f.multicurrency_code, f.multicurrency_tx, f.multicurrency_total_ht, f.multicurrency_total_tva, f.multicurrency_total_ttc";
         $sql .= ', p.code as mode_reglement_code, p.libelle as mode_reglement_libelle';
         $sql .= ', c.code as cond_reglement_code, c.libelle as cond_reglement_libelle, c.libelle_facture as cond_reglement_libelle_doc';
@@ -2266,7 +2271,8 @@ class Facture extends CommonInvoice
                 $this->paye = $obj->paye;
                 $this->close_code = $obj->close_code;
                 $this->close_note = $obj->close_note;
-
+                $this->invoice_schedule_limit = $obj->invoice_schedule_limit;
+                
                 $this->socid = $obj->fk_soc;
                 $this->thirdparty = null; // Clear if another value was already set by fetch_thirdparty
 
@@ -2605,6 +2611,7 @@ class Facture extends CommonInvoice
         $sql .= " fk_facture_source=" . (isset($this->fk_facture_source) ? $this->db->escape($this->fk_facture_source) : "null") . ",";
         $sql .= " fk_projet=" . (isset($this->fk_project) ? $this->db->escape($this->fk_project) : "null") . ",";
         $sql .= " fk_cond_reglement=" . (isset($this->cond_reglement_id) ? $this->db->escape($this->cond_reglement_id) : "null") . ",";
+        $sql .= " invoice_schedule_limit=" . (isset($this->invoice_schedule_limit) ? $this->db->escape($this->invoice_schedule_limit) : "null") . ",";
         $sql .= " fk_mode_reglement=" . (isset($this->mode_reglement_id) ? $this->db->escape($this->mode_reglement_id) : "null") . ",";
         $sql .= " date_lim_reglement=" . (strval($this->date_lim_reglement) != '' ? "'" . $this->db->idate($this->date_lim_reglement) . "'" : 'null') . ",";
         $sql .= " note_private=" . (isset($this->note_private) ? "'" . $this->db->escape($this->note_private) . "'" : "null") . ",";

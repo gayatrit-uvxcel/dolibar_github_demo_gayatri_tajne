@@ -473,12 +473,24 @@ if (empty($reshook)) {
         $object->cond_reglement_id = 0; // To clean property
 
         $error = 0;
-
         $db->begin();
 
         if (!$error) {
             $object->ref = GETPOST('invoiceref', 'alpha');
+            $object->invoice_no = GETPOST('invoiceref', 'alpha');
             $result = $object->setPaymentTerms(GETPOST('cond_reglement_id', 'int'));
+            $updatedId = (GETPOST('cond_reglement_id', 'int'));
+
+            $sql_invoice_schedule_limit = "SELECT code FROM " . MAIN_DB_PREFIX . "c_payment_term WHERE rowid = $updatedId";
+            $res_invoice_schedule_limit = $db->query($sql_invoice_schedule_limit);
+            if ($res_invoice_schedule_limit) {
+
+                while ($row = $db->fetch_object($res_invoice_schedule_limit)) {
+                    $invoice_schedule_limit = $row->code;
+                }
+            }
+            $object->invoice_schedule_limit =  $object->invoice_schedule_limit
+            + $invoice_schedule_limit;
             if ($result < 0) {
                 $error++;
                 setEventMessages($object->error, $object->errors, 'errors');
@@ -1312,6 +1324,7 @@ if (empty($reshook)) {
                 $object->model_pdf = GETPOST('model');
                 $object->fk_project = GETPOST('projectid', 'int');
                 $object->cond_reglement_id = (GETPOST('type') == 3 ? 1 : GETPOST('cond_reglement_id'));
+                $object->invoice_schedule_limit = GETPOST('invoice_schedule_limit');
                 $object->mode_reglement_id = GETPOST('mode_reglement_id', 'int');
                 $object->fk_account = GETPOST('fk_account', 'int');
                 // $object->amount = price2num(GETPOST('amount'));
@@ -1324,7 +1337,6 @@ if (empty($reshook)) {
 
                 // Source facture
                 $object->fac_rec = GETPOST('fac_rec', 'int');
-
                 $id = $object->create($user); // This include recopy of links from recurring invoice and recurring invoice lines
             }
         }
@@ -1398,6 +1410,7 @@ if (empty($reshook)) {
                 $object->fk_project = GETPOST('projectid', 'int');
                 $object->cond_reglement_id = (GETPOST('type') == 3 ? 1 : GETPOST('cond_reglement_id'));
                 $object->mode_reglement_id = GETPOST('mode_reglement_id');
+                $object->invoice_schedule_limit = GETPOST('invoice_schedule_limit');
                 $object->fk_account = GETPOST('fk_account', 'int');
                 // $object->amount = price2num(GETPOST('amount'));
                 $object->remise_absolue = price2num(GETPOST('remise_absolue'), 'MU');
@@ -1961,6 +1974,7 @@ if (empty($reshook)) {
                 $object->model_pdf = GETPOST('model', 'alpha');
                 $object->fk_project = GETPOST('projectid', 'int');
                 $object->cond_reglement_id = GETPOST('cond_reglement_id', 'int');
+                $object->invoice_schedule_limit = GETPOST('invoice_schedule_limit');
                 $object->mode_reglement_id = GETPOST('mode_reglement_id', 'int');
                 $object->remise_absolue = price2num(GETPOST('remise_absolue'), 'MU', 2);
                 $object->remise_percent = price2num(GETPOST('remise_percent'), '', 2);
@@ -3256,7 +3270,6 @@ if ($action == 'create') {
     if (empty($cond_reglement_id)) {
         $cond_reglement_id = GETPOST("cond_reglement_id", 'int');
     }
-
     // when payment mode is empty (means not override by payment mode form a other object, like third-party), try to use default value
     if (empty($mode_reglement_id)) {
         $mode_reglement_id = GETPOST("mode_reglement_id", 'int');
@@ -3292,7 +3305,7 @@ if ($action == 'create') {
         print info_admin($text, 0, 0, 0, 'opacitymedium') . '<br>';
     }
 
-    // JavaScript function to log form data
+    // JavaScript function to lname="addog form data
     print '<script>
         function logFormData(event) {
             event.preventDefault();
@@ -3838,6 +3851,17 @@ if ($action == 'create') {
     print img_picto('', 'payment', 'class="pictofixedwidth"');
     print $form->getSelectConditionsPaiements((GETPOSTISSET('cond_reglement_id') && GETPOST('cond_reglement_id', 'int') != 0) ? GETPOST('cond_reglement_id', 'int') : $cond_reglement_id, 'cond_reglement_id', -1, 1, 0, '');
     print '</td></tr>';
+
+    $sql_llx_payment_term = "SELECT code FROM " . MAIN_DB_PREFIX . "c_payment_term WHERE rowid = $cond_reglement_id";
+    $res_llx_payment_term = $db->query($sql_llx_payment_term);
+
+    if ($res_llx_payment_term) {
+        // Assuming $res_llx_payment_term is the correct result set
+        while ($row = $db->fetch_object($res_llx_payment_term)) {
+            $object->invoice_schedule_limit = $row->code;
+        }
+    }
+    print '<input type="hidden" id="invoice_schedule_limit" name="invoice_schedule_limit" value="' . $object->invoice_schedule_limit . '" readonly />';
 
     if (!empty($conf->global->INVOICE_USE_RETAINED_WARRANTY)) {
         $rwStyle = 'display:none;';
@@ -4807,6 +4831,7 @@ if ($action == 'create') {
     print 'Invoice Schedule';
     print '</td>';
     if ($object->type != Facture::TYPE_CREDIT_NOTE && $action != 'editconditions' && $usercancreate) {
+        echo "object->invoice_schedule_limit",$object->invoice_schedule_limit;
         print '<td class="right"><a class="editfielda" href="' . $_SERVER["PHP_SELF"] . '?action=editconditions&token=' . newToken() . '&facid=' . $object->id . '">' . img_edit($langs->trans('SetConditions'), 1) . '</a></td>';
     }
     print '</tr></table>';
@@ -4821,7 +4846,6 @@ if ($action == 'create') {
         print '&nbsp;';
     }
     print '</td></tr>';
-    print '<script>console.log("Updated Invoice Reference: ' . $invoiceref . '")</script>';
     // Date payment term
     print '<tr><td>';
     print '<table class="nobordernopadding centpercent"><tr><td>';
@@ -5647,7 +5671,6 @@ if ($action == 'create') {
     print '<tr>';
     // Amount TTC with invoice schedule
     print '<td>' . 'VAT @15%' . '</td>';
-    print '<script>console.log("$line->tva_tx: ' . $vatrate . '")</script>';
     $multicurrency_total_tva = ($scheduleAmountHT * $object->tva_tx) / 100;
     print '<td class="nowrap amountcard right">' . price($multicurrency_total_tva, '', $langs, 0, -1, -1, $object->multicurrency_code) . '</td>';
     print '</tr>';

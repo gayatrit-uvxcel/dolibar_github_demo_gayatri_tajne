@@ -208,6 +208,7 @@ abstract class CommonObject
      * @see setProject(), project
      */
     public $fk_project;
+    public $invoice_schedule_limit;
 
     /**
      * @var Project The related project object

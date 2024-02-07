@@ -349,7 +349,7 @@ class pdf_sponge extends ModelePDFFactures
                 $lastCharacter = substr($subInvoiceRef, -1);
                 if ($lastDashPos > 4) {
                     return substr($subInvoiceRef, 0, $lastDashPos);
-                }else if (ctype_alpha($lastCharacter)) {
+                } else if (ctype_alpha($lastCharacter)) {
                     $mainInvoiceRef = substr($subInvoiceRef, 0, -1);
                     return $mainInvoiceRef;
                 } else {
@@ -816,58 +816,73 @@ class pdf_sponge extends ModelePDFFactures
                     }
 
                     // Description of product line
-                    // if ($this->getColumnStatus('desc')) {
-                    //     $pdf->startTransaction();
+                    if ($this->getColumnStatus('desc')) {
+                        $pdf->startTransaction();
 
-                    //     $this->printColDescContent($pdf, $curY, 'desc', $object, $i, $outputlangs, $hideref, $hidedesc);
-                    //     $pageposafter = $pdf->getPage();
+                        // $this->printColDescContent($pdf, $curY, 'desc', $object, $i, $outputlangs, $hideref, $hidedesc);
+                        if (!isset($line->desc)) {
+                            $this->printStdColumnContent($pdf, $curY, 'desc', $line['desc']);
+                        } else {
+                            $this->printColDescContent($pdf, $curY, 'desc', $object, $i, $outputlangs, $hideref, $hidedesc);
+                        }
+                        $pageposafter = $pdf->getPage();
 
-                    //     if ($pageposafter > $pageposbefore) { // There is a pagebreak
-                    //         $pdf->rollbackTransaction(true);
-                    //         $pageposafter = $pageposbefore;
-                    //         $pdf->setPageOrientation('', 1, $this->heightforfooter); // The only function to edit the bottom margin of current page to set it.
+                        if ($pageposafter > $pageposbefore) { // There is a pagebreak
+                            $pdf->rollbackTransaction(true);
+                            $pageposafter = $pageposbefore;
+                            $pdf->setPageOrientation('', 1, $this->heightforfooter); // The only function to edit the bottom margin of current page to set it.
 
-                    //         $this->printColDescContent($pdf, $curY, 'desc', $object, $i, $outputlangs, $hideref, $hidedesc);
+                            // $this->printColDescContent($pdf, $curY, 'desc', $object, $i, $outputlangs, $hideref, $hidedesc);
+                            $displayValue = '';
+                            $values = array($line->product_ref, $line->product_label, $line->desc);
+                            $filteredValues = array_filter($values, 'strlen'); // Remove empty values
+                            $displayValue = implode('<br>', $filteredValues);
+                            if (!isset($line->desc)) {
+                                // $this->printStdColumnContent($pdf, $curY, 'desc', $line['desc']);
+                                $this->printStdColumnContent($pdf, $curY, 'desc', $displayValue);
+                            } else {
+                                $this->printColDescContent($pdf, $curY, 'desc', $object, $i, $outputlangs, $hideref, $hidedesc);
+                            }
 
-                    //         $pageposafter = $pdf->getPage();
-                    //         $posyafter = $pdf->GetY();
-                    //         //var_dump($posyafter); var_dump(($this->page_hauteur - ($this->heightforfooter+$this->heightforfreetext+$this->heightforinfotot))); exit;
-                    //         if ($posyafter > ($this->page_hauteur - $page_bottom_margin)) { // There is no space left for total+free text
-                    //             if ($i == ($nblines - 1)) { // No more lines, and no space left to show total, so we create a new page
-                    //                 $object->isLinesAvailable = 1;
-                    //                 $pdf->AddPage('', '', true);
-                    //                 if (!empty($tplidx)) {
-                    //                     $pdf->useTemplate($tplidx);
-                    //                 }
-                    //                 $pdf->setPage($pageposafter + 1);
-                    //             }
-                    //         } else {
-                    //             // We found a page break
-                    //             // Allows data in the first page if description is long enough to break in multiples pages
-                    //             if (!empty($conf->global->MAIN_PDF_DATA_ON_FIRST_PAGE)) {
-                    //                 $showpricebeforepagebreak = 1;
-                    //             } else {
-                    //                 $showpricebeforepagebreak = 0;
-                    //             }
-                    //         }
-                    //     } else // No pagebreak
-                    //     {
-                    //         $pdf->commitTransaction();
-                    //     }
-                    //     $posYAfterDescription = $pdf->GetY();
-                    // }
-
-                    $displayValue = '';
-                    $values = array($line->product_ref, $line->product_label, $line->desc);
-                    $filteredValues = array_filter($values, 'strlen'); // Remove empty values
-                    $displayValue = implode('<br>', $filteredValues);
-
-                    // modification by sp start
-                    if (isset($line->desc)) {
-                        $this->printStdColumnContent($pdf, $curY, 'desc', $displayValue);
-                    } else {
-                        $this->printStdColumnContent($pdf, $curY, 'desc', $line['desc']);
+                            $pageposafter = $pdf->getPage();
+                            $posyafter = $pdf->GetY();
+                            //var_dump($posyafter); var_dump(($this->page_hauteur - ($this->heightforfooter+$this->heightforfreetext+$this->heightforinfotot))); exit;
+                            if ($posyafter > ($this->page_hauteur - $page_bottom_margin)) { // There is no space left for total+free text
+                                if ($i == ($nblines - 1)) { // No more lines, and no space left to show total, so we create a new page
+                                    $object->isLinesAvailable = 1;
+                                    $pdf->AddPage('', '', true);
+                                    if (!empty($tplidx)) {
+                                        $pdf->useTemplate($tplidx);
+                                    }
+                                    $pdf->setPage($pageposafter + 1);
+                                }
+                            } else {
+                                // We found a page break
+                                // Allows data in the first page if description is long enough to break in multiples pages
+                                if (!empty($conf->global->MAIN_PDF_DATA_ON_FIRST_PAGE)) {
+                                    $showpricebeforepagebreak = 1;
+                                } else {
+                                    $showpricebeforepagebreak = 0;
+                                }
+                            }
+                        } else // No pagebreak
+                        {
+                            $pdf->commitTransaction();
+                        }
+                        $posYAfterDescription = $pdf->GetY();
                     }
+
+                    // $displayValue = '';
+                    // $values = array($line->product_ref, $line->product_label, $line->desc);
+                    // $filteredValues = array_filter($values, 'strlen'); // Remove empty values
+                    // $displayValue = implode('<br>', $filteredValues);
+
+                    // // modification by sp start
+                    // if (isset($line->desc)) {
+                    //     $this->printStdColumnContent($pdf, $curY, 'desc', $displayValue);
+                    // } else {
+                    //     $this->printStdColumnContent($pdf, $curY, 'desc', $line['desc']);
+                    // }
                     // modification by sp end
                     $nexY = max($pdf->GetY(), $nexY);
 

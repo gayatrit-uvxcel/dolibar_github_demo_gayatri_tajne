@@ -5756,7 +5756,7 @@ class Form
     public function form_conditions_reglement($page, $selected = '', $htmlname = 'cond_reglement_id', $addempty = 0, $type = '', $filtertype = -1, $deposit_percent = -1, $nooutput = 0, $invoiceref = '', $rowid)
     {
         // phpcs:enable
-        global $langs;
+        global $langs, $db;
 
         $out = '';
         if ($htmlname != "none") {
@@ -5764,12 +5764,21 @@ class Form
             $out .= '<form method="POST" name="paymentModify" action="' . $page . '">';
             $out .= '<input type="hidden" name="action" value="setconditions">';
             $out .= '<input type="hidden" name="token" value="' . newToken() . '">';
-
             $out .= '<input type="hidden" name="invoiceref" value="' . $modifiedInvoiceref . '">';
             if ($type) {
                 $out .= '<input type="hidden" name="type" value="' . dol_escape_htmltag($type) . '">';
             }
             $out .= $this->getSelectConditionsPaiements($selected, $htmlname, $filtertype, $addempty, 0, '', $deposit_percent);
+
+            $sql_invoice_schedule_limit = "SELECT code FROM " . MAIN_DB_PREFIX . "c_payment_term WHERE rowid = $selected";
+            $res_invoice_schedule_limit = $db->query($sql_invoice_schedule_limit);
+            if ($res_invoice_schedule_limit) {
+
+                while ($row = $db->fetch_object($res_invoice_schedule_limit)) {
+                    $invoice_schedule_limit = $row->code;
+                }
+            }
+            $out .= '<input type="hidden" name="invoice_schedule_limit"  id="invoice_schedule_limit" value="' . htmlspecialchars($invoice_schedule_limit) . '" readonly />';
             $out .= '<input type="submit" class="button valignmiddle smallpaddingimp" value="' . $langs->trans("Modify") . '">';
             $out .= '</form>';
         } else {
