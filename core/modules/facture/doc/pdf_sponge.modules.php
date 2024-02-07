@@ -1200,9 +1200,9 @@ class pdf_sponge extends ModelePDFFactures
                 }
 
                 // Display payment area
-                if (($deja_regle || $amount_credit_notes_included || $amount_deposits_included) && empty($conf->global->INVOICE_NO_PAYMENT_DETAILS)) {
-                    $posy = $this->drawPaymentsTable($pdf, $object, $posy, $outputlangs);
-                }
+                // if (($deja_regle || $amount_credit_notes_included || $amount_deposits_included) && empty($conf->global->INVOICE_NO_PAYMENT_DETAILS)) {
+                //     $posy = $this->drawPaymentsTable($pdf, $object, $posy, $outputlangs);
+                // }
 
                 // Pagefoot
                 $this->_pagefoot($pdf, $object, $outputlangs, 0, $this->getHeightForQRInvoice($pdf->getPage(), $object, $langs));
