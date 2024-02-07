@@ -1984,7 +1984,7 @@ if ($action == 'create') {
     // }
 
     // Date
-    print '<tr class="field_addprop"><td class="titlefieldcreate fieldrequired">' . $langs->trans('DatePropal') . '</td><td class="valuefieldcreate">';
+    print '<tr class="field_addprop"><td class="titlefieldcreate fieldrequired">' .'Date Of Quotation'.'</td><td class="valuefieldcreate">';
     print img_picto('', 'action', 'class="pictofixedwidth"');
     print $form->selectDate('', '', '', '', '', "addprop", 1, 1);
     print '</td></tr>';
@@ -2746,7 +2746,7 @@ if ($action == 'create') {
 
     // print '</tr></table>';
     $editenable = $usercancreate && $caneditfield && $object->statut == Propal::STATUS_DRAFT;
-    print $form->editfieldkey("DatePropal", 'date', '', $object, $editenable);
+    print $form->editfieldkey("Date Of Quotation", 'date', '', $object, $editenable);
     print '</td><td class="valuefield">';
     if ($action == 'editdate' && $usercancreate && $caneditfield) {
         print '<form name="editdate" action="' . $_SERVER["PHP_SELF"] . '?id=' . $object->id . '" method="post">';
