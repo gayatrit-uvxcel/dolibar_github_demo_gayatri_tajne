@@ -403,8 +403,7 @@ class FormFile
 
 		// Get list of files
 		$file_list = null;
-		if (!empty($filedir))
-        {
+		if (!empty($filedir)) {
 			$file_list = dol_dir_list($filedir, 'files', 0, '', '(\.meta|_preview.*.*\.png)$', 'date', SORT_DESC);
 			// echo json_encode($file_list);
 		}
@@ -825,13 +824,16 @@ class FormFile
 					// Define relative path for download link (depends on module)
 					$relativepath = $file["name"]; // Cas general
 					if ($modulesubdir) {
-						
-						if($modulepart == 'facture') {
+						if ($modulepart == 'facture') {
 							$lastCharacter = substr($modulesubdir, -1);
-							if (ctype_alpha($lastCharacter)) {
+							$lastDashPos = strrpos($modulesubdir, '-');
+							if ($lastDashPos > 4) {
+								$modulesubdir = substr($modulesubdir, 0, $lastDashPos);
+								$relativepath = $modulesubdir . "/" . $file["name"];
+							} else if (ctype_alpha($lastCharacter)) {
 								$modulesubdir = substr($modulesubdir, 0, -1);
-							    $relativepath = $modulesubdir . "/" . $file["name"];
-							} 
+								$relativepath = $modulesubdir . "/" . $file["name"];
+							}
 						}
 
 						$relativepath = $modulesubdir . "/" . $file["name"]; // Cas propal, facture...
