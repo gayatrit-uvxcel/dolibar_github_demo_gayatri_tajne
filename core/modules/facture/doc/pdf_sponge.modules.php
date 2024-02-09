@@ -525,8 +525,7 @@ class pdf_sponge extends ModelePDFFactures
 
                 // $this->tab_top is y where we must continue content (90 = 42 + 48: 42 is height of logo and ref, 48 is address blocks)
                 $this->tab_top = 90 + $top_shift + $shipp_shift; // top_shift is an addition for linked objects or addons (0 in most cases)
-                $this->tab_top_newpage = (!getDolGlobalInt('MAIN_PDF_DONOTREPEAT_HEAD') ? 42 + $top_shift : 10);
-
+                $this->tab_top_newpage = (!getDolGlobalInt('MAIN_PDF_DONOTREPEAT_HEAD') ? 48 + $top_shift : 10);
                 // You can add more thing under header here, if you increase $extra_under_address_shift too.
                 $extra_under_address_shift = 0;
                 $qrcodestring = '';
@@ -1162,7 +1161,7 @@ class pdf_sponge extends ModelePDFFactures
 
                 // to display bank details
                 $remainingforbankDetails = $this->page_hauteur - $pdf->GetY() - $heightforfooter;
-                $heightOfbankDetails = $this->bankDetails($pdf, $posy, $outputlangs, $object, $outputlangsbis, true);
+                $heightOfbankDetails = $this->bankDetails($pdf, $outputlangs, $object, true);
                 if ($remainingforbankDetails > $heightOfbankDetails) {
                     $posy = $this->bankDetails($pdf, $object, false);
                 } else {

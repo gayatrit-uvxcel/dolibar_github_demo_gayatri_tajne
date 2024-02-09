@@ -773,7 +773,6 @@ class Facture extends CommonInvoice
         $sql .= ", " . ($this->vat_no ? "'" . $this->db->escape($this->vat_no) . "'" : "null");
         $sql .= ")";
 
-        echo $sql;
         $resql = $this->db->query($sql);
         if ($resql) {
             $this->id = $this->db->last_insert_id(MAIN_DB_PREFIX . 'facture');
@@ -6379,7 +6378,6 @@ class FactureLigne extends CommonInvoiceLine
         }
 
         $this->db->begin();
-
         // Update line in database
         $sql = 'INSERT INTO ' . MAIN_DB_PREFIX . 'facturedet';
         $sql .= ' (fk_facture, fk_parent_line, label, description, qty, category,';

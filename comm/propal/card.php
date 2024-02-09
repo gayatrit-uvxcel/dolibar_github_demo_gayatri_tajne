@@ -306,7 +306,8 @@ if (empty($reshook)) {
                 setEventMessages($langs->trans($object->error), null, 'errors');
             }
         }
-    } elseif ($action == 'setdate' && $usercancreate) {
+    }
+     elseif ($action == 'setdate' && $usercancreate) {
         $datep = dol_mktime(12, 0, 0, GETPOST('remonth', 'int'), GETPOST('reday', 'int'), GETPOST('reyear', 'int'));
 
         if (empty($datep)) {
@@ -315,6 +316,7 @@ if (empty($reshook)) {
         }
 
         if (!$error) {
+            $object->ref = GETPOST('modifiedQuotationNo', 'alpha');
             $result = $object->set_date($user, $datep);
             if ($result > 0 && !empty($object->duree_validite) && !empty($object->fin_validite)) {
                 $datev = $datep + ($object->duree_validite * 24 * 3600);
@@ -346,7 +348,8 @@ if (empty($reshook)) {
                 $object->generateDocument($model, $outputlangs, $hidedetails, $hidedesc, $hideref);
             }
         }
-    } elseif ($action == 'setecheance' && $usercancreate) {
+    } 
+    elseif ($action == 'setecheance' && $usercancreate) {
         $result = $object->set_echeance($user, dol_mktime(12, 0, 0, GETPOST('echmonth', 'int'), GETPOST('echday', 'int'), GETPOST('echyear', 'int')));
         if ($result >= 0) {
             if (empty($conf->global->MAIN_DISABLE_PDF_AUTOUPDATE)) {
@@ -1984,7 +1987,7 @@ if ($action == 'create') {
     // }
 
     // Date
-    print '<tr class="field_addprop"><td class="titlefieldcreate fieldrequired">' .'Date Of Quotation'.'</td><td class="valuefieldcreate">';
+    print '<tr class="field_addprop"><td class="titlefieldcreate fieldrequired">' . 'Date Of Quotation' . '</td><td class="valuefieldcreate">';
     print img_picto('', 'action', 'class="pictofixedwidth"');
     print $form->selectDate('', '', '', '', '', "addprop", 1, 1);
     print '</td></tr>';
@@ -2725,7 +2728,7 @@ if ($action == 'create') {
     // $absolute_discount = price2num($absolute_discount, 'MT');
     // $absolute_creditnote = price2num($absolute_creditnote, 'MT');
 
-    // $caneditfield = ($object->statut != Propal::STATUS_SIGNED && $object->statut != Propal::STATUS_BILLED);
+    $caneditfield = ($object->statut != Propal::STATUS_SIGNED && $object->statut != Propal::STATUS_BILLED);
 
     // $thirdparty = $soc;
     // $discount_type = 0;
@@ -2737,33 +2740,43 @@ if ($action == 'create') {
     // Date of proposal
     print '<tr>';
     print '<td>';
-    // print '<table class="nobordernopadding" width="100%"><tr><td>';
-    // print $langs->trans('DatePropal');
-    // print '</td>';
-    // if ($action != 'editdate' && $usercancreate && $caneditfield) {
-    //     print '<td class="right"><a class="editfielda" href="'.$_SERVER["PHP_SELF"].'?action=editdate&token='.newToken().'&id='.$object->id.'">'.img_edit($langs->trans('SetDate'), 1).'</a></td>';
-    // }
+    print '<table class="nobordernopadding" width="100%"><tr><td>';
+    print $langs->trans('DatePropal');
+    print '</td>';
+    if ($action != 'editdate' && $object->statut == $object::STATUS_DRAFT && $usercancreate && $caneditfield) {
+        print '<td class="right"><a class="editfielda" href="' . $_SERVER["PHP_SELF"] . '?action=editdate&token=' . newToken() . '&id=' . $object->id . '">' . img_edit($langs->trans('SetDate'), 1) . '</a></td>';
+    }
 
-    // print '</tr></table>';
-    $editenable = $usercancreate && $caneditfield && $object->statut == Propal::STATUS_DRAFT;
-    print $form->editfieldkey("Date Of Quotation", 'date', '', $object, $editenable);
-    print '</td><td class="valuefield">';
+    print '</tr></table>';
+    print '</td><td>';
+
+    function addSuffixToQuotationNo($quotationNo)
+    {
+        if (strpos($quotationNo, 'FVAQ') === 0) {
+            $lastChar = substr($quotationNo, -1);
+            if (ctype_alpha($lastChar)) {
+                $nextChar = chr(((ord($lastChar) - 65 + 1) % 26) + 65);
+                $quotationNo = substr_replace($quotationNo, $nextChar, -1);
+            } else {
+                $quotationNo .= 'A';
+            }
+        }
+        return $quotationNo;
+    }
     if ($action == 'editdate' && $usercancreate && $caneditfield) {
+        $modifiedQuotationNo = addSuffixToQuotationNo($object->ref);
         print '<form name="editdate" action="' . $_SERVER["PHP_SELF"] . '?id=' . $object->id . '" method="post">';
         print '<input type="hidden" name="token" value="' . newToken() . '">';
         print '<input type="hidden" name="action" value="setdate">';
         print '<input type="hidden" name="backtopage" value="' . $backtopage . '">';
+        print '<input type="hidden" name="modifiedQuotationNo" value="' . $modifiedQuotationNo . '">';
         print $form->selectDate($object->date, 're', '', '', 0, "editdate");
         print '<input type="submit" class="button button-edit" value="' . $langs->trans('Modify') . '">';
         print '</form>';
     } else {
-        if ($object->date) {
-            print dol_print_date($object->date, 'day');
-        } else {
-            print '&nbsp;';
-        }
+        print dol_print_date($object->date, 'day');
     }
-    print '</td>';
+    print '<td>';
 
     // Date end proposal
     print '<tr>';
@@ -2771,7 +2784,7 @@ if ($action == 'create') {
     print '<table class="nobordernopadding centpercent"><tr><td>';
     print $langs->trans('DateEndPropal');
     print '</td>';
-    if ($action != 'editecheance' && $usercancreate && $caneditfield) {
+    if ($action != 'editecheance' && $object->statut == $object::STATUS_DRAFT && $usercancreate && $caneditfield) {
         print '<td class="right"><a class="editfielda" href="' . $_SERVER["PHP_SELF"] . '?action=editecheance&token=' . newToken() . '&id=' . $object->id . '">' . img_edit($langs->trans('SetConditions'), 1) . '</a></td>';
     }
     print '</tr></table>';
@@ -2812,13 +2825,13 @@ if ($action == 'create') {
     // }
     // print '</tr></table>';
     // print '</td><td class="valuefield">';
-    if ($action == 'editconditions' && $usercancreate && $caneditfield) {
-        $form->form_conditions_reglement($_SERVER['PHP_SELF'] . '?id=' . $object->id, $object->cond_reglement_id, 'cond_reglement_id', 0, '', 1, $object->deposit_percent, 0, $object->ref, $object->id);
-    } else {
-        $form->form_conditions_reglement($_SERVER['PHP_SELF'] . '?id=' . $object->id, $object->cond_reglement_id, 'none', 0, '', 1, $object->deposit_percent, $object->ref, $object->id, 0);
-    }
-    print '</td>';
-    print '</tr>';
+    // if ($action == 'editconditions' && $usercancreate && $caneditfield) {
+    //     $form->form_conditions_reglement($_SERVER['PHP_SELF'] . '?id=' . $object->id, $object->cond_reglement_id, 'cond_reglement_id', 0, '', 1, $object->deposit_percent, 0, $object->ref, $object->id);
+    // } else {
+    //     $form->form_conditions_reglement($_SERVER['PHP_SELF'] . '?id=' . $object->id, $object->cond_reglement_id, 'none', 0, '', 1, $object->deposit_percent, $object->ref, $object->id, 0);
+    // }
+    // print '</td>';
+    // print '</tr>';
 
     // Payment mode
     // print '<tr class="field_mode_reglement_id">';
@@ -2831,11 +2844,11 @@ if ($action == 'create') {
     // }
     // print '</tr></table>';
     // print '</td><td class="valuefieldcreate">';
-    if ($action == 'editmode' && $usercancreate && $caneditfield) {
-        $form->form_modes_reglement($_SERVER['PHP_SELF'] . '?id=' . $object->id, $object->mode_reglement_id, 'mode_reglement_id', 'CRDT', 1, 1);
-    } else {
-        $form->form_modes_reglement($_SERVER['PHP_SELF'] . '?id=' . $object->id, $object->mode_reglement_id, 'none');
-    }
+    // if ($action == 'editmode' && $usercancreate && $caneditfield) {
+    //     $form->form_modes_reglement($_SERVER['PHP_SELF'] . '?id=' . $object->id, $object->mode_reglement_id, 'mode_reglement_id', 'CRDT', 1, 1);
+    // } else {
+    //     $form->form_modes_reglement($_SERVER['PHP_SELF'] . '?id=' . $object->id, $object->mode_reglement_id, 'none');
+    // }
     // print '</td></tr>';
 
     // Delivery date
