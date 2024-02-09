@@ -393,7 +393,7 @@ class pdf_cyan extends ModelePDFPropales
                 $pdf->SetTextColor(0, 0, 0);
 
                 $tab_top = 90 + $top_shift;
-                $tab_top_newpage = (!getDolGlobalInt('MAIN_PDF_DONOTREPEAT_HEAD') ? 42 + $top_shift : 10);
+                $tab_top_newpage = (!getDolGlobalInt('MAIN_PDF_DONOTREPEAT_HEAD') ? 48 + $top_shift : 10);
 
                 $nexY = $tab_top;
 

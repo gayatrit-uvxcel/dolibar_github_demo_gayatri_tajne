@@ -2424,8 +2424,8 @@ if (empty($reshook)) {
                 }
 
                 // Insert line
-                // $result = $object->addline($desc, $pu_ht, $qty, $tva_tx, $localtax1_tx, $localtax2_tx, $idprod, $remise_percent, $date_start, $date_end, 0, $info_bits, '', $price_base_type, $pu_ttc, $type, min($rank, count($object->lines) + 1), $special_code, '', 0, GETPOST('fk_parent_line'), $fournprice, $buyingprice, $label, $array_options, GETPOST('progress'), '', $fk_unit, $pu_ht_devise,$unit);
-                $result = $object->addline($desc, $pu_ht, $qty, $tva_tx, $txlocaltax1 = 0, $txlocaltax2 = 0, $fk_product = 0, $remise_percent = 0, $date_start = '', $date_end = '', $ventil = 0, $info_bits = 0, $fk_remise_except = '', $price_base_type = 'HT', $pu_ttc = 0, $type = 0, $category, $rang = -1, $special_code = 0, $origin = '', $origin_id = 0, $fk_parent_line = 0, $fk_fournprice = null, $pa_ht = 0, $label = '', $array_options = 0, $situation_percent = 100, $fk_prev_id = 0, $fk_unit = null, $pu_ht_devise = 0, $ref_ext = '', $noupdateafterinsertline = 0, $unit, $fk_projectid, $fk_socid);
+                $result = $object->addline($desc, $pu_ht, $qty, $tva_tx, $localtax1_tx, $localtax2_tx, $idprod, $remise_percent, $date_start, $date_end, 0, $info_bits, '',$price_base_type, $pu_ttc, $type,$category,min($rank, count($object->lines) + 1), $special_code, '', 0, GETPOST('fk_parent_line'), $fournprice, $buyingprice, $label, $array_options, GETPOST('progress'), '', $fk_unit, $pu_ht_devise,0,0,$unit);
+                
                 if ($result > 0) {
                     // Define output language and generate document
                     if (empty($conf->global->MAIN_DISABLE_PDF_AUTOUPDATE)) {
@@ -2490,7 +2490,6 @@ if (empty($reshook)) {
                 } else {
                     setEventMessages($object->error, $object->errors, 'errors');
                 }
-
                 $action = '';
             }
         }

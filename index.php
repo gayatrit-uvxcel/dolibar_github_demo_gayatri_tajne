@@ -121,7 +121,7 @@ llxHeader('', $title);
 
 $resultboxes = FormOther::getBoxesArea($user, "0"); // Load $resultboxes (selectboxlist + boxactivated + boxlista + boxlistb)
 
-// print load_fiche_titre('&nbsp;', $resultboxes['selectboxlist'], '', 0, '', 'titleforhome');
+print load_fiche_titre('&nbsp;', $resultboxes['selectboxlist'], '', 0, '', 'titleforhome');
 
 if (!empty($conf->global->MAIN_MOTD)) {
     $conf->global->MAIN_MOTD = preg_replace('/<br(\s[\sa-zA-Z_="]*)?\/?>/i', '<br>', $conf->global->MAIN_MOTD);
@@ -250,20 +250,42 @@ if ($socid > 0) {
     }
 }
 
-print '<script>
-        $(document).ready(function() {
-            $("#projectid").change(function() {
-                console.log("We have changed the project - Reload page");
-                var projectid = $(this).val();
-                // reload page
-                $("input[name=action]").val("create");
-                $("input[name=changeproject]").val("1");
-				$("form[name=add]").submit();
+print'<script>
 
-            });
+    function test(){
+    var editBtns = $(".qty_edit_icon");
+    editBtns.click(function() {
+        var index = this.id.split("-")[1];
+        console.log(index);
+        $("#qty-" + index).show();
+        $("#modify_qty-" + index).show();
+        $("#default_qty-" + index).hide();
+    });
+
+
+    $(".modify_qty").click(function() {
+        var index = this.id.split("-")[1];
+        $("#qty-" + index).hide();
+       console.log($("#qty-" + index).value);
+        $("#modify_qty-" + index).hide();
+        $("#default_qty-" + index).show();
+        $("form[name=add]").submit();
+    });
+   }
+    $(document).ready(function() {
+        $("#projectid").change(function() {
+            console.log("We have changed the project - Reload page");
+            var projectid = $(this).val();
+            // reload page
+            $("input[name=action]").val("create");
+            $("input[name=changeproject]").val("1");
+            $("form[name=add]").submit();
         });
+
+        test();
+    });
 </script>';
-print "</table>\n";
+
 
 // to display data after selecting project
 if ($projectid > 0) {
@@ -418,7 +440,6 @@ if ($projectid > 0) {
             $index = 0;
             $subTotalExclTax = 0;
             $vatPercentage = 15;
-
             foreach ($categoryArray as $category) {
                 // $sql_llx_propaldet_unit = "SELECT SUM(subprice) As sumOfUnitPrice FROM " . MAIN_DB_PREFIX . "propaldet WHERE SUBSTRING_INDEX(category, ' - ', 1) = '$category' AND fk_socid = $socid AND fk_projectid = $projectid";
 
@@ -443,9 +464,55 @@ if ($projectid > 0) {
                 }
 
                 $index++;
+                $Qty = 1;
 
+                if (GETPOST('qty')) {
+                    $sql_llx_summary_qty = "SELECT qty FROM " . MAIN_DB_PREFIX . "summary_qty where category_name = '$category' and socid = $socid and projectid = $projectid;";
+
+                    $res_llx_summary_qty = $db->query($sql_llx_summary_qty);
+
+                    if ($res_llx_summary_qty) {
+                        while ($row = $db->fetch_object($res_llx_summary_qty)) {
+                            $Qty = $row->qty ? $row->qty : 1;
+                        }
+                    }
+                }
                 print '<tr>';
-                print '<td>' . $index . '</td><td colspan="2">1</td> <td colspan="2">' . $category . '</td> <td colspan="2">' . $sumOfTotalPrice . '</td> <td colspan="2">' . $sumOfTotalPrice . '</td>';
+                print '<td>' . $index . '</td>';
+
+                echo GETPOST('qty');
+                print '<td colspan="2"><a class="qty_edit_icon" style="margin-left: 5px" id="editicon-' . $index . '">' . img_edit($langs->trans('EditQty'), 0) . '</a>';
+                print '<span id="default_qty-' . $index . '">';
+                if (GETPOST('category') == $category) {
+                    print GETPOST('qty');
+                } else {
+                    print $Qty;
+                }
+                print '</span>';
+                print '<input type="text" style="display: none;" id="qty-' . $index . '" name="qty" value="' . $Qty . '"> 
+                 <input type="hidden" name="category" value="' . $category . '"> 
+                 <button type="button" class="button button-edit modify_qty" style="display: none;" id="modify_qty-' . $index . '">Modify</button> </td>';
+                print '</td>';
+                // print '<td colspan="2">';
+                // if ($action != 'editQty') {
+                //     print '<a class="editfielda" href="' . $_SERVER["PHP_SELF"] . '?action=editQty&token=' . newToken() . '&id=' . $socid . '">' . img_edit($langs->trans('EditQty'), 0) . '</a>';
+                //     print '<span style="margin-left: 5px;">' . $Qty . '</span>';
+                // } elseif ($action == 'editQty') {
+                //     print '<form name="editQty" =editQty action="' . $_SERVER["PHP_SELF"] . '?id=' . $socid . '" method="post">';
+                //     print '<input type="hidden" name="token" value="' . newToken() . '">';
+                //     print '<input type="hidden" name="action" value="editQty">';
+                //     print '<input type="hidden" name="backtopage" value="' . $backtopage . '">';
+                //     print '<input type="text" name="Qty" value="' . $Qty . '">';
+                //     print '<input type="submit" class="button button-edit" value="' . $langs->trans('Modify') . '">';
+                //     print '</form>';
+                // } else {
+                //     print $Qty;
+                // }
+                // print '</td>';
+                print '<td colspan="2">' . $category . '</td>';
+                print '<td colspan="2">' . $sumOfTotalPrice . '</td>';
+                print '<td colspan="2">' . $sumOfTotalPrice . '</td>';
+
                 print '</tr>';
             }
 
@@ -473,10 +540,16 @@ if ($projectid > 0) {
 
         print '</tbody>';
         print '</table>' . "\n";
-
     }
 }
 
+if (GETPOST('qty') && GETPOST('category')) {
+    $category_name = GETPOST('category');
+    $qty_value = GETPOST('qty');
+    $sql = "INSERT INTO " . MAIN_DB_PREFIX . "summary_qty  (category_name ,qty, socid, projectid) VALUES('$category_name','$qty_value','$socid','$projectid') ON
+    DUPLICATE KEY UPDATE qty = VALUES (qty)";
+    $db->query($sql);
+}
 print "</form>\n";
 
 /*
