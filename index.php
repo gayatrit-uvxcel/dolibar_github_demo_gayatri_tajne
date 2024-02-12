@@ -119,62 +119,6 @@ if (!empty($conf->global->MAIN_APPLICATION_TITLE)) {
 
 llxHeader('', $title);
 
-$resultboxes = FormOther::getBoxesArea($user, "0"); // Load $resultboxes (selectboxlist + boxactivated + boxlista + boxlistb)
-
-print load_fiche_titre('&nbsp;', $resultboxes['selectboxlist'], '', 0, '', 'titleforhome');
-
-if (!empty($conf->global->MAIN_MOTD)) {
-    $conf->global->MAIN_MOTD = preg_replace('/<br(\s[\sa-zA-Z_="]*)?\/?>/i', '<br>', $conf->global->MAIN_MOTD);
-    if (!empty($conf->global->MAIN_MOTD)) {
-        $substitutionarray = getCommonSubstitutionArray($langs);
-        complete_substitutions_array($substitutionarray, $langs);
-        $texttoshow = make_substitutions($conf->global->MAIN_MOTD, $substitutionarray, $langs);
-
-        print "\n<!-- Start of welcome text -->\n";
-        print '<table width="100%" class="notopnoleftnoright"><tr><td>';
-        print dol_htmlentitiesbr($texttoshow);
-        print '</td></tr></table><br>';
-        print "\n<!-- End of welcome text -->\n";
-    }
-}
-
-/*
- * Show security warnings
- */
-
-// Security warning if install.lock file is missing or if conf file is writable
-// if (empty($conf->global->MAIN_REMOVE_INSTALL_WARNING)) {
-//     $message = '';
-
-//     // Check if install lock file is present
-//     $lockfile = DOL_DATA_ROOT.'/install.lock';
-//     if (!empty($lockfile) && !file_exists($lockfile) && is_dir(DOL_DOCUMENT_ROOT."/install")) {
-//         $langs->load("errors");
-//         //if (!empty($message)) $message.='<br>';
-//         $message .= info_admin($langs->trans("WarningLockFileDoesNotExists", DOL_DATA_ROOT).' '.$langs->trans("WarningUntilDirRemoved", DOL_DOCUMENT_ROOT."/install"), 0, 0, '1', 'clearboth');
-//     }
-
-//     // Conf files must be in read only mode
-//     if (is_writable($conffile)) {    // $conffile is defined into filefunc.inc.php
-//         $langs->load("errors");
-//         //$langs->load("other");
-//         //if (!empty($message)) $message.='<br>';
-//         $message .= info_admin($langs->transnoentities("WarningConfFileMustBeReadOnly").' '.$langs->trans("WarningUntilDirRemoved", DOL_DOCUMENT_ROOT."/install"), 0, 0, '1', 'clearboth');
-//     }
-
-//     $object = new stdClass();
-//     $parameters = array();
-//     $reshook = $hookmanager->executeHooks('infoadmin', $parameters, $object, $action); // Note that $action and $object may have been modified by some hooks
-//     if ($reshook == 0) {
-//         $message .= $hookmanager->resPrint;
-//     }
-//     if ($message) {
-//         print $message.'<br>';
-//         //$message.='<br>';
-//         //print info_admin($langs->trans("WarningUntilDirRemoved",DOL_DOCUMENT_ROOT."/install"));
-//     }
-// }
-
 // for summary
 if ($socid > 0) {
     $res = $soc->fetch($socid);
@@ -445,16 +389,6 @@ if ($projectid > 0) {
             $subTotalExclTax = 0;
             $vatPercentage = 15;
             foreach ($categoryArray as $category) {
-                // $sql_llx_propaldet_unit = "SELECT SUM(subprice) As sumOfUnitPrice FROM " . MAIN_DB_PREFIX . "propaldet WHERE SUBSTRING_INDEX(category, ' - ', 1) = '$category' AND fk_socid = $socid AND fk_projectid = $projectid";
-
-                // $res_llx_propaldet_unit = $db->query($sql_llx_propaldet_unit);
-
-                // if ($res_llx_propaldet_unit) {
-                //     while ($row = $db->fetch_object($res_llx_propaldet_unit)) {
-                //         $sumOfUnitPrice = number_format($row->sumOfUnitPrice, 2);
-                //     }
-                // }
-
                 $sql_llx_propaldet_total = "SELECT SUM(total_ht) As sumOfTotalPrice FROM " . MAIN_DB_PREFIX . "propaldet WHERE SUBSTRING_INDEX(category, ' - ', 1) = '$category' AND fk_socid = $socid AND fk_projectid = $projectid";
 
                 $res_llx_propaldet_total = $db->query($sql_llx_propaldet_total);
@@ -483,7 +417,7 @@ if ($projectid > 0) {
                 print '<tr>';
                 print '<td>' . $index . '</td>';
 
-                print '<td colspan="2"><a class="qty_edit_icon" style="margin-left: 5px" id="editicon-' . $index . '">' . img_edit($langs->trans('EditQty'), 0) . '</a>';
+                print '<td colspan="2"><a class="qty_edit_icon" style="margin-right: 5px" id="editicon-' . $index . '">' . img_edit($langs->trans('EditQty'), 0) . '</a>';
                 print '<span id="default_qty-' . $index . '">';
                 if (GETPOST('category') == $category) {
                     print GETPOST('modified-qty');
@@ -494,22 +428,6 @@ if ($projectid > 0) {
                 print '<input type="text" style="display: none;" id="qty-' . $index . '" data-category="' . $category . '" name="qty" value="' . $Qty . '">
                  <button type="button" class="button button-edit modify_qty" style="display: none;" id="modify_qty-' . $index . '">Modify</button> </td>';
                 print '</td>';
-                // print '<td colspan="2">';
-                // if ($action != 'editQty') {
-                //     print '<a class="editfielda" href="' . $_SERVER["PHP_SELF"] . '?action=editQty&token=' . newToken() . '&id=' . $socid . '">' . img_edit($langs->trans('EditQty'), 0) . '</a>';
-                //     print '<span style="margin-left: 5px;">' . $Qty . '</span>';
-                // } elseif ($action == 'editQty') {
-                //     print '<form name="editQty" =editQty action="' . $_SERVER["PHP_SELF"] . '?id=' . $socid . '" method="post">';
-                //     print '<input type="hidden" name="token" value="' . newToken() . '">';
-                //     print '<input type="hidden" name="action" value="editQty">';
-                //     print '<input type="hidden" name="backtopage" value="' . $backtopage . '">';
-                //     print '<input type="text" name="Qty" value="' . $Qty . '">';
-                //     print '<input type="submit" class="button button-edit" value="' . $langs->trans('Modify') . '">';
-                //     print '</form>';
-                // } else {
-                //     print $Qty;
-                // }
-                // print '</td>';
                 print '<td colspan="2">' . $category . '</td>';
                 print '<td colspan="2">' . $sumOfTotalPrice . '</td>';
                 if (GETPOST('modified-qty') && GETPOST('category') == $category) {
@@ -558,6 +476,64 @@ if (GETPOST('modified-qty') && GETPOST('category')) {
     $db->query($sql);
 }
 print "</form>\n";
+
+$resultboxes = FormOther::getBoxesArea($user, "0"); // Load $resultboxes (selectboxlist + boxactivated + boxlista + boxlistb)
+
+
+print load_fiche_titre('&nbsp;', $resultboxes['selectboxlist'], '', 0, '', 'titleforhome');
+
+if (!empty($conf->global->MAIN_MOTD)) {
+	$conf->global->MAIN_MOTD = preg_replace('/<br(\s[\sa-zA-Z_="]*)?\/?>/i', '<br>', $conf->global->MAIN_MOTD);
+	if (!empty($conf->global->MAIN_MOTD)) {
+		$substitutionarray = getCommonSubstitutionArray($langs);
+		complete_substitutions_array($substitutionarray, $langs);
+		$texttoshow = make_substitutions($conf->global->MAIN_MOTD, $substitutionarray, $langs);
+
+		print "\n<!-- Start of welcome text -->\n";
+		print '<table width="100%" class="notopnoleftnoright"><tr><td>';
+		print dol_htmlentitiesbr($texttoshow);
+		print '</td></tr></table><br>';
+		print "\n<!-- End of welcome text -->\n";
+	}
+}
+
+/*
+ * Show security warnings
+ */
+
+// Security warning if install.lock file is missing or if conf file is writable
+// if (empty($conf->global->MAIN_REMOVE_INSTALL_WARNING)) {
+//     $message = '';
+
+//     // Check if install lock file is present
+//     $lockfile = DOL_DATA_ROOT.'/install.lock';
+//     if (!empty($lockfile) && !file_exists($lockfile) && is_dir(DOL_DOCUMENT_ROOT."/install")) {
+//         $langs->load("errors");
+//         //if (!empty($message)) $message.='<br>';
+//         $message .= info_admin($langs->trans("WarningLockFileDoesNotExists", DOL_DATA_ROOT).' '.$langs->trans("WarningUntilDirRemoved", DOL_DOCUMENT_ROOT."/install"), 0, 0, '1', 'clearboth');
+//     }
+
+//     // Conf files must be in read only mode
+//     if (is_writable($conffile)) {    // $conffile is defined into filefunc.inc.php
+//         $langs->load("errors");
+//         //$langs->load("other");
+//         //if (!empty($message)) $message.='<br>';
+//         $message .= info_admin($langs->transnoentities("WarningConfFileMustBeReadOnly").' '.$langs->trans("WarningUntilDirRemoved", DOL_DOCUMENT_ROOT."/install"), 0, 0, '1', 'clearboth');
+//     }
+
+//     $object = new stdClass();
+//     $parameters = array();
+//     $reshook = $hookmanager->executeHooks('infoadmin', $parameters, $object, $action); // Note that $action and $object may have been modified by some hooks
+//     if ($reshook == 0) {
+//         $message .= $hookmanager->resPrint;
+//     }
+//     if ($message) {
+//         print $message.'<br>';
+//         //$message.='<br>';
+//         //print info_admin($langs->trans("WarningUntilDirRemoved",DOL_DOCUMENT_ROOT."/install"));
+//     }
+// }
+
 
 /*
  * Dashboard Dolibarr states (statistics)
