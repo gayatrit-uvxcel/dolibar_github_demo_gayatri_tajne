@@ -250,23 +250,25 @@ if ($socid > 0) {
     }
 }
 
-print'<script>
+print '<script>
 
     function test(){
     var editBtns = $(".qty_edit_icon");
     editBtns.click(function() {
         var index = this.id.split("-")[1];
-        console.log(index);
         $("#qty-" + index).show();
         $("#modify_qty-" + index).show();
         $("#default_qty-" + index).hide();
     });
 
-
     $(".modify_qty").click(function() {
         var index = this.id.split("-")[1];
         $("#qty-" + index).hide();
-       console.log($("#qty-" + index).value);
+        var $qtyInput = $("#qty-" + index);
+        var qtyValue = $qtyInput.val();
+        var categoryValue = $qtyInput.data("category");
+        $("input[name=\'modified-qty\']").val(qtyValue);
+        $("input[name=\'category\']").val(categoryValue);
         $("#modify_qty-" + index).hide();
         $("#default_qty-" + index).show();
         $("form[name=add]").submit();
@@ -285,7 +287,6 @@ print'<script>
         test();
     });
 </script>';
-
 
 // to display data after selecting project
 if ($projectid > 0) {
@@ -430,6 +431,9 @@ if ($projectid > 0) {
             }
         }
 
+        print '<input type="hidden" name="category" value="">';
+        print '<input type="hidden" name="modified-qty" value="">';
+
         if (isset($categoryArray) && is_array($categoryArray) && !empty($categoryArray)) {
             print '<table class="noborder" style="margin-top: 20px; text-align: center;">' . "\n";
             print '<thead>';
@@ -466,31 +470,28 @@ if ($projectid > 0) {
                 $index++;
                 $Qty = 1;
 
-                if (GETPOST('qty')) {
-                    $sql_llx_summary_qty = "SELECT qty FROM " . MAIN_DB_PREFIX . "summary_qty where category_name = '$category' and socid = $socid and projectid = $projectid;";
+                $sql_llx_summary_qty = "SELECT qty FROM " . MAIN_DB_PREFIX . "summary_qty where category_name = '$category' and socid = $socid and projectid = $projectid;";
 
-                    $res_llx_summary_qty = $db->query($sql_llx_summary_qty);
+                $res_llx_summary_qty = $db->query($sql_llx_summary_qty);
 
-                    if ($res_llx_summary_qty) {
-                        while ($row = $db->fetch_object($res_llx_summary_qty)) {
-                            $Qty = $row->qty ? $row->qty : 1;
-                        }
+                if ($res_llx_summary_qty) {
+                    while ($row = $db->fetch_object($res_llx_summary_qty)) {
+                        $Qty = $row->qty ? $row->qty : 1;
                     }
                 }
+
                 print '<tr>';
                 print '<td>' . $index . '</td>';
 
-                echo GETPOST('qty');
                 print '<td colspan="2"><a class="qty_edit_icon" style="margin-left: 5px" id="editicon-' . $index . '">' . img_edit($langs->trans('EditQty'), 0) . '</a>';
                 print '<span id="default_qty-' . $index . '">';
                 if (GETPOST('category') == $category) {
-                    print GETPOST('qty');
+                    print GETPOST('modified-qty');
                 } else {
                     print $Qty;
                 }
                 print '</span>';
-                print '<input type="text" style="display: none;" id="qty-' . $index . '" name="qty" value="' . $Qty . '"> 
-                 <input type="hidden" name="category" value="' . $category . '"> 
+                print '<input type="text" style="display: none;" id="qty-' . $index . '" data-category="' . $category . '" name="qty" value="' . $Qty . '">
                  <button type="button" class="button button-edit modify_qty" style="display: none;" id="modify_qty-' . $index . '">Modify</button> </td>';
                 print '</td>';
                 // print '<td colspan="2">';
@@ -511,8 +512,14 @@ if ($projectid > 0) {
                 // print '</td>';
                 print '<td colspan="2">' . $category . '</td>';
                 print '<td colspan="2">' . $sumOfTotalPrice . '</td>';
-                print '<td colspan="2">' . $sumOfTotalPrice . '</td>';
-
+                if (GETPOST('modified-qty') && GETPOST('category') == $category) {
+                    $modifiedQty = intval(GETPOST('modified-qty'));
+                    $sumOfTotalPrice = floatval(str_replace(',', '', $sumOfTotalPrice));
+                    $total = $modifiedQty * $sumOfTotalPrice;
+                    print '<td colspan="2">' . number_format($total, 2) . '</td>';
+                } else {
+                    print '<td colspan="2">' . number_format(floatval(str_replace(',', '', $sumOfTotalPrice)) * intval($Qty), 2) . '</td>';
+                }
                 print '</tr>';
             }
 
@@ -543,9 +550,9 @@ if ($projectid > 0) {
     }
 }
 
-if (GETPOST('qty') && GETPOST('category')) {
+if (GETPOST('modified-qty') && GETPOST('category')) {
     $category_name = GETPOST('category');
-    $qty_value = GETPOST('qty');
+    $qty_value = GETPOST('modified-qty');
     $sql = "INSERT INTO " . MAIN_DB_PREFIX . "summary_qty  (category_name ,qty, socid, projectid) VALUES('$category_name','$qty_value','$socid','$projectid') ON
     DUPLICATE KEY UPDATE qty = VALUES (qty)";
     $db->query($sql);
