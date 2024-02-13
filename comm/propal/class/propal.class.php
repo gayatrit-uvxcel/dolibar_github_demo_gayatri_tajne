@@ -2169,7 +2169,10 @@ class Propal extends CommonObject
 
             $this->db->begin();
 
+            $ref = GETPOST('modifiedQuotationNo', 'alpha');
+
             $sql = "UPDATE " . MAIN_DB_PREFIX . "propal SET datep = '" . $this->db->idate($date) . "'";
+            $sql .= ", ref = '" . $ref . "'"; 
             $sql .= " WHERE rowid = " . ((int) $this->id);
 
             dol_syslog(__METHOD__, LOG_DEBUG);
