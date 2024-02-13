@@ -809,7 +809,6 @@ class FormFile
 					$relativedir = preg_replace('/^' . preg_quote(DOL_DATA_ROOT, '/') . '/', '', $filedir);
 					$relativedir = preg_replace('/^[\\/]/', '', $relativedir);
 				}
-
 				// Get list of files stored into database for same relative directory
 				if ($relativedir) {
 					completeFileArrayWithDatabaseInfo($file_list, $relativedir);
@@ -827,16 +826,20 @@ class FormFile
 						if ($modulepart == 'facture') {
 							$lastCharacter = substr($modulesubdir, -1);
 							$lastDashPos = strrpos($modulesubdir, '-');
+							$fileNameWithoutExtension = pathinfo($file["name"], PATHINFO_FILENAME);
 							if ($lastDashPos > 4) {
 								$modulesubdir = substr($modulesubdir, 0, $lastDashPos);
-								$relativepath = $modulesubdir . "/" . $file["name"];
+								$relativepath = $object->thirdparty->name . '/' . $modulesubdir . "/" . $file["name"];
 							} else if (ctype_alpha($lastCharacter)) {
 								$modulesubdir = substr($modulesubdir, 0, -1);
-								$relativepath = $modulesubdir . "/" . $file["name"];
+								$relativepath = $object->thirdparty->name . '/' . $modulesubdir . "/" . $file["name"];
 							}
 						}
-
-						$relativepath = $modulesubdir . "/" . $file["name"]; // Cas propal, facture...
+						if ($modulepart == 'facture') {
+							$relativepath =  $object->thirdparty->name . '/' . $modulesubdir . "/" . $file["name"];
+						} else {
+							$relativepath =  $modulesubdir . "/" . $file["name"]; // Cas propal, facture...
+						}
 					}
 					if ($modulepart == 'export') {
 						$relativepath = $file["name"]; // Other case

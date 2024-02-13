@@ -6127,16 +6127,6 @@ if ($action == 'create') {
         // Generated documents
         $filename = dol_sanitizeFileName($object->ref);
 
-        // $lastCharacter = substr($filedir, -1);
-        // $lastDashPos = strrpos($filedir, '-');
-        // if(ctype_alpha($lastCharacter)){
-        //     $filedir = substr($filedir, 0, -1);
-        // }
-        // if($lastDashPos > 4){ 
-        //     $filedir = substr($filedir, 0, $lastDashPos);
-        // }
-        // echo $filedir;
-
         function getNewFileDir($filename)
         {
             $lastDashPos = strrpos($filename, '-');
@@ -6151,7 +6141,7 @@ if ($action == 'create') {
             }
         }
         $newFileName = getNewFileDir($filename);
-        $filedir = $conf->facture->multidir_output[$object->entity] . '/' . dol_sanitizeFileName( $newFileName);
+        $filedir = $conf->facture->multidir_output[$object->entity] .'/'. $object->thirdparty->name . '/' . dol_sanitizeFileName( $newFileName);
         $urlsource = $_SERVER['PHP_SELF'] . '?facid=' . $object->id;
         $genallowed = $usercanread;
         $delallowed = $usercancreate;

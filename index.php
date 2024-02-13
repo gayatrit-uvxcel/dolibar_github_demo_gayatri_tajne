@@ -389,6 +389,7 @@ if ($projectid > 0) {
             $subTotalExclTax = 0;
             $vatPercentage = 15;
             foreach ($categoryArray as $category) {
+
                 $sql_llx_propaldet_total = "SELECT SUM(total_ht) As sumOfTotalPrice FROM " . MAIN_DB_PREFIX . "propaldet WHERE SUBSTRING_INDEX(category, ' - ', 1) = '$category' AND fk_socid = $socid AND fk_projectid = $projectid";
 
                 $res_llx_propaldet_total = $db->query($sql_llx_propaldet_total);
@@ -397,7 +398,7 @@ if ($projectid > 0) {
                     while ($row = $db->fetch_object($res_llx_propaldet_total)) {
                         $sumOfTotalPrice = number_format($row->sumOfTotalPrice, 2);
                         $totalInFloat = (float) str_replace(',', '', $sumOfTotalPrice);
-                        $subTotalExclTax += $totalInFloat;
+                        // $subTotalExclTax += $totalInFloat;
                     }
                 }
 
@@ -425,8 +426,14 @@ if ($projectid > 0) {
                     print $Qty;
                 }
                 print '</span>';
-                print '<input type="text" style="display: none;" id="qty-' . $index . '" data-category="' . $category . '" name="qty" value="' . $Qty . '">
-                 <button type="button" class="button button-edit modify_qty" style="display: none;" id="modify_qty-' . $index . '">Modify</button> </td>';
+                print '<input type="text" style="display: none;" id="qty-' . $index . '" data-category="' . $category . '" name="qty" ';
+                if (GETPOST('category') == $category) {
+                    print ' value="' . GETPOST('modified-qty') . '">';
+                } else {
+                    print ' value="' . $Qty . '">';
+                }
+
+                print '<button type="button" class="button button-edit modify_qty" style="display: none;" id="modify_qty-' . $index . '">Modify</button> </td>';
                 print '</td>';
                 print '<td colspan="2">' . $category . '</td>';
                 print '<td colspan="2">' . $sumOfTotalPrice . '</td>';
@@ -435,9 +442,13 @@ if ($projectid > 0) {
                     $sumOfTotalPrice = floatval(str_replace(',', '', $sumOfTotalPrice));
                     $total = $modifiedQty * $sumOfTotalPrice;
                     print '<td colspan="2">' . number_format($total, 2) . '</td>';
+                    $subTotalExclTax += (floatval(str_replace(',', '', $sumOfTotalPrice)) * $modifiedQty);
                 } else {
                     print '<td colspan="2">' . number_format(floatval(str_replace(',', '', $sumOfTotalPrice)) * intval($Qty), 2) . '</td>';
+                    $subTotalExclTax += (floatval(str_replace(',', '', $sumOfTotalPrice)) * intval($Qty));
                 }
+               
+
                 print '</tr>';
             }
 
@@ -465,6 +476,10 @@ if ($projectid > 0) {
 
         print '</tbody>';
         print '</table>' . "\n";
+    } else {
+        $message = "Information is not available for $object->company_name" ;
+
+        setEventMessages($hookmanager->error, $message, 'errors');
     }
 }
 
@@ -483,18 +498,18 @@ $resultboxes = FormOther::getBoxesArea($user, "0"); // Load $resultboxes (select
 print load_fiche_titre('&nbsp;', $resultboxes['selectboxlist'], '', 0, '', 'titleforhome');
 
 if (!empty($conf->global->MAIN_MOTD)) {
-	$conf->global->MAIN_MOTD = preg_replace('/<br(\s[\sa-zA-Z_="]*)?\/?>/i', '<br>', $conf->global->MAIN_MOTD);
-	if (!empty($conf->global->MAIN_MOTD)) {
-		$substitutionarray = getCommonSubstitutionArray($langs);
-		complete_substitutions_array($substitutionarray, $langs);
-		$texttoshow = make_substitutions($conf->global->MAIN_MOTD, $substitutionarray, $langs);
+    $conf->global->MAIN_MOTD = preg_replace('/<br(\s[\sa-zA-Z_="]*)?\/?>/i', '<br>', $conf->global->MAIN_MOTD);
+    if (!empty($conf->global->MAIN_MOTD)) {
+        $substitutionarray = getCommonSubstitutionArray($langs);
+        complete_substitutions_array($substitutionarray, $langs);
+        $texttoshow = make_substitutions($conf->global->MAIN_MOTD, $substitutionarray, $langs);
 
-		print "\n<!-- Start of welcome text -->\n";
-		print '<table width="100%" class="notopnoleftnoright"><tr><td>';
-		print dol_htmlentitiesbr($texttoshow);
-		print '</td></tr></table><br>';
-		print "\n<!-- End of welcome text -->\n";
-	}
+        print "\n<!-- Start of welcome text -->\n";
+        print '<table width="100%" class="notopnoleftnoright"><tr><td>';
+        print dol_htmlentitiesbr($texttoshow);
+        print '</td></tr></table><br>';
+        print "\n<!-- End of welcome text -->\n";
+    }
 }
 
 /*

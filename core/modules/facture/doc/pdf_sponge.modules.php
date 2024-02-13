@@ -358,7 +358,7 @@ class pdf_sponge extends ModelePDFFactures
             }
             // Definition of $dir and $file
             if ($object->specimen) {
-                $dir = $conf->facture->multidir_output[$conf->entity];
+                $dir = $conf->facture->multidir_output[$conf->entity]. "/" . $object->thirdparty->name;
                 $file = $dir . "/SPECIMEN.pdf";
             } else {
                 // $objectref = dol_sanitizeFileName($object->ref);
@@ -369,14 +369,15 @@ class pdf_sponge extends ModelePDFFactures
                 // Check if it's a main invoice or subinvoice
                 if ($mainInvoiceRef === $objectref) {
                     // Main invoice, create a folder
-                    $dir = $conf->facture->multidir_output[$object->entity] . "/" . $mainInvoiceRef;
+                    $dir = $conf->facture->multidir_output[$object->entity] . "/" . $object->thirdparty->name . "/" . $mainInvoiceRef;
                     $file = $dir . "/" . $objectref . ".pdf";
                 } else {
                     // Subinvoice, use the existing logic
-                    $dir = $conf->facture->multidir_output[$object->entity] . "/" . $mainInvoiceRef;
+                    $dir = $conf->facture->multidir_output[$object->entity]. "/" . $object->thirdparty->name  . "/" . $mainInvoiceRef;
                     $file = $dir . "/" . $objectref . ".pdf";
                 }
             }
+
             if (!file_exists($dir)) {
                 if (dol_mkdir($dir) < 0) {
                     $this->error = $langs->transnoentities("ErrorCanNotCreateDir", $dir);
