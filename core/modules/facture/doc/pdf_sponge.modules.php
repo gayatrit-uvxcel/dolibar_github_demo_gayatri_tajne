@@ -1811,7 +1811,7 @@ class pdf_sponge extends ModelePDFFactures
 
         $amountHT = $sign * $object->total_ht;
         $percentage = $object->cond_reglement_code;
-        $scheduleAmountHT = ($amountHT * $percentage) / 100;
+        $scheduleAmountHT = number_format(($amountHT * $percentage) / 100, 2, '.', '');
         $pdf->SetXY($col2x, $tab2_top + $tab2_hl * $index);
         $pdf->MultiCell($largcol2, $tab2_hl, price($scheduleAmountHT, 0, $outputlangs), 0, 'R', 1);
 
@@ -1845,7 +1845,8 @@ class pdf_sponge extends ModelePDFFactures
                 $pdf->MultiCell($col2x - $col1x, $tab2_hl, $totalvat, 0, 'L', 1);
 
                 $pdf->SetXY($col2x, $tab2_top + $tab2_hl * $index);
-                $multicurrency_total_tva = ($scheduleAmountHT * $object->tva_tx) / 100;
+                $multicurrency_total_tva = number_format(($scheduleAmountHT * $object->tva_tx) / 100, 2, '.', '');
+               
                 $pdf->MultiCell($largcol2, $tab2_hl, price($multicurrency_total_tva, 0, $outputlangs), 0, 'R', 1);
             }
         }

@@ -5665,14 +5665,14 @@ if ($action == 'create') {
     print '<td class="titlefieldmiddle">' . 'Sub Total (excl. VAT)' . '</td>';
     $amountHT = $sign * $object->total_ht;
     $percentage = $object->cond_reglement_code;
-    $scheduleAmountHT = ($amountHT * $percentage) / 100;
+    $scheduleAmountHT = number_format(($amountHT * $percentage) / 100, 2, '.', '');
     print '<td class="nowrap amountcard right">' . price($scheduleAmountHT, '', $langs, 0, -1, -1, $conf->currency) . '</td>';
     print '</tr>';
 
     print '<tr>';
     // Amount TTC with invoice schedule
     print '<td>' . 'VAT @15%' . '</td>';
-    $multicurrency_total_tva = ($scheduleAmountHT * $object->tva_tx) / 100;
+    $multicurrency_total_tva =  number_format(($scheduleAmountHT * $object->tva_tx) / 100, 2, '.', '');
     print '<td class="nowrap amountcard right">' . price($multicurrency_total_tva, '', $langs, 0, -1, -1, $object->multicurrency_code) . '</td>';
     print '</tr>';
 
