@@ -182,6 +182,7 @@ abstract class CommonObject
     public $restrictiononfksoc = 0;
 
     public $fk_socid;
+    public $category;
 
     public $fk_projectid;
 

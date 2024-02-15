@@ -923,7 +923,7 @@ $userstatic = new User($db);
 //$result = $projectstatic->fetch($object->fk_project);
 $arrayofselected = is_array($toselect) ? $toselect : array();
 
-$title = $object->ref . ' - ' . $langs->trans("TimeSpent");
+$title = $object->ref . '' . $langs->trans("TimeSpent");
 if (!empty($withproject)) {
 	$title .= ' | ' . $langs->trans("Project") . (!empty($projectstatic->ref) ? ': ' . $projectstatic->ref : '');
 }

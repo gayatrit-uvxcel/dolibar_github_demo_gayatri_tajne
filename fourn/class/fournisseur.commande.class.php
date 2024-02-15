@@ -1877,11 +1877,10 @@ class CommandeFournisseur extends CommonOrder
      *     @param        int        $special_code            Special code
      *    @return     int                             <=0 if KO, >0 if OK
      */
-    public function addline($desc, $pu_ht, $qty, $txtva, $txlocaltax1 = 0.0, $txlocaltax2 = 0.0, $fk_product = 0, $fk_prod_fourn_price = 0, $ref_supplier = '', $remise_percent = 0.0, $price_base_type = 'HT', $pu_ttc = 0.0, $type = 0, $info_bits = 0, $notrigger = false, $date_start = null, $date_end = null, $array_options = 0, $fk_unit = null, $unit = null, $pu_ht_devise = 0, $origin = '', $origin_id = 0, $rang = -1, $special_code = 0)
+    public function addline($desc, $pu_ht, $qty,$category, $txtva, $txlocaltax1 = 0.0, $txlocaltax2 = 0.0, $fk_product = 0, $fk_prod_fourn_price = 0, $ref_supplier = '', $remise_percent = 0.0, $price_base_type = 'HT', $pu_ttc = 0.0, $type = 0, $info_bits = 0, $notrigger = false, $date_start = null, $date_end = null, $array_options = 0, $fk_unit = null, $unit = null, $pu_ht_devise = 0, $origin = '', $origin_id = 0, $rang = -1, $special_code = 0)
     {
         global $langs, $mysoc, $conf;
-
-        dol_syslog(get_class($this) . "::addline $desc, $pu_ht, $qty, $txtva, $txlocaltax1, $txlocaltax2, $fk_product, $fk_prod_fourn_price, $ref_supplier, $remise_percent, $price_base_type, $pu_ttc, $type, $info_bits, $notrigger, $date_start, $date_end, $fk_unit, $unit,$pu_ht_devise, $origin, $origin_id");
+        dol_syslog(get_class($this) . "::addline $desc, $pu_ht, $qty,$category, $txtva, $txlocaltax1, $txlocaltax2, $fk_product, $fk_prod_fourn_price, $ref_supplier, $remise_percent, $price_base_type, $pu_ttc, $type, $info_bits, $notrigger, $date_start, $date_end, $fk_unit, $unit,$pu_ht_devise, $origin, $origin_id");
         include_once DOL_DOCUMENT_ROOT . '/core/lib/price.lib.php';
 
         if ($this->statut == self::STATUS_DRAFT) {
@@ -3913,7 +3912,6 @@ class CommandeFournisseurLigne extends CommonOrderLine
     public function insert($notrigger = 0)
     {
         global $conf, $user;
-
         $error = 0;
 
         dol_syslog(get_class($this) . "::insert rang=" . $this->rang);
@@ -3978,15 +3976,17 @@ class CommandeFournisseurLigne extends CommonOrderLine
 
         // Insertion dans base de la ligne
         $sql = 'INSERT INTO ' . MAIN_DB_PREFIX . $this->table_element;
-        $sql .= " (fk_commande, label, description, date_start, date_end,";
+        $sql .= " (fk_commande, label, description, date_start, date_end, fk_projectid, fk_socid,";
         $sql .= " fk_product, product_type, special_code, rang,";
         $sql .= " qty, vat_src_code, tva_tx, localtax1_tx, localtax2_tx, localtax1_type, localtax2_type, remise_percent, subprice, ref,";
         $sql .= " total_ht, total_tva, total_localtax1, total_localtax2, total_ttc, fk_unit,";
-        $sql .= " fk_multicurrency, multicurrency_code, multicurrency_subprice, multicurrency_total_ht, multicurrency_total_tva, multicurrency_total_ttc,unit";
+        $sql .= " fk_multicurrency, multicurrency_code, multicurrency_subprice, multicurrency_total_ht, multicurrency_total_tva, multicurrency_total_ttc,unit,category";
         $sql .= ")";
         $sql .= " VALUES (" . $this->fk_commande . ", '" . $this->db->escape($this->label) . "','" . $this->db->escape($this->desc) . "',";
         $sql .= " " . ($this->date_start ? "'" . $this->db->idate($this->date_start) . "'" : "null") . ",";
         $sql .= " " . ($this->date_end ? "'" . $this->db->idate($this->date_end) . "'" : "null") . ",";
+        $sql .= " " . (isset($_POST["fk_projectid"]) ? (int)$_POST["fk_projectid"] : 'null') . ",";
+        $sql .= " " . (isset($_POST["fk_socid"]) ? (int)$_POST["fk_socid"] : 'null') . ",";
         if ($this->fk_product) {
             $sql .= $this->fk_product . ",";
         } else {
@@ -4015,7 +4015,8 @@ class CommandeFournisseurLigne extends CommonOrderLine
         $sql .= " " . ($this->multicurrency_total_ht ? price2num($this->multicurrency_total_ht) : '0') . ",";
         $sql .= " " . ($this->multicurrency_total_tva ? price2num($this->multicurrency_total_tva) : '0') . ",";
         $sql .= " " . ($this->multicurrency_total_ttc ? price2num($this->multicurrency_total_ttc) : '0');
-        $sql .= ", '" . $this->db->escape(GETPOSTISSET("unit") ? GETPOST("unit") : '') . "')";
+        $sql .= ", '" . $this->db->escape(GETPOSTISSET("unit") ? GETPOST("unit") : '') . "'";
+        $sql .= ", '" . $this->db->escape(GETPOSTISSET("category") ? GETPOST("category") : '') . "')"; 
 
         dol_syslog(get_class($this) . "::insert", LOG_DEBUG);
         $resql = $this->db->query($sql);

@@ -278,7 +278,7 @@ $tmpuser = new User($db);
 $now = dol_now();
 
 $help_url = '';
-$title = $langs->trans("RepeatableInvoices");
+$title = $langs->trans("List of templates");
 $morejs = array();
 $morecss = array();
 

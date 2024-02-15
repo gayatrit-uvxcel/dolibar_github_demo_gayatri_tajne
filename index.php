@@ -112,9 +112,9 @@ if (!isset($form) || !is_object($form)) {
 }
 
 // Title
-$title = $langs->trans("HomeArea");
+$title = $langs->trans("Home");
 if (!empty($conf->global->MAIN_APPLICATION_TITLE)) {
-    $title = $langs->trans("HomeArea") . ' - ' . $conf->global->MAIN_APPLICATION_TITLE;
+    $title = $langs->trans("Home");
 }
 
 llxHeader('', $title);

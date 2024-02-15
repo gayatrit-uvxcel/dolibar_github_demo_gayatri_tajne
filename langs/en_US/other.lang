@@ -292,7 +292,7 @@ RequestDuration=Duration of request
 ProductsPerPopularity=Products/Services by popularity
 PopuProp=Products/Services by popularity in Proposals
 PopuCom=Products/Services by popularity in Orders
-ProductStatistics=Products/Services Statistics
+ProductStatistics=Products Statistics
 NbOfQtyInOrders=Qty in orders
 SelectTheTypeOfObjectToAnalyze=Select an object to view its statistics...
 

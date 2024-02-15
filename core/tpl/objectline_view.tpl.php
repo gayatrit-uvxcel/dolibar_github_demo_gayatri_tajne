@@ -87,11 +87,13 @@ if ($object->element === "facture") {
     $tablename = "facturedet";
 } else if ($object->element === "propal") {
     $tablename = "propaldet";
+}else if ($object->element === "order_supplier") {
+    $tablename = "commande_fournisseurdet";
 }
 
 $sql_llx_propaldet = "SELECT * FROM " . MAIN_DB_PREFIX . "$tablename WHERE rowid = $line->rowid";
 $res_llx_propaldet = $this->db->query($sql_llx_propaldet);
-
+// echo $sql_llx_propaldet;
 if ($res_llx_propaldet) {
     while ($row = $this->db->fetch_object($res_llx_propaldet)) {
         $fullCategoryValueArr = explode(" - ", $row->category);

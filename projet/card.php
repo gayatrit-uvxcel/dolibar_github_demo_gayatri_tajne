@@ -530,13 +530,14 @@ $formfile = new FormFile($db);
 $formproject = new FormProjets($db);
 $userstatic = new User($db);
 
-$title = $langs->trans("Project") . ' - ' . $object->ref . (!empty($object->thirdparty->name) ? ' - ' . $object->thirdparty->name : '') . (!empty($object->title) ? ' - ' . $object->title : '');
-if (!empty($conf->global->MAIN_HTML_TITLE) && preg_match('/projectnameonly/', $conf->global->MAIN_HTML_TITLE)) {
-	$title = $object->ref . (!empty($object->thirdparty->name) ? ' - ' . $object->thirdparty->name : '') . (!empty($object->title) ? ' - ' . $object->title : '');
-}
+// $title = $langs->trans("Project") . ' - ' . $object->ref . (!empty($object->thirdparty->name) ? ' - ' . $object->thirdparty->name : '') . (!empty($object->title) ? ' - ' . $object->title : '');
+// if (!empty($conf->global->MAIN_HTML_TITLE) && preg_match('/projectnameonly/', $conf->global->MAIN_HTML_TITLE)) {
+// 	$title = $object->ref . (!empty($object->thirdparty->name) ? ' - ' . $object->thirdparty->name : '') . (!empty($object->title) ? ' - ' . $object->title : '');
+// }
 
-$help_url = "EN:Module_Projects|FR:Module_Projets|ES:M&oacute;dulo_Proyectos|DE:Modul_Projekte";
+// $help_url = "EN:Module_Projects|FR:Module_Projets|ES:M&oacute;dulo_Proyectos|DE:Modul_Projekte";
 
+$title ='New Projects';
 llxHeader("", $title, $help_url);
 
 $titleboth = $langs->trans("LeadsOrProjects");

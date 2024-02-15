@@ -1,3 +1,4 @@
+
 <?php
 /* Copyright (C) 2003-2004	Rodolphe Quiedeville	<rodolphe@quiedeville.org>
  * Copyright (C) 2004-2017	Laurent Destailleur		<eldy@users.sourceforge.net>
@@ -61,7 +62,7 @@ $form = new Form($db);
 $formfile = new FormFile($db);
 $help_url = "EN:Module_Commercial_Proposals|FR:Module_Propositions_commerciales|ES:Módulo_Presupuestos";
 
-llxHeader("", $langs->trans("ProspectionArea"), $help_url);
+llxHeader("", $langs->trans("Quotations"), $help_url);
 
 print load_fiche_titre($langs->trans("ProspectionArea"), '', 'propal');
 

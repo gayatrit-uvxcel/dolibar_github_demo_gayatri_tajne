@@ -438,6 +438,10 @@ if (empty($reshook)) {
         $price_ttc_devise = price2num(GETPOST('multicurrency_price_ttc'), 'CU', 2);
         $qty = price2num(GETPOST('qty' . $predef, 'alpha'), 'MS');
 
+        $category = GETPOST('category');
+        $fk_projectid = GETPOST('fk_projectid');
+        $fk_socid = GETPOST('fk_socid');
+
         $remise_percent = (GETPOSTISSET('remise_percent' . $predef) ? price2num(GETPOST('remise_percent' . $predef, 'alpha'), '', 2) : 0);
         if (empty($remise_percent)) {
             $remise_percent = 0;
@@ -601,6 +605,7 @@ if (empty($reshook)) {
                     $desc,
                     ($price_base_type == 'HT' ? $pu : 0),
                     $qty,
+                    $category,
                     $tva_tx,
                     $localtax1_tx,
                     $localtax2_tx,
@@ -623,6 +628,7 @@ if (empty($reshook)) {
                     0,
                     min($rank, count($object->lines) + 1)
                 );
+
             }
             if ($idprod == -99 || $idprod == 0) {
                 // Product not selected
@@ -663,7 +669,7 @@ if (empty($reshook)) {
             $price_base_type = 'HT';
             $pu_ht_devise = price2num($price_ht_devise, 'CU');
 
-            $result = $object->addline($desc, $pu_ht, $qty, $tva_tx, $localtax1_tx, $localtax2_tx, 0, 0, $ref_supplier, $remise_percent, $price_base_type, $pu_ttc, $type, '', '', $date_start, $date_end, $array_options, $fk_unit, $pu_ht_devise, GETPOST('unit', 'alpha'));
+            $result = $object->addline($desc, $pu_ht, $qty, $category, $tva_tx, $localtax1_tx, $localtax2_tx, 0, 0, $ref_supplier, $remise_percent, $price_base_type, $pu_ttc, $type, '', '', $date_start, $date_end, $array_options, $fk_unit, $pu_ht_devise, GETPOST('unit', 'alpha'));
         }
 
         //print "xx".$tva_tx; exit;
@@ -699,6 +705,7 @@ if (empty($reshook)) {
 
             unset($_POST['qty']);
             unset($_POST['type']);
+            unset($_POST['category']);
             unset($_POST['remise_percent']);
             unset($_POST['pu']);
             unset($_POST['price_ht']);
@@ -2618,6 +2625,8 @@ if ($action == 'create') {
     print '	<form name="addproduct" id="addproduct" action="' . $_SERVER["PHP_SELF"] . '?id=' . $object->id . (($action != 'editline') ? '' : '#line_' . GETPOST('lineid', 'int')) . '" method="POST">
 	<input type="hidden" name="token" value="' . newToken() . '">
 	<input type="hidden" name="action" value="' . (($action != 'editline') ? 'addline' : 'updateline') . '">
+	 <input type="hidden" name="fk_projectid" value="' . $object->fk_project . '">
+	<input type="hidden" name="fk_socid" value="' . $object->socid . '">
 	<input type="hidden" name="mode" value="">
 	<input type="hidden" name="page_y" value="">
 	<input type="hidden" name="id" value="' . $object->id . '">
@@ -2629,7 +2638,7 @@ if ($action == 'create') {
     }
 
     print '<div class="div-table-responsive-no-min">';
-    print '<table id="tablelines" class="noborder noshadow centpercent">';
+    print '<table id="tablelines" class="noborder noshadow" width="100%">';
 
     // Add free products/services form
     global $forceall, $senderissupplier, $dateSelector, $inputalsopricewithtax;
@@ -2646,8 +2655,12 @@ if ($action == 'create') {
         $object->printObjectLines($action, $object->thirdparty, $mysoc, $lineid, 1);
     }
 
-    $num = count($object->lines);
+    print "</table>\n";
+    print "</div>";
+    // $num = count($object->lines);
 
+    print '<div class="div-table-responsive-no-min">';
+    print '<table id="tablelines" class="noborder noshadow" width="100%">';
     // Form to add new line
     if ($object->statut == CommandeFournisseur::STATUS_DRAFT && $usercancreate) {
         if ($action != 'editline') {
@@ -2666,7 +2679,7 @@ if ($action == 'create') {
     }
     print '</table>';
     print '</div>';
-    print '</form>';
+    print "</form>\n";
 
     print dol_get_fiche_end();
 

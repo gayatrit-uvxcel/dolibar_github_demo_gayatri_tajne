@@ -89,7 +89,8 @@ if ($action == 'builddoc') {
 $formother = new FormOther($db);
 $formfile = new FormFile($db);
 
-llxHeader();
+$title = 'Payments Reports';
+llxHeader('', $title);
 
 $titre = ($year ? $langs->trans("PaymentsReportsForYear", $year) : $langs->trans("PaymentsReports"));
 print load_fiche_titre($titre, '', 'bill');

@@ -1708,20 +1708,20 @@ function top_htmlhead($head, $title = '', $disablejs = 0, $disablehead = 0, $arr
         }
 
         // Displays title
-        $appli = constant('DOL_APPLICATION_TITLE');
-        if (!empty($conf->global->MAIN_APPLICATION_TITLE)) {
-            $appli = $conf->global->MAIN_APPLICATION_TITLE;
-        }
-
+        $appli = 'FVA-CRM';
         print '<title>';
         $titletoshow = '';
-        if ($title && !empty($conf->global->MAIN_HTML_TITLE) && preg_match('/noapp/', $conf->global->MAIN_HTML_TITLE)) {
-            $titletoshow = dol_htmlentities($title);
-        } elseif ($title) {
-            $titletoshow = dol_htmlentities($appli . ' - ' . $title);
-        } else {
-            $titletoshow = dol_htmlentities($appli);
-        }
+        if ($title) {
+        //   $titletoshow = dol_htmlentities($title);
+        $titletoshow = dol_htmlentities($appli . ' - ' . $title);
+        } 
+        // elseif ($title) {
+        //     $titletoshow = dol_htmlentities($appli . ' - ' . $title);
+        //     // $titletoshow = dol_htmlentities($title);
+        // } else {
+        //     // $titletoshow = dol_htmlentities($appli);
+        //     $titletoshow = dol_htmlentities($title);
+        // }
 
         $parameters = array('title' => $titletoshow);
         $result = $hookmanager->executeHooks('setHtmlTitle', $parameters); // Note that $action and $object may have been modified by some hooks

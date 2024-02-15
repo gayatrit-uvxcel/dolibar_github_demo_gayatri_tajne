@@ -81,14 +81,14 @@ $langs->loadLangs(array('propal', 'other', 'companies'));
 
 if ($mode == 'customer') {
 	$picto = 'propal';
-	$title = $langs->trans("ProposalsStatistics");
+	$title = $langs->trans("Quotation Statistics");
 	$dir = $conf->propal->dir_temp;
 	$cat_type = Categorie::TYPE_CUSTOMER;
 	$cat_label = $langs->trans("Category").' '.lcfirst($langs->trans("Customer"));
 }
 if ($mode == 'supplier') {
 	$picto = 'supplier_proposal';
-	$title = $langs->trans("ProposalsStatisticsSuppliers");
+	$title = $langs->trans("Quotation Statistics");
 	$dir = $conf->supplier_proposal->dir_temp;
 	$cat_type = Categorie::TYPE_SUPPLIER;
 	$cat_label = $langs->trans("Category").' '.lcfirst($langs->trans("Supplier"));

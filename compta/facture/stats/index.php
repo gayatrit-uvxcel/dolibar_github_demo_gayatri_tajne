@@ -80,7 +80,8 @@ $form = new Form($db);
 $formcompany = new FormCompany($db);
 $formother = new FormOther($db);
 
-llxHeader();
+$title = 'Invoices Statistics';
+llxHeader('',$title);
 
 $picto = 'bill';
 $title = $langs->trans("BillsStatistics");
