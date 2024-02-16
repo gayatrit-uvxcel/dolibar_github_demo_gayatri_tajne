@@ -531,6 +531,7 @@ class CommandeFournisseur extends CommonOrder
         $sql .= " p.rowid as product_id, p.ref as product_ref, p.label as product_label, p.description as product_desc, p.tobatch as product_tobatch, p.barcode as product_barcode,";
         $sql .= " l.fk_unit,l.unit,";
         $sql .= " l.date_start, l.date_end,";
+        $sql .= " l.category,";
         $sql .= ' l.fk_multicurrency, l.multicurrency_code, l.multicurrency_subprice, l.multicurrency_total_ht, l.multicurrency_total_tva, l.multicurrency_total_ttc';
         $sql .= " FROM " . MAIN_DB_PREFIX . "commande_fournisseurdet as l";
         $sql .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'product as p ON l.fk_product = p.rowid';
@@ -558,6 +559,7 @@ class CommandeFournisseur extends CommonOrder
                 $line->desc = $objp->description;
                 $line->description = $objp->description;
                 $line->qty = $objp->qty;
+                $line->category = $objp->category;
                 $line->tva_tx = $objp->tva_tx;
                 $line->localtax1_tx = $objp->localtax1_tx;
                 $line->localtax2_tx = $objp->localtax2_tx;
@@ -4066,9 +4068,7 @@ class CommandeFournisseurLigne extends CommonOrderLine
     public function update($notrigger = 0)
     {
         global $conf, $user;
-
         $error = 0;
-
         $this->db->begin();
 
         // Mise a jour ligne en base
@@ -4086,6 +4086,7 @@ class CommandeFournisseurLigne extends CommonOrderLine
         $sql .= ", localtax1_type='" . $this->db->escape($this->localtax1_type) . "'";
         $sql .= ", localtax2_type='" . $this->db->escape($this->localtax2_type) . "'";
         $sql .= ", qty='" . price2num($this->qty) . "'";
+        $sql .= ", category='" . $this->db->escape(GETPOSTISSET("category") ? GETPOST("category") : '') . "'";
         $sql .= ", date_start=" . (!empty($this->date_start) ? "'" . $this->db->idate($this->date_start) . "'" : "null");
         $sql .= ", date_end=" . (!empty($this->date_end) ? "'" . $this->db->idate($this->date_end) . "'" : "null");
         $sql .= ", info_bits='" . $this->db->escape($this->info_bits) . "'";

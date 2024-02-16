@@ -2389,6 +2389,7 @@ class Facture extends CommonInvoice
         $sql .= ' l.info_bits, l.total_ht, l.total_tva, l.total_localtax1, l.total_localtax2, l.total_ttc, l.fk_code_ventilation, l.fk_product_fournisseur_price as fk_fournprice, l.buy_price_ht as pa_ht,';
         $sql .= ' l.fk_unit,';
         $sql .= ' l.unit,';
+        $sql .= ' l.category,';
         $sql .= ' l.fk_multicurrency, l.multicurrency_code, l.multicurrency_subprice, l.multicurrency_total_ht, l.multicurrency_total_tva, l.multicurrency_total_ttc,';
         $sql .= ' p.ref as product_ref, p.fk_product_type as fk_product_type, p.label as product_label, p.description as product_desc';
         $sql .= ' FROM ' . MAIN_DB_PREFIX . 'facturedet as l';
@@ -2419,6 +2420,7 @@ class Facture extends CommonInvoice
                 $line->product_desc = $objp->product_desc; // Description product
                 $line->fk_product_type = $objp->fk_product_type; // Type of product
                 $line->qty = $objp->qty;
+                $line->category = $objp->category;
                 $line->subprice = $objp->subprice;
                 $line->ref_ext = $objp->ref_ext; // line external ref
 
@@ -6189,6 +6191,7 @@ class FactureLigne extends CommonInvoiceLine
         $sql .= ' fd.multicurrency_total_ht,';
         $sql .= ' fd.multicurrency_total_tva,';
         $sql .= ' fd.multicurrency_total_ttc,';
+        $sql .= ' fd.category,';
         $sql .= ' p.ref as product_ref, p.label as product_label, p.description as product_desc';
         $sql .= ' FROM ' . MAIN_DB_PREFIX . 'facturedet as fd';
         $sql .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'product as p ON fd.fk_product = p.rowid';
@@ -6210,6 +6213,7 @@ class FactureLigne extends CommonInvoiceLine
             $this->label = $objp->custom_label;
             $this->desc = $objp->description;
             $this->qty = $objp->qty;
+            $this->category = $objp->category;
             $this->subprice = $objp->subprice;
             $this->ref_ext = $objp->ref_ext;
             $this->vat_src_code = $objp->vat_src_code;

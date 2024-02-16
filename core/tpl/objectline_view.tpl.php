@@ -89,8 +89,8 @@ if ($object->element === "facture") {
     $tablename = "propaldet";
 }else if ($object->element === "order_supplier") {
     $tablename = "commande_fournisseurdet";
+    $line->rowid = $line->id;
 }
-
 $sql_llx_propaldet = "SELECT * FROM " . MAIN_DB_PREFIX . "$tablename WHERE rowid = $line->rowid";
 $res_llx_propaldet = $this->db->query($sql_llx_propaldet);
 // echo $sql_llx_propaldet;
