@@ -409,7 +409,7 @@ if (empty($reshook)) {
         $localtax1_rate = get_localtax($vat_rate, 1, $object->thirdparty, $mysoc);
         $localtax2_rate = get_localtax($vat_rate, 2, $object->thirdparty, $mysoc);
         foreach ($object->lines as $line) {
-            $result = $object->updateline($line->id, $line->desc, $line->subprice, $line->qty, $line->remise_percent, $vat_rate, $localtax1_rate, $localtax2_rate, 'HT', $line->info_bits, $line->product_type, 0, $line->date_start, $line->date_end, $line->array_options, $line->fk_unit, $line->multicurrency_subprice, $line->ref_supplier, GETPOST('unit', 'alpha'));
+            $result = $object->updateline($line->id, $line->desc, $line->subprice, $line->qty, $line->remise_percent, $vat_rate, $localtax1_rate, $localtax2_rate, 'HT', $line->info_bits, $line->product_type, 0, $line->date_start, $line->date_end, $line->array_options, $line->fk_unit,$line->unit, $line->multicurrency_subprice, $line->ref_supplier);
         }
     } elseif ($action == 'addline' && $usercancreate) {
         $db->begin();
@@ -622,11 +622,14 @@ if (empty($reshook)) {
                     $date_end,
                     $array_options,
                     $productsupplier->fk_unit,
-                    $productsupplier->unit,
+                    GETPOST('unit'),
                     $pu_devise,
                     '',
                     0,
-                    min($rank, count($object->lines) + 1)
+                    min($rank, count($object->lines) + 1),
+                    0,
+                    GETPOST('fk_socid'),
+                    GETPOST('fk_projectid')
                 );
 
             }
@@ -652,6 +655,10 @@ if (empty($reshook)) {
 
             $fk_unit = GETPOST('units', 'alpha');
             $unit = GETPOST('unit', 'alpha');
+            
+        $category = GETPOST('category');
+        $fk_projectid = GETPOST('fk_projectid');
+        $fk_socid = GETPOST('fk_socid');
             if (!preg_match('/\((.*)\)/', $tva_tx)) {
                 $tva_tx = price2num($tva_tx); // $txtva can have format '5,1' or '5.1' or '5.1(XXX)', we must clean only if '5,1'
             }
@@ -669,7 +676,7 @@ if (empty($reshook)) {
             $price_base_type = 'HT';
             $pu_ht_devise = price2num($price_ht_devise, 'CU');
 
-            $result = $object->addline($desc, $pu_ht, $qty, $category, $tva_tx, $localtax1_tx, $localtax2_tx, 0, 0, $ref_supplier, $remise_percent, $price_base_type, $pu_ttc, $type, '', '', $date_start, $date_end, $array_options, $fk_unit, $pu_ht_devise, GETPOST('unit', 'alpha'));
+            $result = $object->addline($desc, $pu_ht, $qty, $category, $tva_tx, $localtax1_tx, $localtax2_tx, 0, 0, $ref_supplier, $remise_percent, $price_base_type, $pu_ttc, $type, '', '', $date_start, $date_end, $array_options, $fk_unit,$unit, $pu_ht_devise,',',0,-1,0,$fk_socid,$fk_projectid,);
         }
 
         //print "xx".$tva_tx; exit;
@@ -721,6 +728,9 @@ if (empty($reshook)) {
             unset($_POST['dp_desc']);
             unset($_POST['idprodfournprice']);
             unset($_POST['units']);
+            unset($_POST['unit']);
+            unset($_POST['fk_projectid']);
+            unset($_POST['fk_socid']);
 
             unset($_POST['date_starthour']);
             unset($_POST['date_startmin']);
@@ -824,6 +834,7 @@ if (empty($reshook)) {
             $date_end,
             $array_options,
             GETPOST('units'),
+            GETPOST('unit'),
             $pu_ht_devise,
             GETPOST('fourn_ref', 'alpha')
         );
@@ -839,6 +850,7 @@ if (empty($reshook)) {
         unset($_POST['date_start']);
         unset($_POST['date_end']);
         unset($_POST['units']);
+        unset($_POST['unit']);
         unset($localtax1_tx);
         unset($localtax2_tx);
 
@@ -1375,6 +1387,7 @@ if (empty($reshook)) {
                                     $desc,
                                     $lines[$i]->subprice,
                                     $lines[$i]->qty,
+                                    $category,
                                     $tva_tx,
                                     $lines[$i]->localtax1_tx,
                                     $lines[$i]->localtax2_tx,
@@ -1394,8 +1407,13 @@ if (empty($reshook)) {
                                     $lines[$i]->unit,
                                     0,
                                     $element,
-                                    !empty($lines[$i]->id) ? $lines[$i]->id : $lines[$i]->rowid
+                                    !empty($lines[$i]->id) ? $lines[$i]->id : $lines[$i]->rowid,
+                                    -1,
+                                    0,
+                                    $lines[$i]->fk_socid,
+                                    $lines[$i]->fk_projectid,
                                 );
+                                
 
                                 if ($result < 0) {
                                     setEventMessages($object->error, $object->errors, 'errors');
@@ -2657,7 +2675,7 @@ if ($action == 'create') {
 
     print "</table>\n";
     print "</div>";
-    // $num = count($object->lines);
+    $num = count($object->lines);
 
     print '<div class="div-table-responsive-no-min">';
     print '<table id="tablelines" class="noborder noshadow" width="100%">';

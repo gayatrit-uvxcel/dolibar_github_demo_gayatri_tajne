@@ -382,7 +382,7 @@ class CommandeFournisseur extends CommonOrder
         $sql .= " c.localtax1, c.localtax2, ";
         $sql .= " c.date_creation, c.date_valid, c.date_approve, c.date_approve2,";
         $sql .= " c.fk_user_author, c.fk_user_valid, c.fk_user_approve, c.fk_user_approve2,";
-        $sql .= " c.date_commande as date_commande, c.date_livraison as delivery_date, c.fk_cond_reglement, c.fk_mode_reglement, c.fk_projet as fk_project, c.remise_percent, c.source, c.fk_input_method,";
+        $sql .= " c.date_commande as date_commande, c.date_livraison as delivery_date, c.fk_cond_reglement, c.fk_mode_reglement, c.fk_projet as fk_project,c.contact_person,c.company_name,c.cell,c.email,c.vendor_vat,c.division,c.vendor_no,c.quote_no,c.vat_no,c.terms_and_conditions,c.notes,c.remise_percent, c.source, c.fk_input_method,";
         $sql .= " c.fk_account,";
         $sql .= " c.note_private, c.note_public, c.model_pdf, c.extraparams, c.billed,";
         $sql .= " c.fk_multicurrency, c.multicurrency_code, c.multicurrency_tx, c.multicurrency_total_ht, c.multicurrency_total_tva, c.multicurrency_total_ttc,";
@@ -454,6 +454,17 @@ class CommandeFournisseur extends CommonOrder
 
             $this->source = $obj->source;
             $this->fk_project = $obj->fk_project;
+            $this->contact_person = $obj->contact_person;
+            $this->company_name = $obj->company_name;
+            $this->cell = $obj->cell;
+            $this->email = $obj->email;
+            $this->vendor_vat = $obj->vendor_vat;
+            $this->division = $obj->division;
+            $this->vendor_no = $obj->vendor_no;
+            $this->quote_no = $obj->quote_no;
+            $this->vat_no = $obj->vat_no;
+            $this->terms_and_conditions = $obj->terms_and_conditions;
+            $this->notes = $obj->notes;
             $this->cond_reglement_id = $obj->fk_cond_reglement;
             $this->cond_reglement_code = $obj->cond_reglement_code;
             $this->cond_reglement = $obj->cond_reglement_label; // deprecated
@@ -532,6 +543,7 @@ class CommandeFournisseur extends CommonOrder
         $sql .= " l.fk_unit,l.unit,";
         $sql .= " l.date_start, l.date_end,";
         $sql .= " l.category,";
+        $sql .= " l.fk_socid, l.fk_projectid,";
         $sql .= ' l.fk_multicurrency, l.multicurrency_code, l.multicurrency_subprice, l.multicurrency_total_ht, l.multicurrency_total_tva, l.multicurrency_total_ttc';
         $sql .= " FROM " . MAIN_DB_PREFIX . "commande_fournisseurdet as l";
         $sql .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'product as p ON l.fk_product = p.rowid';
@@ -560,6 +572,8 @@ class CommandeFournisseur extends CommonOrder
                 $line->description = $objp->description;
                 $line->qty = $objp->qty;
                 $line->category = $objp->category;
+                $line->fk_socid = $objp->fk_socid;
+                $line->fk_projectid = $objp->fk_projectid;
                 $line->tva_tx = $objp->tva_tx;
                 $line->localtax1_tx = $objp->localtax1_tx;
                 $line->localtax2_tx = $objp->localtax2_tx;
@@ -1525,7 +1539,6 @@ class CommandeFournisseur extends CommonOrder
         $sql .= ", '" . $this->db->escape($this->terms_and_conditions) . "'";
         $sql .= ", '" . $this->db->escape($this->notes) . "'";
         $sql .= ")";
-
         $terms_conditions = json_decode($this->terms_and_conditions, true);;
         $note = json_decode($this->notes, true);
 
@@ -1559,6 +1572,7 @@ class CommandeFournisseur extends CommonOrder
                         $line->desc,
                         $line->subprice,
                         $line->qty,
+                        $line->category,
                         $line->tva_tx,
                         $line->localtax1_tx,
                         $line->localtax2_tx,
@@ -1576,7 +1590,14 @@ class CommandeFournisseur extends CommonOrder
                         $line->array_options,
                         $line->fk_unit,
                         $line->unit,
-                        $line->special_code
+                        $line->special_code,
+                        0,
+                        '',
+                        0,
+                        -1,
+                        $line->fk_socid,
+                        $line->fk_projectid,
+
                     );
                     if ($result < 0) {
                         dol_syslog(get_class($this) . "::create " . $this->error, LOG_WARNING); // do not use dol_print_error here as it may be a functionnal error
@@ -1788,7 +1809,6 @@ class CommandeFournisseur extends CommonOrder
 
         // Load source object
         $objFrom = clone $this;
-
         // Change socid if needed
         if (!empty($socid) && $socid != $this->socid) {
             $objsoc = new Societe($this->db);
@@ -1879,10 +1899,10 @@ class CommandeFournisseur extends CommonOrder
      *     @param        int        $special_code            Special code
      *    @return     int                             <=0 if KO, >0 if OK
      */
-    public function addline($desc, $pu_ht, $qty,$category, $txtva, $txlocaltax1 = 0.0, $txlocaltax2 = 0.0, $fk_product = 0, $fk_prod_fourn_price = 0, $ref_supplier = '', $remise_percent = 0.0, $price_base_type = 'HT', $pu_ttc = 0.0, $type = 0, $info_bits = 0, $notrigger = false, $date_start = null, $date_end = null, $array_options = 0, $fk_unit = null, $unit = null, $pu_ht_devise = 0, $origin = '', $origin_id = 0, $rang = -1, $special_code = 0)
+    public function addline($desc, $pu_ht, $qty, $category, $txtva, $txlocaltax1 = 0.0, $txlocaltax2 = 0.0, $fk_product = 0, $fk_prod_fourn_price = 0, $ref_supplier = '', $remise_percent = 0.0, $price_base_type = 'HT', $pu_ttc = 0.0, $type = 0, $info_bits = 0, $notrigger = false, $date_start = null, $date_end = null, $array_options = 0, $fk_unit = null, $unit, $pu_ht_devise = 0, $origin = '', $origin_id = 0, $rang = -1, $special_code = 0, $fk_socid, $fk_projectid)
     {
         global $langs, $mysoc, $conf;
-        dol_syslog(get_class($this) . "::addline $desc, $pu_ht, $qty,$category, $txtva, $txlocaltax1, $txlocaltax2, $fk_product, $fk_prod_fourn_price, $ref_supplier, $remise_percent, $price_base_type, $pu_ttc, $type, $info_bits, $notrigger, $date_start, $date_end, $fk_unit, $unit,$pu_ht_devise, $origin, $origin_id");
+        dol_syslog(get_class($this) . "::addline $desc, $pu_ht, $qty,$category, $txtva, $txlocaltax1, $txlocaltax2, $fk_product, $fk_prod_fourn_price, $ref_supplier, $remise_percent, $price_base_type, $pu_ttc, $type, $info_bits, $notrigger, $date_start, $date_end, $fk_unit, $unit,$pu_ht_devise, $origin, $origin_id,$fk_socid,$fk_projectid");
         include_once DOL_DOCUMENT_ROOT . '/core/lib/price.lib.php';
 
         if ($this->statut == self::STATUS_DRAFT) {
@@ -2109,7 +2129,9 @@ class CommandeFournisseur extends CommonOrder
             $this->line->price = $this->line->subprice;
 
             $this->line->remise_percent = $remise_percent;
-
+            $this->line->category = $category;
+            $this->line->fk_socid = $fk_socid;
+            $this->line->fk_projectid = $fk_projectid;
             if (is_array($array_options) && count($array_options) > 0) {
                 $this->line->array_options = $array_options;
             }
@@ -2964,6 +2986,7 @@ class CommandeFournisseur extends CommonOrder
             $this->line->fetch($rowid);
 
             $oldline = clone $this->line;
+
             $this->line->oldline = $oldline;
 
             $this->line->context = $this->context;
@@ -3008,7 +3031,9 @@ class CommandeFournisseur extends CommonOrder
             $this->line->origin = $this->origin;
             $this->line->fk_unit = $fk_unit;
             $this->line->unit = $unit;
-
+            $this->line->category = $category;
+            $this->line->fk_socid = $fk_socid;
+            $this->line->fk_projectid = $fk_projectid;
             $this->line->date_start = $date_start;
             $this->line->date_end = $date_end;
 
@@ -3809,7 +3834,7 @@ class CommandeFournisseurLigne extends CommonOrderLine
         $sql .= ' cd.info_bits, cd.total_ht, cd.total_tva, cd.total_ttc,';
         $sql .= ' cd.total_localtax1, cd.total_localtax2,';
         $sql .= ' p.ref as product_ref, p.label as product_label, p.description as product_desc,';
-        $sql .= ' cd.date_start, cd.date_end, cd.fk_unit,cd.unit,';
+        $sql .= ' cd.date_start, cd.date_end, cd.fk_unit,cd.unit,cd.fk_socid,cd.fk_projectid';
         $sql .= ' cd.multicurrency_subprice, cd.multicurrency_total_ht, cd.multicurrency_total_tva, cd.multicurrency_total_ttc,';
         $sql .= ' c.fk_soc as socid';
         $sql .= ' FROM ' . MAIN_DB_PREFIX . 'commande_fournisseur as c, ' . MAIN_DB_PREFIX . 'commande_fournisseurdet as cd';
@@ -3819,7 +3844,6 @@ class CommandeFournisseurLigne extends CommonOrderLine
         $result = $this->db->query($sql);
         if ($result) {
             $objp = $this->db->fetch_object($result);
-
             if (!empty($objp)) {
                 $this->rowid = $objp->rowid;
                 $this->id = $objp->rowid;
@@ -3884,7 +3908,9 @@ class CommandeFournisseurLigne extends CommonOrderLine
                 $this->date_end = $this->db->jdate($objp->date_end);
                 $this->fk_unit = $objp->fk_unit;
                 $this->unit = $objp->unit;
-
+                $this->category = $objp->category;
+                $this->fk_projectid = $objp->fk_projectid;
+                $this->fk_socid = $objp->fk_socid;
                 $this->multicurrency_subprice = $objp->multicurrency_subprice;
                 $this->multicurrency_total_ht = $objp->multicurrency_total_ht;
                 $this->multicurrency_total_tva = $objp->multicurrency_total_tva;
@@ -3915,9 +3941,7 @@ class CommandeFournisseurLigne extends CommonOrderLine
     {
         global $conf, $user;
         $error = 0;
-
         dol_syslog(get_class($this) . "::insert rang=" . $this->rang);
-
         // Clean parameters
         if (empty($this->tva_tx)) {
             $this->tva_tx = 0;
@@ -3987,8 +4011,8 @@ class CommandeFournisseurLigne extends CommonOrderLine
         $sql .= " VALUES (" . $this->fk_commande . ", '" . $this->db->escape($this->label) . "','" . $this->db->escape($this->desc) . "',";
         $sql .= " " . ($this->date_start ? "'" . $this->db->idate($this->date_start) . "'" : "null") . ",";
         $sql .= " " . ($this->date_end ? "'" . $this->db->idate($this->date_end) . "'" : "null") . ",";
-        $sql .= " " . (isset($_POST["fk_projectid"]) ? (int)$_POST["fk_projectid"] : 'null') . ",";
-        $sql .= " " . (isset($_POST["fk_socid"]) ? (int)$_POST["fk_socid"] : 'null') . ",";
+        $sql .= " " . ($this->fk_projectid ? "'" . $this->db->escape($this->fk_projectid) . "'" : "null") . ",";
+        $sql .= " " . ($this->fk_socid ? "'" . $this->db->escape($this->fk_socid) . "'" : "null") . ",";
         if ($this->fk_product) {
             $sql .= $this->fk_product . ",";
         } else {
@@ -4010,17 +4034,24 @@ class CommandeFournisseurLigne extends CommonOrderLine
         $sql .= " " . price2num($this->total_localtax1) . ",";
         $sql .= " " . price2num($this->total_localtax2) . ",";
         $sql .= " " . price2num($this->total_ttc) . ",";
-        $sql .= ($this->fk_unit ? "'" . $this->db->escape($this->fk_unit) . "'" : "null") . ",";
+        $sql .= " " . ($this->fk_unit ? "'" . $this->db->escape($this->fk_unit) . "'" : "null") . ",";
         $sql .= " " . ($this->fk_multicurrency ? ((int) $this->fk_multicurrency) : "null") . ",";
         $sql .= "'" . $this->db->escape($this->multicurrency_code) . "'";
         $sql .= ", " . ($this->multicurrency_subprice ? price2num($this->multicurrency_subprice) : '0') . ",";
         $sql .= " " . ($this->multicurrency_total_ht ? price2num($this->multicurrency_total_ht) : '0') . ",";
         $sql .= " " . ($this->multicurrency_total_tva ? price2num($this->multicurrency_total_tva) : '0') . ",";
-        $sql .= " " . ($this->multicurrency_total_ttc ? price2num($this->multicurrency_total_ttc) : '0');
-        $sql .= ", '" . $this->db->escape(GETPOSTISSET("unit") ? GETPOST("unit") : '') . "'";
-        $sql .= ", '" . $this->db->escape(GETPOSTISSET("category") ? GETPOST("category") : '') . "')"; 
-
+        $sql .= " " . ($this->multicurrency_total_ttc ? price2num($this->multicurrency_total_ttc) : '0') . ",";
+        $sql .= " " . ($this->unit ? "'" . $this->db->escape($this->unit) . "'" : "null") . ",";
+        $sql .= " " . ($this->category ? "'" . $this->db->escape($this->category) . "'" : "null") . ")";
         dol_syslog(get_class($this) . "::insert", LOG_DEBUG);
+
+
+        $categoryValue = $this->db->escape($this->category ? $this->category : 'null');
+        $main_category_name = explode(" - ", $categoryValue)[0];
+        $category_name = explode(" - ", $categoryValue)[1];
+        $sqlCategories = "INSERT INTO llx_default_product_categories (category_name, main_category_name) VALUES ('$category_name', '$main_category_name')";
+        $sqlCategoriesRes = $this->db->query($sqlCategories);
+
         $resql = $this->db->query($sql);
         if ($resql) {
             $this->id = $this->db->last_insert_id(MAIN_DB_PREFIX . $this->table_element);
