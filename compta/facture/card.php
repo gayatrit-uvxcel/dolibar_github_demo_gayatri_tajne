@@ -1605,29 +1605,31 @@ if (empty($reshook)) {
                                     0, // remise_percent
                                     0, // date_start
                                     0, // date_end
-                                    0,
+                                    0, //ventil
                                     $lines[$i]->info_bits, // info_bits
                                     0,
                                     'HT',
                                     0,
                                     0, // product_type
+                                    $category,
                                     1,
                                     $lines[$i]->special_code,
                                     $object->origin,
-                                    0,
-                                    0,
-                                    0,
-                                    0,
-                                    '',
-                                    0,
-                                    100,
-                                    0,
-                                    null,
-                                    0,
-                                    '',
-                                    1,
-                                    0,
-                                    0
+                                    0, // origin_id
+                                    0, //fk_parent_line
+                                    0, //fk_fournprice
+                                    0, //pa_ht
+                                    '', //label
+                                    0, // array_options
+                                    100, //situation_percent
+                                    0, // fk_prev_id
+                                    $fk_unit,
+                                    0, //pu_ht_devise
+                                    '', //ref_ext
+                                    1, //noupdateafterinsertline
+                                    $unit,
+                                    $fk_projectid,
+                                    $fk_socid
                                 );
                             }
 
@@ -1781,12 +1783,13 @@ if (empty($reshook)) {
                                             $lines[$i]->remise_percent,
                                             $date_start,
                                             $date_end,
-                                            0,
-                                            $lines[$i]->info_bits,
-                                            $lines[$i]->fk_remise_except,
-                                            'HT',
-                                            0,
+                                            0, //ventil
+                                            $lines[$i]->info_bits, //info_bits
+                                            $lines[$i]->fk_remise_except, //fk_remise_except
+                                            'HT', //price_base_type
+                                            0, //pu_ttc
                                             $product_type,
+                                            $category,
                                             $lines[$i]->rang,
                                             $lines[$i]->special_code,
                                             $object->origin,
@@ -1799,8 +1802,8 @@ if (empty($reshook)) {
                                             $lines[$i]->situation_percent,
                                             $lines[$i]->fk_prev_id,
                                             $lines[$i]->fk_unit,
-                                            0,
-                                            '',
+                                            0, //pu_ht_devise
+                                            '', //ref_ext
                                             1,
                                             $lines[$i]->unit,
                                             $lines[$i]->fk_socid,
@@ -1876,7 +1879,7 @@ if (empty($reshook)) {
                             $product->fetch(GETPOST('idprod' . $i, 'int'));
                             $startday = dol_mktime(12, 0, 0, GETPOST('date_start' . $i . 'month'), GETPOST('date_start' . $i . 'day'), GETPOST('date_start' . $i . 'year'));
                             $endday = dol_mktime(12, 0, 0, GETPOST('date_end' . $i . 'month'), GETPOST('date_end' . $i . 'day'), GETPOST('date_end' . $i . 'year'));
-                            $result = $object->addline($product->description, $product->price, price2num(GETPOST('qty' . $i), 'MS'), $product->tva_tx, $product->localtax1_tx, $product->localtax2_tx, GETPOST('idprod' . $i, 'int'), price2num(GETPOST('remise_percent' . $i), '', 2), $startday, $endday, 0, 0, '', $product->price_base_type, $product->price_ttc, $product->type, -1, 0, '', 0, 0, null, 0, '', 0, 100, '', $product->fk_unit, 0, '', 1, $product->unit, 0);
+                            $result = $object->addline($product->description, $product->price, price2num(GETPOST('qty' . $i), 'MS'), $product->tva_tx, $product->localtax1_tx, $product->localtax2_tx, GETPOST('idprod' . $i, 'int'), price2num(GETPOST('remise_percent' . $i), '', 2), $startday, $endday, 0, 0, '', $product->price_base_type, $product->price_ttc, $product->type,$product->$category,-1, 0, '', 0, 0, null, 0, '', 0, 100, '', $product->fk_unit, 0, '', 1, $product->unit, $product->fk_projectid, $product->fk_socid);
                         }
                     }
 
@@ -2088,7 +2091,6 @@ if (empty($reshook)) {
 
         $fk_projectid = GETPOST('fk_projectid');
         $fk_socid = GETPOST('fk_socid');
-
         $prod_entry_mode = GETPOST('prod_entry_mode', 'aZ09');
         if ($prod_entry_mode == 'free') {
             $idprod = 0;
@@ -2424,7 +2426,7 @@ if (empty($reshook)) {
                 }
 
                 // Insert line
-                $result = $object->addline($desc, $pu_ht, $qty, $tva_tx, $localtax1_tx, $localtax2_tx, $idprod, $remise_percent, $date_start, $date_end, 0, $info_bits, '',$price_base_type, $pu_ttc, $type,$category,min($rank, count($object->lines) + 1), $special_code, '', 0, GETPOST('fk_parent_line'), $fournprice, $buyingprice, $label, $array_options, GETPOST('progress'), '', $fk_unit, $pu_ht_devise,0,0,$unit);
+                $result = $object->addline($desc, $pu_ht, $qty, $tva_tx, $localtax1_tx, $localtax2_tx, $idprod, $remise_percent, $date_start, $date_end, 0, $info_bits, '',$price_base_type, $pu_ttc, $type,GETPOST('category'),min($rank, count($object->lines) + 1), $special_code, '', 0, GETPOST('fk_parent_line'), $fournprice, $buyingprice, $label, $array_options, GETPOST('progress'), '', $fk_unit, $pu_ht_devise,'',0,GETPOST('unit'),GETPOST('fk_projectid'),GETPOST('fk_socid'));
                 
                 if ($result > 0) {
                     // Define output language and generate document
@@ -2991,11 +2993,11 @@ if (empty($reshook)) {
                         $fk_prev_id,
                         $fk_unit,
                         $pu_ht_devise,
+                        $ref_ext,
+                        $noupdateafterinsertline,
                         $unit,
                         $fk_projectid,
-                        $fk_socid,
-                        $ref_ext,
-                        $noupdateafterinsertline
+                        $fk_socid
                     );
 
                     if ($res > 0) {
