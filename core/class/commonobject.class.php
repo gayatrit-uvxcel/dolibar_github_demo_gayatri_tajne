@@ -210,6 +210,21 @@ abstract class CommonObject
      */
     public $fk_project;
     public $invoice_schedule_limit;
+    public $email;
+    public $client_vat;
+    public $division;
+    public $vendor_no;
+    public $po_no;
+    public $quote_no;
+    public $invoice_no;
+    public $vat_no;
+    public $cell;
+    public $contact_person;
+    public $delivery_no;
+    public $company_name;
+    public $terms_and_conditions;
+    public $vendor_vat;
+    public $notes;
 
     /**
      * @var Project The related project object
@@ -3473,7 +3488,6 @@ abstract class CommonObject
     {
         // phpcs:enable
         global $conf, $hookmanager, $action;
-
         $parameters = array('exclspec' => $exclspec, 'roundingadjust' => $roundingadjust, 'nodatabaseupdate' => $nodatabaseupdate, 'seller' => $seller);
         $reshook = $hookmanager->executeHooks('updateTotalPrice', $parameters, $this, $action); // Note that $action and $object may have been modified by some hooks
         if ($reshook > 0) {
@@ -3558,7 +3572,6 @@ abstract class CommonObject
         $sql .= ' ORDER by rowid'; // We want to be sure to always use same order of line to not change lines differently when option MAIN_ROUNDOFTOTAL_NOT_TOTALOFROUND is used
 
         dol_syslog(get_class($this) . "::update_price", LOG_DEBUG);
-
         $resql = $this->db->query($sql);
         if ($resql) {
             $this->total_ht = 0;
