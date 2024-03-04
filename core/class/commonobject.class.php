@@ -225,6 +225,7 @@ abstract class CommonObject
     public $terms_and_conditions;
     public $vendor_vat;
     public $notes;
+    public $terms_and_condition;
 
     /**
      * @var Project The related project object

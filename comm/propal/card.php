@@ -632,7 +632,8 @@ if (empty($reshook)) {
                                     $tva_tx .= ' (' . $lines[$i]->vat_src_code . ')';
                                 }
 
-                                $result = $object->addline($desc, $lines[$i]->subprice, $lines[$i]->qty, $tva_tx, $lines[$i]->localtax1_tx, $lines[$i]->localtax2_tx, $lines[$i]->fk_product, $lines[$i]->remise_percent, 'HT', 0, $lines[$i]->info_bits, $product_type, $lines[$i]->rang, $lines[$i]->special_code, $fk_parent_line, $lines[$i]->fk_fournprice, $lines[$i]->pa_ht, $label, $date_start, $date_end, $array_options, $lines[$i]->fk_unit, $lines[$i]->unit, $lines[$i]->fk_socid, $lines[$i]->fk_projectid);
+                                $result = $object->addline($desc, $lines[$i]->subprice, $lines[$i]->qty, $tva_tx, $lines[$i]->localtax1_tx, $lines[$i]->localtax2_tx, $lines[$i]->fk_product, $lines[$i]->remise_percent, 'HT', 0, $lines[$i]->info_bits, $product_type, $lines[$i]->rang, $lines[$i]->special_code, $fk_parent_line, $lines[$i]->fk_fournprice, $lines[$i]->pa_ht, $label, $date_start, $date_end, $array_options, $lines[$i]->fk_unit, $lines[$i]->unit,
+                                $lines[$i]->category, $lines[$i]->fk_projectid, $lines[$i]->fk_socid,'',0,0,0,0);
 
                                 if ($result > 0) {
                                     $lineid = $result;
@@ -900,7 +901,7 @@ if (empty($reshook)) {
                     $fk_socid = $originLine->fk_socid;
                     $pu_ht_devise = $originLine->multicurrency_subprice;
 
-                    $res = $object->addline($desc, $pu_ht, $qty, $txtva, $txlocaltax1, $txlocaltax2, $fk_product, $remise_percent, $price_base_type, $pu_ttc, $info_bits, $type, $category, $rang, $special_code, $fk_parent_line, $fk_fournprice, $pa_ht, $label, $date_start, $date_end, $array_options, $fk_unit, $unit, $fk_projectid, $fk_socid, $origin, $origin_id, $pu_ht_devise, $fk_remise_except);
+                    $res = $object->addline($desc, $pu_ht, $qty, $txtva, $txlocaltax1, $txlocaltax2, $fk_product, $remise_percent, $price_base_type, $pu_ttc, $info_bits, $type,$rang, $special_code, $fk_parent_line, $fk_fournprice, $pa_ht, $label, $date_start, $date_end, $array_options, $fk_unit, $unit, $category, $fk_projectid, $fk_socid, $origin, $origin_id, $pu_ht_devise, $fk_remise_except,$noupdateafterinsertline);
 
                     if ($res > 0) {
                         $importCount++;
@@ -1398,9 +1399,14 @@ if (empty($reshook)) {
                 }
             }
 
+            $category = GETPOST('category');
+            $fk_unit = GETPOST('units', 'alpha');
+            $unit = GETPOST('unit');
+            $fk_projectid = GETPOST('fk_projectid');
+            $fk_socid = GETPOST('fk_socid');
             if (!$error) {
                 // Insert line
-                $result = $object->addline($desc, $pu_ht, $qty, $tva_tx, $localtax1_tx, $localtax2_tx, $idprod, $remise_percent, $price_base_type, $pu_ttc, $info_bits, $type, $category, min($rank, count($object->lines) + 1), 0, GETPOST('fk_parent_line'), $fournprice, $buyingprice, $label, $date_start, $date_end, $array_options, $fk_unit, $unit, $fk_projectid, $fk_socid, '', 0, $pu_ht_devise);
+                $result = $object->addline($desc, $pu_ht, $qty, $tva_tx, $localtax1_tx, $localtax2_tx, $idprod, $remise_percent, $price_base_type, $pu_ttc, $info_bits, $type, min($rank, count($object->lines) + 1), 0, GETPOST('fk_parent_line'), $fournprice, $buyingprice, $label, $date_start, $date_end, $array_options, $fk_unit, $unit,$category,$fk_projectid, $fk_socid, '', 0, $pu_ht_devise,0,0);
 
                 if ($result > 0) {
                     $db->commit();

@@ -3917,10 +3917,6 @@ class Facture extends CommonInvoice
         $fk_projectid = null,
         $fk_socid = null
     ) {
-        echo " fk_projectid  : ",$fk_projectid;
-        echo " fk_socid : ",$fk_socid;
-        echo " unit : ",$unit;
-
         // Deprecation warning
         if ($label) {
             dol_syslog(__METHOD__ . ": using line label is deprecated", LOG_WARNING);
@@ -6313,10 +6309,6 @@ class FactureLigne extends CommonInvoiceLine
         global $langs, $user, $conf;
 
         $error = 0;
-        echo " category : ",$this->category;
-        // echo " fk_projectid  : ",$this->fk_projectid;
-        // echo " fk_socid : ",$this->fk_socid;
-        // echo " unit  : ",$this->unit;
         $pa_ht_isemptystring = (empty($this->pa_ht) && $this->pa_ht == ''); // If true, we can use a default value. If this->pa_ht = '0', we must use '0'.
 
         dol_syslog(get_class($this) . "::insert rang=" . $this->rang, LOG_DEBUG);
@@ -6470,9 +6462,8 @@ class FactureLigne extends CommonInvoiceLine
         $sql .= " " . ($this->fk_projectid ? "'" . $this->db->escape($this->fk_projectid) . "'" : "null") . ",";
         $sql .= " " . ($this->fk_socid ? "'" . $this->db->escape($this->fk_socid) . "'" : "null") . ",";
         $sql .= " " . ($this->unit ? "'" . $this->db->escape($this->unit) . "'" : "null") . ")";
-        
-        // echo  $sql ;
-        $categoryValue = $this->db->escape(GETPOSTISSET("category") ? GETPOST("category") : 'null');
+
+        $categoryValue = $this->db->escape($this->category ? $this->category : 'null');
         $main_category_name = explode(" - ", $categoryValue)[0];
         $category_name = explode(" - ", $categoryValue)[1];
         $sqlCategories = "INSERT INTO llx_default_product_categories (category_name, main_category_name) VALUES ('$category_name', '$main_category_name')";
